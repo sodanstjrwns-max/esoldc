@@ -4,307 +4,252 @@ import { CLINIC, CORE_TREATMENTS, TREATMENTS, DOCTORS, NEARBY_AREAS } from '../d
 export function HomePage() {
   return html`
   <style>
-    /* ============ HERO : 인터랙티브 캔버스 + 키네틱 타이포 ============ */
-    .hero{position:relative;min-height:100svh;background:var(--bg-ink);color:var(--ink-inv);overflow:hidden;display:flex;flex-direction:column;justify-content:center}
-    #heroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}
-    .hero::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 60%,transparent 40%,rgba(35,28,52,.72) 100%)}
-    .hero-inner{position:relative;z-index:3;width:100%;pointer-events:none}
-    .hero-meta{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:42px;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,253,251,.55)}
+    /* ===== HERO ===== */
+    .hero{position:relative;min-height:92vh;display:flex;align-items:center;background:var(--navy);color:var(--inv);overflow:hidden;padding:140px 0 90px}
+    .hero::before{content:'';position:absolute;inset:0;background:
+      radial-gradient(900px 600px at 78% 18%,rgba(176,141,79,.16),transparent 60%),
+      radial-gradient(700px 500px at 10% 90%,rgba(30,69,107,.5),transparent 60%)}
+    .hero .wrap{position:relative;z-index:2}
+    .hero-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:40px;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--inv-faint)}
     .hero-meta .r{text-align:right}
-    .hero h1{font-size:clamp(3rem,11vw,10rem);line-height:.92;font-weight:800;letter-spacing:-.045em;margin:0}
-    .hero h1 .it{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--accent);letter-spacing:-.01em}
-    .hero-sub{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;margin-top:48px;pointer-events:auto}
-    .hero-sub p{max-width:440px;color:rgba(255,253,251,.78);font-size:1.05rem;line-height:1.7}
-    .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
-    .btn-line{display:inline-flex;align-items:center;gap:10px;color:var(--ink-inv);font-weight:700;padding:16px 30px;border-radius:999px;border:2px solid rgba(255,253,251,.3);transition:all .4s var(--ease);font-size:.95rem}
-    .btn-line:hover{background:var(--ink-inv);color:var(--bg-ink);border-color:var(--ink-inv);transform:translateY(-3px)}
-    .btn-line.fill{background:var(--accent);color:#5a2c1c;border-color:var(--accent)}
-    .btn-line.fill:hover{background:#ff8a66;transform:translateY(-3px) scale(1.02)}
-    .scroll-ind{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:3;color:rgba(255,253,251,.45);font-size:.7rem;letter-spacing:.3em;display:flex;flex-direction:column;align-items:center;gap:10px}
-    .scroll-ind::after{content:'';width:1px;height:48px;background:linear-gradient(rgba(255,253,251,.55),transparent);animation:scline 2s var(--ease) infinite}
-    @keyframes scline{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.1%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+    .hero h1{font-size:clamp(2.6rem,6.4vw,5rem);line-height:1.22;font-weight:700;letter-spacing:-.01em;color:var(--inv)}
+    .hero h1 .gd{color:var(--gold-2)}
+    .hero-sub{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:30px;margin-top:42px}
+    .hero-sub p{max-width:540px;color:var(--inv-soft);font-size:1.08rem;line-height:1.85}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 
-    /* ============ 마퀴 (running ticker) ============ */
-    .marquee{background:var(--accent);color:#5a2c1c;padding:18px 0;overflow:hidden;white-space:nowrap;border-top:1px solid rgba(0,0,0,.06)}
-    .marquee-track{display:inline-flex;gap:54px;animation:marq 28s linear infinite;font-family:var(--serif);font-style:italic;font-size:1.5rem;font-weight:500}
-    .marquee-track span{display:inline-flex;align-items:center;gap:54px}
-    .marquee-track span::after{content:'✺';font-style:normal;opacity:.6}
-    @keyframes marq{to{transform:translateX(-50%)}}
-    @media(prefers-reduced-motion:reduce){.marquee-track{animation:none}}
+    /* ===== 신뢰 지표 바 ===== */
+    .trust{background:var(--bg-soft);border-bottom:1px solid var(--line)}
+    .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+    .trust-item{padding:42px 24px;text-align:center;border-right:1px solid var(--line)}
+    .trust-item:last-child{border-right:none}
+    .trust-item .n{font-family:var(--serif);font-size:2.4rem;font-weight:700;color:var(--navy)}
+    .trust-item .n .u{font-size:1.1rem;color:var(--gold);margin-left:3px}
+    .trust-item .l{font-size:.9rem;color:var(--ink-soft);margin-top:6px}
 
-    /* ============ MANIFESTO (fill-text) ============ */
-    .manifesto{background:var(--bg);padding:160px 0}
-    .manifesto .big{font-size:clamp(1.8rem,5vw,4rem);font-weight:800;line-height:1.25;letter-spacing:-.03em;color:var(--ink);max-width:1000px}
-    .manifesto .big em{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--brand)}
+    /* ===== 소개 인트로 ===== */
+    .intro{padding:120px 0}
+    .intro-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:72px;align-items:center}
+    .intro-quote{font-family:var(--serif);font-size:clamp(1.7rem,3.2vw,2.6rem);line-height:1.55;color:var(--navy);font-weight:500}
+    .intro-quote em{font-style:normal;color:var(--gold);border-bottom:2px solid var(--gold-soft)}
+    .intro p{color:var(--ink-soft);font-size:1.05rem;margin:0 0 18px}
+    .intro .sign{margin-top:28px;font-family:var(--serif);color:var(--navy);font-weight:600}
 
-    /* ============ 에디토리얼 인덱스 — 핵심진료 (밝은 민트크림) ============ */
-    .index{background:var(--bg-mint);color:var(--ink);padding:140px 0}
-    .index-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--line);padding-bottom:28px;margin-bottom:10px}
-    .index-head .lbl{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-dark)}
-    .index-head h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800}
-    .idx-row{display:grid;grid-template-columns:120px 1fr auto;gap:30px;align-items:center;padding:42px 0;border-bottom:2px solid var(--line);position:relative;transition:all .5s var(--ease);overflow:hidden;border-radius:var(--radius-lg)}
-    .idx-row .idx-num{font-size:4.5rem}
-    .idx-row .idx-mid h3{font-size:clamp(1.8rem,4vw,3.2rem);font-weight:800;letter-spacing:-.02em;transition:transform .5s var(--ease-kinetic),color .4s}
-    .idx-row .idx-mid p{color:var(--ink-soft);margin-top:6px;font-size:1rem;transition:opacity .4s}
-    .idx-row .idx-go{width:56px;height:56px;border-radius:50%;border:2px solid var(--brand-light);display:grid;place-items:center;font-size:1.1rem;transition:all .5s var(--ease);flex:none;color:var(--brand-dark)}
-    .idx-row::before{content:'';position:absolute;left:0;bottom:0;width:0;height:100%;background:var(--brand);z-index:-1;transition:width .55s var(--ease-kinetic);border-radius:var(--radius-lg)}
-    .idx-row:hover::before{width:100%}
-    .idx-row:hover{padding-left:24px;padding-right:24px}
-    .idx-row:hover .idx-num{color:#fff}
-    .idx-row:hover .idx-mid h3{color:#fff;transform:translateX(14px)}
-    .idx-row:hover .idx-mid p{color:rgba(255,255,255,.85)}
-    .idx-row:hover .idx-go{background:#fff;color:var(--brand-dark);border-color:#fff;transform:rotate(-45deg)}
-    @media(max-width:760px){.idx-row{grid-template-columns:64px 1fr;gap:18px}.idx-row .idx-num{font-size:2.4rem}.idx-row .idx-go{display:none}}
+    /* ===== 핵심진료 ===== */
+    .core{padding:120px 0;background:var(--bg-soft)}
+    .core-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+    .core-card{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:42px 36px;transition:all .4s var(--ease);position:relative;overflow:hidden}
+    .core-card::after{content:'';position:absolute;left:0;top:0;width:100%;height:3px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
+    .core-card:hover{box-shadow:var(--shadow);transform:translateY(-5px)}
+    .core-card:hover::after{transform:scaleX(1)}
+    .core-card .ci{width:62px;height:62px;border-radius:12px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;font-size:1.6rem;margin-bottom:24px}
+    .core-card .no{position:absolute;top:30px;right:34px;font-family:var(--serif);font-size:1.1rem;color:var(--ink-faint)}
+    .core-card h3{font-size:1.5rem;margin-bottom:10px}
+    .core-card p{color:var(--ink-soft);font-size:.97rem;margin-bottom:22px}
+    .core-card .go{font-weight:600;color:var(--navy);font-size:.92rem;display:inline-flex;align-items:center;gap:8px;transition:gap .3s}
+    .core-card:hover .go{gap:14px;color:var(--gold)}
 
-    /* ============ STICKY 철학 ============ */
-    .philo2{background:var(--bg-cream);position:relative}
-    .philo-sticky{position:sticky;top:0;height:100svh;display:flex;align-items:center;overflow:hidden}
-    .philo-q{font-size:clamp(1.6rem,4.5vw,3.6rem);font-weight:800;line-height:1.3;letter-spacing:-.02em;max-width:1100px}
-    .philo-q .seq{opacity:.18;transition:opacity .5s var(--ease)}
-    .philo-q .accent{color:var(--brand)}
-    .philo-q .it{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--accent)}
-    .philo-spacer{height:120vh}
+    /* ===== Why ===== */
+    .why{padding:120px 0}
+    .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+    .why-item{padding:8px 0}
+    .why-item .wn{font-family:var(--serif);font-size:1rem;color:var(--gold);font-weight:600;letter-spacing:.05em}
+    .why-item h3{font-size:1.22rem;margin:14px 0 10px;line-height:1.4}
+    .why-item p{color:var(--ink-soft);font-size:.95rem}
+    .why-item{border-top:2px solid var(--navy);padding-top:24px}
 
-    /* ============ 매거진 그리드 — 강점 ============ */
-    .why2{background:var(--bg);padding:140px 0}
-    .why-mag{display:grid;grid-template-columns:1.3fr 1fr 1fr;grid-auto-rows:minmax(220px,auto);gap:18px}
-    .why-tile{border-radius:var(--radius-lg);padding:40px;display:flex;flex-direction:column;justify-content:space-between;transition:all .5s var(--ease);position:relative;overflow:hidden}
-    .why-tile .wt-no{font-family:var(--serif);font-style:italic;font-size:1.4rem;opacity:.5}
-    .why-tile h3{font-size:1.6rem;margin:0 0 8px}
-    .why-tile p{font-size:.96rem;line-height:1.7}
-    .why-tile:hover{transform:translateY(-6px)}
-    .wt-dark{background:var(--lav);color:#2d2740;grid-row:span 2}
-    .wt-dark h3{font-size:2.2rem}.wt-dark p{color:rgba(45,39,64,.75)}
-    .wt-green{background:var(--brand);color:#fff}.wt-green p{color:rgba(255,255,255,.85)}
-    .wt-gold{background:var(--accent);color:#5a2c1c}.wt-gold p{color:rgba(90,44,28,.78)}
-    .wt-cream{background:var(--bg-cream);color:var(--ink);grid-column:span 2}.wt-cream p{color:var(--ink-soft)}
-    .why-tile:hover{transform:translateY(-8px);box-shadow:var(--shadow-jelly)}
-    @media(max-width:860px){.why-mag{grid-template-columns:1fr}.wt-dark,.wt-cream{grid-row:auto;grid-column:auto}}
+    /* ===== 전체진료 ===== */
+    .all{padding:120px 0;background:var(--navy);color:var(--inv)}
+    .all .section-head h2{color:var(--inv)}
+    .all .section-head p{color:var(--inv-soft)}
+    .all-list{max-width:880px;margin:0 auto}
+    .all-row{display:flex;align-items:center;justify-content:space-between;padding:26px 4px;border-bottom:1px solid rgba(250,248,244,.14);transition:all .35s var(--ease)}
+    .all-row .an{font-family:var(--serif);font-size:clamp(1.2rem,2.6vw,1.7rem);font-weight:600;color:var(--inv);display:flex;gap:18px;align-items:baseline}
+    .all-row .an .ai{font-size:.85rem;color:var(--gold-2)}
+    .all-row .as{color:var(--inv-faint);font-size:.92rem}
+    .all-row:hover{padding-left:18px;border-color:var(--gold)}
+    .all-row:hover .an{color:var(--gold-2)}
 
-    /* ============ 전체진료 — 호버 리스트 (라벤더 소프트) ============ */
-    .all-treat{background:var(--lav-soft);color:var(--ink);padding:120px 0}
-    .at-list a{display:flex;align-items:center;justify-content:space-between;padding:26px 0;border-bottom:2px solid var(--line);transition:all .4s var(--ease)}
-    .at-list a .atn{font-size:clamp(1.3rem,3vw,2rem);font-weight:700;transition:transform .4s var(--ease-kinetic)}
-    .at-list a .ats{color:var(--ink-soft);font-size:.9rem}
-    .at-list a:hover{padding-left:20px}
-    .at-list a:hover .atn{color:var(--brand-dark);transform:translateX(6px)}
+    /* ===== 의료진 ===== */
+    .team{padding:120px 0}
+    .team-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+    .team-card{transition:transform .4s var(--ease)}
+    .team-card .ph{border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:3/4;background:var(--bg-soft);border:1px solid var(--line)}
+    .team-card .ph img{width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease)}
+    .team-card:hover .ph img{transform:scale(1.05)}
+    .team-card .nm{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--navy);margin-top:16px}
+    .team-card .rl{color:var(--ink-soft);font-size:.86rem;margin-top:3px}
+    @media(max-width:900px){.team-grid{grid-template-columns:repeat(2,1fr)}}
 
-    /* ============ 의료진 — 가로 스크롤 카드 ============ */
-    .docs2{background:var(--bg);padding:140px 0 120px}
-    .doc-scroll{display:flex;gap:24px;overflow-x:auto;padding:10px 24px 30px;scroll-snap-type:x mandatory;-ms-overflow-style:none;scrollbar-width:none}
-    .doc-scroll::-webkit-scrollbar{display:none}
-    .doc-card2{flex:0 0 320px;scroll-snap-align:center}
-    .doc-card2 .ph{position:relative;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:3/4;background:var(--brand-soft)}
-    .doc-card2 .ph img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
-    .doc-card2:hover .ph img{transform:scale(1.06)}
-    .doc-card2 .ph .num{position:absolute;top:16px;left:18px;font-family:var(--serif);font-style:italic;color:#fff;font-size:1.4rem;text-shadow:0 2px 12px rgba(0,0,0,.4)}
-    .doc-card2 .meta{padding:18px 4px}
-    .doc-card2 .meta .dn{font-size:1.4rem;font-weight:800}
-    .doc-card2 .meta .ds{color:var(--ink-soft);font-size:.92rem}
+    /* ===== 지역 ===== */
+    .geo{padding:110px 0;background:var(--bg-soft);text-align:center}
+    .geo .addr{font-family:var(--serif);font-size:1.15rem;color:var(--navy);margin:18px 0 28px}
+    .geo-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:760px;margin:0 auto}
+    .geo-chips a{padding:11px 22px;border-radius:var(--radius);background:#fff;border:1px solid var(--line);font-weight:600;font-size:.9rem;color:var(--navy);transition:all .3s var(--ease)}
+    .geo-chips a:hover{background:var(--navy);color:var(--inv);border-color:var(--navy)}
 
-    /* ============ 지역 ============ */
-    .geo2{background:var(--bg-cream);padding:120px 0}
-    .geo-marq{font-family:var(--serif);font-style:italic;font-size:clamp(2rem,6vw,5rem);color:var(--brand);white-space:nowrap;overflow:hidden}
-    .geo-track{display:inline-flex;gap:40px;animation:marq 30s linear infinite}
-    .geo-track span::after{content:'·';margin-left:40px;color:var(--accent)}
-    .geo-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:40px}
-    .geo-chips a{padding:11px 20px;border-radius:999px;background:#fff;border:2px solid var(--line);font-weight:600;font-size:.9rem;transition:all .35s var(--ease)}
-    .geo-chips a:hover{background:var(--brand);color:#fff;border-color:var(--brand);transform:translateY(-3px)}
+    /* ===== FINAL CTA ===== */
+    .cta{padding:130px 0;background:var(--navy);color:var(--inv);text-align:center;position:relative;overflow:hidden}
+    .cta::before{content:'';position:absolute;inset:0;background:radial-gradient(700px 500px at 50% 0%,rgba(176,141,79,.2),transparent 60%)}
+    .cta .wrap{position:relative;z-index:2}
+    .cta h2{font-size:clamp(2rem,5vw,3.4rem);color:var(--inv);line-height:1.35}
+    .cta h2 .gd{color:var(--gold-2)}
+    .cta p{color:var(--inv-soft);margin:22px 0 38px;font-size:1.05rem}
+    .cta .tel{font-family:var(--serif);font-size:clamp(1.6rem,4vw,2.6rem);font-weight:700;color:var(--inv);display:inline-flex;gap:14px;align-items:center}
+    .cta .tel i{color:var(--gold-2)}
 
-    /* ============ FINAL ============ */
-    .final2{background:var(--bg-ink);color:var(--ink-inv);padding:150px 0;text-align:center;position:relative;overflow:hidden}
-    .final2 .glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(255,158,128,.28),transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%)}
-    .final2 h2{font-size:clamp(2.4rem,7vw,6rem);font-weight:800;line-height:1;letter-spacing:-.03em;position:relative}
-    .final2 h2 .it{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--accent)}
-    .final2 p{color:rgba(255,253,251,.68);margin:24px 0 40px;position:relative}
-    .final2 .tel{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:800;letter-spacing:-.01em;position:relative;display:inline-flex;gap:14px;align-items:center}
+    @media(max-width:980px){
+      .trust-grid{grid-template-columns:repeat(2,1fr)}
+      .trust-item:nth-child(2){border-right:none}
+      .trust-item{border-bottom:1px solid var(--line)}
+      .core-grid{grid-template-columns:1fr}
+      .why-grid{grid-template-columns:1fr 1fr}
+      .intro-grid{grid-template-columns:1fr;gap:40px}
+    }
+    @media(max-width:560px){.why-grid{grid-template-columns:1fr}}
   </style>
 
-  <!-- ================= HERO ================= -->
-  <section class="hero" data-dark>
-    <canvas id="heroCanvas"></canvas>
-    <div class="wrap hero-inner">
-      <div class="hero-meta">
-        <div>EST. 2011 — 남양주 마석<br>각 분야 전문의 상주</div>
-        <div class="r">N 37.64 / E 127.31<br>ISOL DENTAL CLINIC</div>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-meta reveal">
+        <div>EST. 2011 · 남양주 마석<br>각 분야 전문의 상주</div>
+        <div class="r">ISOL DENTAL CLINIC<br>${CLINIC.addressShort}</div>
       </div>
-      <h1 data-kinetic>기분 좋게<br><span class="it">진료를 마칠</span> 때까지</h1>
-      <div class="hero-sub">
-        <p data-words>화려한 수식어 대신, 15년 동안 한자리에서. 임플란트·교정·소아치과, 각 분야 전문의가 충분히 상담하고 정밀하게 진료합니다.</p>
+      <h1 class="reveal reveal-d1">기분 좋게<br><span class="gd">진료를 마칠</span> 때까지</h1>
+      <div class="hero-sub reveal reveal-d2">
+        <p>화려한 수식어 대신, 한자리에서 쌓아온 시간으로. 임플란트·치아교정·소아치과, 각 분야 전문의가 충분히 상담하고 정밀하게 진료합니다.</p>
         <div class="hero-actions">
-          <a href="/reservation" class="btn-line fill magnetic"><i class="fas fa-calendar-check"></i> 진료 예약</a>
-          <a href="/treatments" class="btn-line magnetic">진료 둘러보기 <i class="fas fa-arrow-right"></i></a>
+          <a href="/reservation" class="btn-line fill"><i class="fas fa-calendar-check"></i> 진료 예약 문의</a>
+          <a href="/treatments" class="btn-line">진료 둘러보기 <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
     </div>
-    <div class="scroll-ind">SCROLL</div>
   </section>
 
-  <!-- ================= MARQUEE ================= -->
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track">
-      <span>임플란트 ${'&nbsp;'} 치아교정 ${'&nbsp;'} 소아치과 ${'&nbsp;'} 심미보철 ${'&nbsp;'} 잇몸치료 ${'&nbsp;'} 개원 15년차 ${'&nbsp;'} 전문의 상주 </span>
-      <span>임플란트 ${'&nbsp;'} 치아교정 ${'&nbsp;'} 소아치과 ${'&nbsp;'} 심미보철 ${'&nbsp;'} 잇몸치료 ${'&nbsp;'} 개원 15년차 ${'&nbsp;'} 전문의 상주 </span>
-    </div>
-  </div>
-
-  <!-- ================= MANIFESTO ================= -->
-  <section class="manifesto">
+  <!-- ============ 신뢰 지표 ============ -->
+  <section class="trust">
     <div class="wrap">
-      <p class="eyebrow reveal" style="margin-bottom:30px">— Manifesto</p>
-      <h2 class="big"><span class="fill-text">치과는 누구에게나 조금은 긴장되는 공간입니다. 우리가 바라는 건, 진료가 끝났을 때 <em>"오길 잘했다"</em>는 마음으로 돌아가시는 것. 그뿐입니다.</span></h2>
-    </div>
-  </section>
-
-  <!-- ================= INDEX : 핵심진료 ================= -->
-  <section class="index">
-    <div class="wrap">
-      <div class="index-head reveal">
-        <div><div class="lbl">Index — Core Specialty</div><h2>우리가 집중하는 진료</h2></div>
-        <div class="lbl" style="text-align:right">전문의가<br>책임지는 3가지</div>
-      </div>
-      ${raw(CORE_TREATMENTS.map((t, i) => `
-        <a href="/treatments/${t.slug}" class="idx-row reveal" data-cursor>
-          <span class="idx-num">0${i + 1}</span>
-          <span class="idx-mid"><h3>${t.name}</h3><p>${t.short}</p></span>
-          <span class="idx-go"><i class="fas fa-arrow-right"></i></span>
-        </a>`).join(''))}
-    </div>
-  </section>
-
-  <!-- ================= STICKY 철학 ================= -->
-  <section class="philo2" id="philo">
-    <div class="philo-sticky">
-      <div class="wrap">
-        <p class="philo-q" id="philoText">
-          <span class="seq">남양주 마석에서 15년.</span>
-          <span class="seq">처음 오셨던 아이가 학부모가 되어</span>
-          <span class="seq">다시 찾아오는 시간 속에서,</span>
-          <span class="seq accent">우리는</span>
-          <span class="seq it">'동네 치과'</span>
-          <span class="seq accent">의 의미를 새깁니다.</span>
-        </p>
-      </div>
-    </div>
-    <div class="philo-spacer"></div>
-  </section>
-
-  <!-- ================= 매거진 그리드 — 강점 ================= -->
-  <section class="why2">
-    <div class="wrap">
-      <div class="section-head reveal" style="text-align:left;margin-bottom:48px">
-        <span class="eyebrow">Why ISOL</span>
-        <h2 style="font-size:clamp(1.8rem,4vw,2.8rem);margin-top:12px">왜 이솔치과일까요</h2>
-      </div>
-      <div class="why-mag">
-        <div class="why-tile wt-dark reveal"><div class="wt-no">01</div><div><h3>각 분야<br>전문의 상주</h3><p>임플란트·교정·소아치과 등 분야별 전문 의료진이 함께합니다. 한 곳에서 전 연령, 다양한 진료가 가능합니다.</p></div></div>
-        <div class="why-tile wt-gold reveal reveal-d1"><div class="wt-no">02</div><div><h3>여유로운<br>체어타임</h3><p>쫓기듯 진행하지 않습니다. 충분한 상담과 설명을 약속합니다.</p></div></div>
-        <div class="why-tile wt-green reveal reveal-d2"><div class="wt-no">03</div><div><h3>친절을<br>기본으로</h3><p>숙련된 의료진과 스태프가 따뜻한 분위기에서 진료합니다.</p></div></div>
-        <div class="why-tile wt-cream reveal reveal-d1"><div class="wt-no">04</div><div><h3>15년의 신뢰, 그리고 숙련도</h3><p>한자리를 지키며 쌓아온 시간과 직원 숙련도가 이솔치과의 가장 큰 자산입니다. 지역 안에서 가장 편하게 떠올릴 수 있는 치과가 되는 것이 목표입니다.</p></div></div>
+      <div class="trust-grid">
+        <div class="trust-item"><div class="n"><span data-count="15">0</span><span class="u">년+</span></div><div class="l">한자리에서 지켜온 시간</div></div>
+        <div class="trust-item"><div class="n"><span data-count="5">0</span><span class="u">개</span></div><div class="l">분야별 전문 진료과목</div></div>
+        <div class="trust-item"><div class="n"><span data-count="6">0</span><span class="u">개</span></div><div class="l">전체 진료 서비스</div></div>
+        <div class="trust-item"><div class="n">전문의<span class="u">상주</span></div><div class="l">임플란트·교정·소아 등</div></div>
       </div>
     </div>
   </section>
 
-  <!-- ================= 전체진료 호버 리스트 ================= -->
-  <section class="all-treat">
+  <!-- ============ 소개 인트로 ============ -->
+  <section class="intro">
     <div class="wrap">
-      <div class="index-head reveal"><div><div class="lbl" style="color:var(--lav)">All Treatments</div><h2>전체 진료과목</h2></div></div>
-      <div class="at-list" style="margin-top:10px">
-        ${raw(TREATMENTS.map((t, i) => `
-          <a href="/treatments/${t.slug}" class="reveal" data-cursor>
-            <span class="atn">${String(i + 1).padStart(2, '0')} ${t.name}</span>
-            <span class="ats">${t.short} <i class="fas fa-arrow-up-right" style="margin-left:10px"></i></span>
+      <div class="intro-grid">
+        <div class="reveal">
+          <span class="eyebrow">About ${CLINIC.nameEn}</span>
+          <p class="intro-quote" style="margin-top:24px">치과는 누구에게나<br>조금은 긴장되는 공간입니다.<br>그 마음을 <em>편안하게</em> 바꾸는 것,<br>그것이 우리의 일입니다.</p>
+        </div>
+        <div class="reveal reveal-d1">
+          <p>남양주 마석에서 한자리를 지키며, 처음 오셨던 아이가 학부모가 되어 다시 찾아오는 시간을 함께해 왔습니다.</p>
+          <p>임플란트, 치아교정, 소아치과를 비롯해 각 분야 전문 의료진이 함께합니다. 쫓기듯 진행하지 않고, 충분한 상담과 설명을 약속드립니다.</p>
+          <p>가장 편하게 떠올릴 수 있는 우리 동네 치과 — 이솔치과의원이 바라는 모습입니다.</p>
+          <div class="sign">— 대표원장 ${CLINIC.business.owner}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 핵심진료 ============ -->
+  <section class="core">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow" style="justify-content:center">Core Specialty</span>
+        <h2>우리가 집중하는 진료</h2>
+        <p>각 분야 전문의가 책임지는 핵심 진료를 안내합니다.</p>
+      </div>
+      <div class="core-grid">
+        ${raw(CORE_TREATMENTS.map((t, i) => `
+          <a href="/treatments/${t.slug}" class="core-card reveal reveal-d${i + 1}">
+            <span class="no">0${i + 1}</span>
+            <span class="ci"><i class="fas ${t.icon}"></i></span>
+            <h3>${t.name}</h3>
+            <p>${t.short}</p>
+            <span class="go">자세히 보기 <i class="fas fa-arrow-right"></i></span>
           </a>`).join(''))}
       </div>
     </div>
   </section>
 
-  <!-- ================= 의료진 가로 스크롤 ================= -->
-  <section class="docs2">
-    <div class="wrap" style="margin-bottom:10px">
-      <div class="section-head reveal" style="text-align:left">
-        <span class="eyebrow">Medical Team</span>
-        <h2 style="font-size:clamp(1.8rem,4vw,2.8rem);margin-top:12px">전문의 의료진</h2>
+  <!-- ============ Why ============ -->
+  <section class="why">
+    <div class="wrap">
+      <div class="section-head reveal" style="text-align:left;margin:0 0 56px;max-width:none">
+        <span class="eyebrow">Why ISOL</span>
+        <h2 style="font-size:clamp(1.8rem,4vw,2.7rem);margin-top:14px">왜 이솔치과일까요</h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-item reveal"><div class="wn">01</div><h3>각 분야 전문의 상주</h3><p>임플란트·교정·소아치과 등 분야별 전문 의료진이 함께합니다. 한 곳에서 전 연령 진료가 가능합니다.</p></div>
+        <div class="why-item reveal reveal-d1"><div class="wn">02</div><h3>여유로운 체어타임</h3><p>쫓기듯 진행하지 않습니다. 충분한 상담과 설명을 약속드립니다.</p></div>
+        <div class="why-item reveal reveal-d2"><div class="wn">03</div><h3>친절을 기본으로</h3><p>숙련된 의료진과 스태프가 편안한 분위기에서 진료합니다.</p></div>
+        <div class="why-item reveal reveal-d3"><div class="wn">04</div><h3>한자리에서 쌓은 신뢰</h3><p>오랜 시간 지켜온 자리와 직원 숙련도가 이솔치과의 가장 큰 자산입니다.</p></div>
       </div>
     </div>
-    <div class="doc-scroll">
-      ${raw(DOCTORS.map((d, i) => `
-        <a href="/doctors/${d.slug}" class="doc-card2" data-cursor>
-          <div class="ph"><span class="num">0${i + 1}</span><img src="${d.photo}" alt="${CLINIC.name} ${d.role} ${d.specialty}" loading="lazy"></div>
-          <div class="meta"><div class="dn">${d.name}</div><div class="ds">${d.role} · ${d.specialty}</div></div>
-        </a>`).join(''))}
-    </div>
-    <div class="wrap" style="text-align:center;margin-top:30px"><a href="/doctors" class="btn btn-primary magnetic">의료진 전체 보기</a></div>
   </section>
 
-  <!-- ================= 지역 ================= -->
-  <section class="geo2">
-    <div class="geo-marq" aria-hidden="true"><div class="geo-track"><span>남양주</span><span>마석</span><span>화도</span><span>와부</span><span>진건</span><span>오남</span><span>수동</span><span>가평</span><span>남양주</span><span>마석</span><span>화도</span><span>와부</span></div></div>
-    <div class="wrap" style="text-align:center;margin-top:36px">
-      <p class="reveal" style="color:var(--ink-soft)">${CLINIC.address}</p>
-      <div class="geo-chips reveal" style="justify-content:center">
+  <!-- ============ 전체진료 ============ -->
+  <section class="all">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow" style="justify-content:center;color:var(--gold-2)">All Treatments</span>
+        <h2>전체 진료과목</h2>
+      </div>
+      <div class="all-list">
+        ${raw(TREATMENTS.map((t, i) => `
+          <a href="/treatments/${t.slug}" class="all-row reveal">
+            <span class="an"><span class="ai">${String(i + 1).padStart(2, '0')}</span> ${t.name}</span>
+            <span class="as">${t.short} <i class="fas fa-arrow-right" style="margin-left:10px"></i></span>
+          </a>`).join(''))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 의료진 ============ -->
+  <section class="team">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow" style="justify-content:center">Medical Team</span>
+        <h2>전문의 의료진</h2>
+      </div>
+      <div class="team-grid">
+        ${raw(DOCTORS.map((d, i) => `
+          <a href="/doctors/${d.slug}" class="team-card reveal reveal-d${(i % 4) + 1}">
+            <div class="ph"><img src="${d.photo}" alt="${CLINIC.name} ${d.role} ${d.specialty}" loading="lazy"></div>
+            <div class="nm">${d.name}</div>
+            <div class="rl">${d.role} · ${d.specialty}</div>
+          </a>`).join(''))}
+      </div>
+      <div style="text-align:center;margin-top:48px" class="reveal"><a href="/doctors" class="btn btn-ghost">의료진 전체 보기 <i class="fas fa-arrow-right"></i></a></div>
+    </div>
+  </section>
+
+  <!-- ============ 지역 ============ -->
+  <section class="geo">
+    <div class="wrap">
+      <span class="eyebrow" style="justify-content:center">Location</span>
+      <div class="addr">${CLINIC.address}</div>
+      <div class="geo-chips reveal">
         ${raw(NEARBY_AREAS.slice(0, 6).map(a => `<a href="/area/${a.slug}-implant">${a.name} 임플란트</a>`).join(''))}
         ${raw(NEARBY_AREAS.slice(0, 4).map(a => `<a href="/area/${a.slug}-orthodontics">${a.name} 교정</a>`).join(''))}
       </div>
     </div>
   </section>
 
-  <!-- ================= FINAL ================= -->
-  <section class="final2" data-dark>
-    <div class="glow"></div>
+  <!-- ============ FINAL CTA ============ -->
+  <section class="cta">
     <div class="wrap">
-      <h2 data-kinetic>지금,<br><span class="it">편하게</span> 문의하세요</h2>
-      <p class="reveal reveal-d1">친절하게 안내해 드리겠습니다.</p>
-      <a href="tel:${CLINIC.tel}" class="tel magnetic" data-cursor><i class="fas fa-phone" style="color:var(--accent)"></i> ${CLINIC.tel}</a>
-      <div style="margin-top:36px"><a href="/reservation" class="btn-line magnetic">온라인 예약 문의 <i class="fas fa-arrow-right"></i></a></div>
+      <h2 class="reveal">편하게 <span class="gd">문의</span>하세요</h2>
+      <p class="reveal reveal-d1">진료 예약과 상담, 친절하게 안내해 드리겠습니다.</p>
+      <a href="tel:${CLINIC.tel}" class="tel reveal reveal-d2"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
+      <div style="margin-top:36px" class="reveal reveal-d3"><a href="/reservation" class="btn-line fill">온라인 예약 문의 <i class="fas fa-arrow-right"></i></a></div>
     </div>
   </section>
-
-  <!-- ================= HERO CANVAS + STICKY 철학 스크립트 ================= -->
-  <script>
-  (function(){
-    var reduced=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-    // ---- HERO 파티클 캔버스 (마우스 반응 + 연결선) ----
-    var cv=document.getElementById('heroCanvas');
-    if(cv && !reduced){
-      var ctx=cv.getContext('2d'),W,H,pts=[],mouse={x:-999,y:-999},DPR=Math.min(devicePixelRatio||1,2);
-      function resize(){W=cv.width=innerWidth*DPR;H=cv.height=cv.offsetHeight*DPR;cv.style.width=innerWidth+'px';
-        var n=Math.min(70,Math.floor(innerWidth/22));pts=[];
-        var cols=['rgba(255,158,128,.9)','rgba(126,208,190,.9)','rgba(184,174,232,.9)'];
-        for(var i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3*DPR,vy:(Math.random()-.5)*.3*DPR,c:cols[i%3]});}
-      resize();window.addEventListener('resize',resize);
-      cv.parentElement.addEventListener('mousemove',function(e){mouse.x=e.clientX*DPR;mouse.y=e.clientY*DPR;});
-      cv.parentElement.addEventListener('mouseleave',function(){mouse.x=-999;mouse.y=-999;});
-      function draw(){
-        ctx.clearRect(0,0,W,H);
-        for(var i=0;i<pts.length;i++){var p=pts[i];
-          p.x+=p.vx;p.y+=p.vy;
-          if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
-          var dxm=mouse.x-p.x,dym=mouse.y-p.y,dm=Math.hypot(dxm,dym);
-          if(dm<140*DPR){p.x-=dxm/dm*1.2;p.y-=dym/dm*1.2;}
-          ctx.beginPath();ctx.arc(p.x,p.y,1.5*DPR,0,6.28);ctx.fillStyle=(p.c||'rgba(255,158,128,.9)');ctx.fill();
-        }
-        for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){
-          var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
-          if(d<120*DPR){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
-            ctx.strokeStyle='rgba(184,174,232,'+(.20*(1-d/(120*DPR)))+')';ctx.lineWidth=DPR*.7;ctx.stroke();}
-        }
-        requestAnimationFrame(draw);
-      }
-      draw();
-    } else if(cv){ cv.style.background='radial-gradient(circle at 50% 40%,#3D3450,#332B45)'; }
-
-    // ---- STICKY 철학: 스크롤 진행에 따라 단어 순차 점등 ----
-    var philo=document.getElementById('philo'),seqs=document.querySelectorAll('#philoText .seq');
-    if(philo&&seqs.length&&!reduced){
-      window.addEventListener('scroll',function(){
-        var r=philo.getBoundingClientRect(),total=philo.offsetHeight-innerHeight;
-        var p=Math.max(0,Math.min(1,(-r.top)/total));
-        var active=Math.floor(p*seqs.length*1.2);
-        seqs.forEach(function(s,i){s.style.opacity=i<=active?'1':'.18';});
-      },{passive:true});
-    } else { seqs.forEach(function(s){s.style.opacity='1';}); }
-  })();
-  </script>
   `;
 }

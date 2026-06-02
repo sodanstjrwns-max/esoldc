@@ -1,16 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FFF6EF"/>
-      <stop offset="0.5" stop-color="#EAF8F3"/>
-      <stop offset="1" stop-color="#EDE9FB"/>
+      <stop offset="0" stop-color="#0E2A47"/>
+      <stop offset="1" stop-color="#163655"/>
     </linearGradient>
+    <radialGradient id="glow" cx="0.85" cy="0.2" r="0.6">
+      <stop offset="0" stop-color="#B08D4F" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#B08D4F" stop-opacity="0"/>
+    </radialGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <circle cx="1060" cy="120" r="70" fill="#FF9E80" opacity="0.85"/>
-  <circle cx="1130" cy="520" r="50" fill="#B8AEE8" opacity="0.7"/>
-  <circle cx="120" cy="560" r="40" fill="#7ED0BE" opacity="0.7"/>
-  <text x="80" y="300" font-family="Pretendard,sans-serif" font-size="80" fill="#3B3349" font-weight="800">이솔치과의원</text>
-  <text x="80" y="384" font-family="Pretendard,sans-serif" font-size="40" fill="#2A8F7A" font-weight="700">기분 좋게 진료를 마칠 때까지</text>
-  <text x="80" y="472" font-family="Pretendard,sans-serif" font-size="30" fill="#7A7388">남양주 마석 · 각 분야 전문의 상주 · 개원 15년차</text>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect x="80" y="208" width="48" height="4" fill="#B08D4F"/>
+  <text x="80" y="196" font-family="'Noto Serif KR',serif" font-size="34" fill="#C9A86A" font-weight="600" letter-spacing="6">ISOL DENTAL CLINIC</text>
+  <text x="80" y="300" font-family="'Noto Serif KR',serif" font-size="84" fill="#FAF8F4" font-weight="800">이솔치과의원</text>
+  <text x="80" y="382" font-family="'Noto Serif KR',serif" font-size="42" fill="#C9A86A" font-weight="600">기분 좋게 진료를 마칠 때까지</text>
+  <text x="80" y="470" font-family="Pretendard,sans-serif" font-size="30" fill="rgba(250,248,244,0.72)">남양주 마석 · 각 분야 전문의 상주 · 개원 15년차</text>
 </svg>

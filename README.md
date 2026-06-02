@@ -6,12 +6,12 @@
 - **위치**: 경기도 남양주시 화도읍 마석중앙로 51 / ☎ 031-582-7528
 - **컨셉**: 개원 15년차, 각 분야 전문의 상주 / "기분 좋게 진료를 마칠 때까지"
 
-## 디자인 방향 (신청서 §C 반영 · v3 파스텔/젤리 리디자인)
-- **무드**: 밝고 보송한 젤리 표면감 + 친근/신뢰 (다크 시네마틱 → 파스텔 전환)
-- **컬러(소프트 파스텔/젤리)**: 민트 `#3FB89E` · 피치 `#FF9E80` · 라벤더 `#B8AEE8` · 크림 `#FFF6EF` 베이스, 가지빛 잉크 `#3B3349`, 부드러운 다크 섹션 `#332B45`(블랙 대신 에그플랜트)
-- **폰트**: 헤드라인 Gmarket Sans(둥근 디스플레이) · 포인트 Gowun Batang(부드러운 명조) · 본문 Pretendard
-- **인터랙션**: 마우스 반응 캔버스 파티클 히어로(민트·피치·라벤더 3색), 키네틱 타이포(줄/단어 분할), 커스텀 커서(다크 섹션 자동 반전), 마그네틱 버튼, 에디토리얼 인덱스, sticky 철학 시퀀스, 매거진 그리드, 젤리 바운스 이징 `cubic-bezier(.34,1.56,.64,1)`
-- **성능/접근성**: GPU 가속(transform/opacity), `prefers-reduced-motion`·`hover:none` 가드, 폰트 preconnect/`font-display:swap`
+## 디자인 방향 (v4 딥 네이비 · 프리미엄 리뉴얼)
+- **무드**: 동네 대표 치과의 무게감 — 절제된 프리미엄/신뢰 (파스텔/젤리 전면 폐기). bdbddc.com의 딥하고 정제된 톤 벤치마킹
+- **컬러**: 딥 네이비 `#0E2A47`(베이스/다크 섹션) · 웜 아이보리 `#FAF8F4`(배경) · 절제된 골드 `#B08D4F`(포인트). 잉크 `#1C2530`, 라인 `#E7E2D8`
+- **폰트**: 헤드라인 Noto Serif KR(명조) · 본문 Pretendard
+- **인터랙션(최소화)**: 스크롤 페이드 리빌(IntersectionObserver), 헤더 스크롤 상태, 카운트업, 모바일 메뉴. ❌ 캔버스 파티클·커스텀 커서·마그네틱·키네틱 타이포·필텍스트·마퀴·그레인 전면 제거
+- **성능/접근성**: GPU 가속(transform/opacity), `prefers-reduced-motion` 가드, 폰트 preconnect/`font-display:swap`
 
 ## 완료된 기능 (Currently Completed)
 - ✅ 메인 페이지 — 히어로 + 퍼널 전구간(신뢰 스탯 / 핵심진료 / 철학 / 강점 / 전체진료 / 의료진 / 지역SEO / CTA)
@@ -64,7 +64,7 @@
 ## 기술 스택 / 배포
 - **프레임워크**: Hono v4 (TypeScript) + SSR
 - **빌드**: Vite + @hono/vite-build (Cloudflare Pages)
-- **프론트**: Vanilla JS + Pretendard + Font Awesome (CDN)
+- **프론트**: Vanilla JS + Pretendard + Noto Serif KR (CDN) + Font Awesome
 - **플랫폼**: Cloudflare Pages/Workers
-- **상태**: ✅ 로컬 동작 확인 / ⏳ 프로덕션 미배포
-- **Last Updated**: 2026-06-02 (v3 파스텔/젤리 리디자인 — 컬러·폰트 전면 교체)
+- **상태**: ✅ 로컬 동작 확인 (전 라우트 200 / 404 / 예약 API / 콘솔 에러 0) / ⏳ 프로덕션 미배포
+- **Last Updated**: 2026-06-02 (v4 딥 네이비 프리미엄 리뉴얼 — 비주얼 레이어 전면 교체, 콘텐츠·데이터·SEO 보존)
