@@ -10,10 +10,8 @@ import { SITE_URL, type SeoMeta } from './seo';
 //   --navy* = 딥 세이지/에버그린(메인)  --gold* = 웜 테라코타(포인트)
 // ============================================================================
 const DESIGN_TOKENS = `
-/* ===== 헤드라인 디스플레이 폰트: Freesentation (모던·임팩트) ===== */
-@font-face{font-family:'Freesentation';font-weight:700;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-7Bold.woff2') format('woff2')}
-@font-face{font-family:'Freesentation';font-weight:800;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-8ExtraBold.woff2') format('woff2')}
-@font-face{font-family:'Freesentation';font-weight:900;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2') format('woff2')}
+/* ===== 헤드라인 디스플레이 폰트: Cafe24 Ssurround (둥글·통통·따뜻한 손맛) ===== */
+@font-face{font-family:'Cafe24Ssurround';font-weight:700;font-display:swap;src:url('https://cdn.jsdelivr.net/npm/@noonnu/cafe24-ssurround/fonts/cafe24ssurround-normal.woff') format('woff')}
 :root{
   --navy:#2F6B5E;          /* 메인: 딥 세이지/에버그린 (자연·청결·신뢰) */
   --navy-2:#27574C;
@@ -41,8 +39,8 @@ const DESIGN_TOKENS = `
   --glass:rgba(251,248,243,.72);
   --ease:cubic-bezier(.22,.61,.36,1);
   --max:1220px;
-  --display:'Freesentation','Pretendard',sans-serif;  /* 헤드라인 디스플레이 */
-  --serif:'Freesentation','Pretendard',sans-serif;    /* 레거시 호환(페이지들이 참조) → 디스플레이로 */
+  --display:'Cafe24Ssurround','Pretendard',sans-serif;  /* 헤드라인 디스플레이 (둥글·따뜻) */
+  --serif:'Cafe24Ssurround','Pretendard',sans-serif;    /* 레거시 호환(페이지들이 참조) → 디스플레이로 */
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -477,8 +475,7 @@ export function Layout(meta: SeoMeta, body: any) {
   <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
   <link rel="apple-touch-icon" href="/static/img/favicon.svg">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-8ExtraBold.woff2">
+  <link rel="preload" as="font" type="font/woff" crossorigin href="https://cdn.jsdelivr.net/npm/@noonnu/cafe24-ssurround/fonts/cafe24ssurround-normal.woff">
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
   <style>${raw(DESIGN_TOKENS)}</style>
