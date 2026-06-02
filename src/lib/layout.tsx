@@ -10,6 +10,10 @@ import { SITE_URL, type SeoMeta } from './seo';
 //   --navy* = 딥 세이지/에버그린(메인)  --gold* = 웜 테라코타(포인트)
 // ============================================================================
 const DESIGN_TOKENS = `
+/* ===== 헤드라인 디스플레이 폰트: Freesentation (모던·임팩트) ===== */
+@font-face{font-family:'Freesentation';font-weight:700;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-7Bold.woff2') format('woff2')}
+@font-face{font-family:'Freesentation';font-weight:800;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-8ExtraBold.woff2') format('woff2')}
+@font-face{font-family:'Freesentation';font-weight:900;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2') format('woff2')}
 :root{
   --navy:#2F6B5E;          /* 메인: 딥 세이지/에버그린 (자연·청결·신뢰) */
   --navy-2:#27574C;
@@ -37,12 +41,14 @@ const DESIGN_TOKENS = `
   --glass:rgba(251,248,243,.72);
   --ease:cubic-bezier(.22,.61,.36,1);
   --max:1220px;
-  --serif:'Pretendard',sans-serif;  /* 명조 폐기 — 가독성 우선 산세리프 */
+  --display:'Freesentation','Pretendard',sans-serif;  /* 헤드라인 디스플레이 */
+  --serif:'Freesentation','Pretendard',sans-serif;    /* 레거시 호환(페이지들이 참조) → 디스플레이로 */
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.8;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:17px}
-h1,h2,h3,h4{font-family:'Pretendard',sans-serif;line-height:1.3;letter-spacing:-.02em;margin:0;font-weight:800;color:var(--navy)}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.24;letter-spacing:-.03em;margin:0;font-weight:800;color:var(--navy)}
+h1{font-weight:900}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
@@ -471,6 +477,8 @@ export function Layout(meta: SeoMeta, body: any) {
   <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
   <link rel="apple-touch-icon" href="/static/img/favicon.svg">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-8ExtraBold.woff2">
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
   <style>${raw(DESIGN_TOKENS)}</style>

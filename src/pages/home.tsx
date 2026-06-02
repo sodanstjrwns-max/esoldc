@@ -34,7 +34,7 @@ export function HomePage() {
     /* ===== 소개 인트로 ===== */
     .intro{padding:120px 0}
     .intro-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:72px;align-items:center}
-    .intro-quote{font-family:var(--serif);font-size:clamp(1.7rem,3.2vw,2.6rem);line-height:1.55;color:var(--navy);font-weight:500}
+    .intro-quote{font-family:var(--display);font-size:clamp(1.8rem,3.4vw,2.7rem);line-height:1.5;color:var(--navy);font-weight:700;letter-spacing:-.02em}
     .intro-quote em{font-style:normal;color:var(--gold);border-bottom:2px solid var(--gold-soft)}
     .intro p{color:var(--ink-soft);font-size:1.05rem;margin:0 0 18px}
     .intro .sign{margin-top:28px;font-family:var(--serif);color:var(--navy);font-weight:600}
