@@ -3,117 +3,122 @@ import { CLINIC, TREATMENTS, CORE_TREATMENTS } from '../data/clinic';
 import { SITE_URL, type SeoMeta } from './seo';
 
 // ============================================================================
-// 디자인 토큰 — 완전 리뉴얼
-// 무드: 정제된 프리미엄 / 동네 대표 치과의 무게감
-// 딥 네이비 + 웜 아이보리 + 절제된 골드 / 명조 헤드라인 / 절제된 모션
+// 디자인 토큰 — v5 "Warm Futurism" (따뜻한 미래감)
+// 신청서 무드(따뜻·친근·전문·신뢰 / 중장년·전세대) × 2026 트렌드(세이지·어스톤·
+// 소프트 글래스모피즘·라운드·넉넉한 여백). 중장년 가독성 최우선(큰 본문/버튼).
+// 토큰 이름은 유지(전 페이지 호환), 값만 재매핑:
+//   --navy* = 딥 세이지/에버그린(메인)  --gold* = 웜 테라코타(포인트)
 // ============================================================================
 const DESIGN_TOKENS = `
 :root{
-  --navy:#0E2A47;          /* 메인: 딥 네이비 (신뢰/무게) */
-  --navy-2:#163655;
-  --navy-3:#1E456B;
-  --gold:#B08D4F;          /* 포인트: 절제된 골드 */
-  --gold-2:#C9A86A;
-  --gold-soft:#F3ECDD;
-  --ink:#1C2530;           /* 본문 */
-  --ink-soft:#5A6675;
-  --ink-faint:#8B96A3;
-  --line:#E7E2D8;
-  --bg:#FAF8F4;            /* 웜 아이보리 */
-  --bg-soft:#F4F1EA;
+  --navy:#2F6B5E;          /* 메인: 딥 세이지/에버그린 (자연·청결·신뢰) */
+  --navy-2:#27574C;
+  --navy-3:#3C7E70;
+  --gold:#D98E63;          /* 포인트: 웜 테라코타 (따뜻·친근) */
+  --gold-2:#E8A87C;
+  --gold-soft:#F7E7DB;
+  --ink:#2A332F;           /* 본문 (웜 그린-그레이) */
+  --ink-soft:#5E6862;
+  --ink-faint:#909A93;
+  --line:#E7E1D6;
+  --bg:#FBF8F3;            /* 웜 아이보리 */
+  --bg-soft:#F3EFE7;
   --bg-card:#FFFFFF;
-  --inv:#FAF8F4;           /* 네이비 위 텍스트 */
-  --inv-soft:rgba(250,248,244,.72);
-  --inv-faint:rgba(250,248,244,.45);
-  --radius:6px;
-  --radius-lg:12px;
-  --shadow-sm:0 2px 14px rgba(14,42,71,.06);
-  --shadow:0 14px 40px rgba(14,42,71,.10);
-  --shadow-lg:0 30px 70px rgba(14,42,71,.16);
+  --inv:#FBF8F3;           /* 그린 위 텍스트 */
+  --inv-soft:rgba(251,248,243,.78);
+  --inv-faint:rgba(251,248,243,.50);
+  --radius:14px;           /* 2026: 큼직한 라운드 */
+  --radius-lg:24px;
+  --radius-pill:999px;
+  --shadow-sm:0 4px 18px rgba(47,107,94,.07);
+  --shadow:0 18px 44px rgba(47,107,94,.12);
+  --shadow-lg:0 34px 80px rgba(47,107,94,.18);
+  --shadow-warm:0 20px 50px rgba(217,142,99,.18);
+  --glass:rgba(251,248,243,.72);
   --ease:cubic-bezier(.22,.61,.36,1);
-  --max:1200px;
-  --serif:'Noto Serif KR',serif;
+  --max:1220px;
+  --serif:'Pretendard',sans-serif;  /* 명조 폐기 — 가독성 우선 산세리프 */
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:16px}
-h1,h2,h3,h4{font-family:var(--serif);line-height:1.32;letter-spacing:-.01em;margin:0;font-weight:700;color:var(--navy)}
+body{margin:0;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.8;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:17px}
+h1,h2,h3,h4{font-family:'Pretendard',sans-serif;line-height:1.3;letter-spacing:-.02em;margin:0;font-weight:800;color:var(--navy)}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
-.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.78rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
-.eyebrow::before{content:'';width:26px;height:1px;background:var(--gold)}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.82rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);padding:7px 16px;border-radius:var(--radius-pill)}
+.eyebrow::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--gold)}
 
-/* 버튼 — 각지고 정제된 */
-.btn{display:inline-flex;align-items:center;gap:.6em;padding:15px 32px;border-radius:var(--radius);font-weight:600;font-size:.95rem;transition:all .35s var(--ease);cursor:pointer;border:1px solid transparent;letter-spacing:.01em}
-.btn-primary{background:var(--navy);color:var(--inv)}
-.btn-primary:hover{background:var(--navy-2)}
-.btn-ghost{background:transparent;color:var(--navy);border-color:var(--line)}
-.btn-ghost:hover{border-color:var(--navy);background:var(--navy);color:var(--inv)}
-.btn-gold{background:var(--gold);color:#fff}
-.btn-gold:hover{background:var(--gold-2)}
-.btn-line{display:inline-flex;align-items:center;gap:.6em;color:var(--inv);font-weight:600;padding:15px 32px;border-radius:var(--radius);border:1px solid var(--inv-faint);transition:all .35s var(--ease)}
-.btn-line:hover{background:var(--inv);color:var(--navy);border-color:var(--inv)}
+/* 버튼 — 2026: 큼직한 알약형, 큰 글씨(중장년 가독성) */
+.btn{display:inline-flex;align-items:center;gap:.6em;padding:17px 38px;border-radius:var(--radius-pill);font-weight:700;font-size:1.05rem;transition:all .35s var(--ease);cursor:pointer;border:2px solid transparent;letter-spacing:-.01em}
+.btn-primary{background:var(--navy);color:var(--inv);box-shadow:var(--shadow-sm)}
+.btn-primary:hover{background:var(--navy-2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.btn-ghost{background:#fff;color:var(--navy);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--navy);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.btn-gold{background:var(--gold);color:#fff;box-shadow:var(--shadow-warm)}
+.btn-gold:hover{background:var(--gold-2);transform:translateY(-2px)}
+.btn-line{display:inline-flex;align-items:center;gap:.6em;color:var(--inv);font-weight:700;padding:17px 38px;border-radius:var(--radius-pill);border:2px solid var(--inv-faint);transition:all .35s var(--ease);font-size:1.05rem}
+.btn-line:hover{background:var(--inv);color:var(--navy);border-color:var(--inv);transform:translateY(-2px)}
 .btn-line.fill{background:var(--gold);border-color:var(--gold);color:#fff}
 .btn-line.fill:hover{background:var(--gold-2);border-color:var(--gold-2)}
 
 /* reveal — 절제된 페이드 업 */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
 .reveal.in{opacity:1;transform:none}
 .reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}.reveal-d4{transition-delay:.4s}
 
 /* 공통 섹션 */
 .section{padding:120px 0}
-.section-head{max-width:720px;margin:0 auto 64px;text-align:center}
-.section-head h2{font-size:clamp(2rem,4vw,2.9rem);margin:16px 0 0;line-height:1.3}
-.section-head p{color:var(--ink-soft);font-size:1.06rem;margin-top:18px}
-.rule{width:40px;height:2px;background:var(--gold);margin:0 auto}
+.section-head{max-width:740px;margin:0 auto 64px;text-align:center}
+.section-head h2{font-size:clamp(2.1rem,4.4vw,3.1rem);margin:18px 0 0;line-height:1.25}
+.section-head p{color:var(--ink-soft);font-size:1.12rem;margin-top:18px}
+.rule{width:46px;height:3px;border-radius:3px;background:var(--gold);margin:0 auto}
 
-/* 헤더 */
+/* 헤더 — 소프트 글래스 */
 .site-header{position:fixed;top:0;left:0;right:0;z-index:1000;transition:all .4s var(--ease);padding:22px 0}
-.site-header.scrolled{background:rgba(250,248,244,.96);backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--line);padding:14px 0}
+.site-header.scrolled{background:var(--glass);backdrop-filter:blur(16px) saturate(1.4);box-shadow:0 1px 0 var(--line),var(--shadow-sm);padding:13px 0}
 .nav{display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:13px;font-weight:700;font-size:1.32rem;font-family:var(--serif);color:var(--navy)}
-.brand .logo-mark{width:40px;height:40px;border-radius:8px;background:var(--navy);display:grid;place-items:center;color:var(--gold-2);font-size:1.05rem}
+.brand{display:flex;align-items:center;gap:13px;font-weight:800;font-size:1.34rem;color:var(--navy)}
+.brand .logo-mark{width:42px;height:42px;border-radius:13px;background:var(--navy);display:grid;place-items:center;color:#fff;font-size:1.1rem;box-shadow:var(--shadow-sm)}
 .site-header:not(.scrolled) .brand,.site-header:not(.scrolled) .nav-links>li>a{color:var(--inv)}
-.site-header:not(.scrolled) .brand .logo-mark{background:rgba(250,248,244,.12);color:var(--gold-2)}
+.site-header:not(.scrolled) .brand .logo-mark{background:rgba(251,248,243,.16);color:#fff}
 .nav-links{display:flex;align-items:center;gap:4px;list-style:none;margin:0;padding:0}
 .nav-links>li{position:relative}
-.nav-links>li>a{display:block;padding:10px 17px;font-weight:600;font-size:.95rem;border-radius:var(--radius);transition:color .25s}
+.nav-links>li>a{display:block;padding:11px 18px;font-weight:700;font-size:1rem;border-radius:var(--radius-pill);transition:all .25s}
 .nav-links>li>a:hover{color:var(--gold)}
 .site-header:not(.scrolled) .nav-links>li>a:hover{color:var(--gold-2)}
-.mega{position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(8px);background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:16px;min-width:520px;opacity:0;visibility:hidden;transition:all .3s var(--ease);display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.mega{position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(8px);background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:18px;min-width:540px;opacity:0;visibility:hidden;transition:all .3s var(--ease);display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .nav-links>li:hover .mega{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-.mega a{display:flex;gap:13px;align-items:center;padding:13px 15px;border-radius:var(--radius);color:var(--ink);transition:background .2s}
+.mega a{display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:var(--radius);color:var(--ink);transition:background .2s}
 .mega a:hover{background:var(--bg-soft)}
-.mega a .mi{width:40px;height:40px;border-radius:8px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;flex:none;font-size:1.05rem}
-.mega a strong{display:block;font-size:.95rem;font-weight:700;color:var(--navy)}.mega a span{font-size:.79rem;color:var(--ink-soft)}
-.nav-cta{display:flex;align-items:center;gap:14px}
-.nav-tel{font-weight:700;color:var(--gold);font-size:1.04rem;font-family:var(--serif)}
+.mega a .mi{width:44px;height:44px;border-radius:13px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;flex:none;font-size:1.1rem}
+.mega a strong{display:block;font-size:1rem;font-weight:800;color:var(--navy)}.mega a span{font-size:.82rem;color:var(--ink-soft)}
+.nav-cta{display:flex;align-items:center;gap:16px}
+.nav-tel{font-weight:800;color:var(--gold);font-size:1.1rem}
 .site-header:not(.scrolled) .nav-tel{color:var(--inv)}
-.burger{display:none;background:none;border:none;font-size:1.45rem;color:inherit;cursor:pointer}
+.burger{display:none;background:none;border:none;font-size:1.55rem;color:inherit;cursor:pointer}
 
 /* 모바일 메뉴 */
 .mobile-menu{position:fixed;inset:0;background:var(--navy);z-index:1100;transform:translateX(100%);transition:transform .5s var(--ease);padding:84px 30px;overflow-y:auto}
 .mobile-menu.open{transform:none}
-.mobile-menu a{display:block;color:var(--inv);font-size:1.25rem;font-weight:600;padding:15px 0;border-bottom:1px solid rgba(250,248,244,.12);font-family:var(--serif)}
-.mobile-menu .close{position:absolute;top:26px;right:26px;background:none;border:none;color:var(--inv);font-size:1.7rem;cursor:pointer}
+.mobile-menu a{display:block;color:var(--inv);font-size:1.3rem;font-weight:700;padding:16px 0;border-bottom:1px solid rgba(251,248,243,.14)}
+.mobile-menu .close{position:absolute;top:26px;right:26px;background:none;border:none;color:var(--inv);font-size:1.8rem;cursor:pointer}
 
 /* 푸터 */
 .site-footer{background:var(--navy);color:var(--inv-soft);padding:84px 0 36px}
-.site-footer h4{color:var(--inv);font-size:.92rem;letter-spacing:.04em;margin-bottom:20px;font-family:var(--serif)}
+.site-footer h4{color:var(--inv);font-size:.95rem;letter-spacing:.02em;margin-bottom:20px;font-weight:800}
 .footer-grid{display:grid;grid-template-columns:1.7fr 1fr 1fr 1.2fr;gap:48px}
-.footer-grid a{color:var(--inv-soft);font-size:.9rem;display:block;padding:6px 0;transition:color .2s}
+.footer-grid a{color:var(--inv-soft);font-size:.95rem;display:block;padding:6px 0;transition:color .2s}
 .footer-grid a:hover{color:var(--gold-2)}
-.footer-brand{font-size:1.55rem;font-weight:700;color:var(--inv);margin-bottom:16px;font-family:var(--serif)}
-.footer-biz{font-size:.82rem;color:var(--inv-faint);line-height:2;margin-top:22px}
-.footer-bottom{border-top:1px solid rgba(250,248,244,.12);margin-top:52px;padding-top:26px;font-size:.8rem;color:var(--inv-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.compliance{background:rgba(0,0,0,.18);border-radius:var(--radius);padding:18px 22px;font-size:.78rem;color:var(--inv-faint);margin-top:26px;line-height:1.8}
+.footer-brand{font-size:1.6rem;font-weight:800;color:var(--inv);margin-bottom:16px}
+.footer-biz{font-size:.85rem;color:var(--inv-faint);line-height:2;margin-top:22px}
+.footer-bottom{border-top:1px solid rgba(251,248,243,.14);margin-top:52px;padding-top:26px;font-size:.83rem;color:var(--inv-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.compliance{background:rgba(0,0,0,.14);border-radius:var(--radius);padding:18px 22px;font-size:.82rem;color:var(--inv-faint);margin-top:26px;line-height:1.8}
 
-/* 플로팅 CTA */
-.float-cta{position:fixed;bottom:26px;right:26px;z-index:900;display:flex;flex-direction:column;gap:11px}
-.float-cta a{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1.3rem;box-shadow:var(--shadow);transition:transform .3s var(--ease)}
-.float-cta a:hover{transform:translateY(-3px)}
+/* 플로팅 CTA — 큼직 */
+.float-cta{position:fixed;bottom:26px;right:26px;z-index:900;display:flex;flex-direction:column;gap:12px}
+.float-cta a{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1.4rem;box-shadow:var(--shadow);transition:transform .3s var(--ease)}
+.float-cta a:hover{transform:translateY(-3px) scale(1.04)}
 .float-cta .fc-tel{background:var(--navy)}.float-cta .fc-map{background:var(--gold)}.float-cta .fc-book{background:var(--navy-3)}
 
 @media(max-width:1024px){
@@ -124,6 +129,7 @@ img{max-width:100%;display:block}
 @media(max-width:640px){
   .wrap{padding:0 20px}.section{padding:76px 0}
   .footer-grid{grid-template-columns:1fr}
+  body{font-size:16px}
 }
 @media(prefers-reduced-motion:reduce){
   .reveal{opacity:1!important;transform:none!important;transition:none!important}
@@ -203,7 +209,7 @@ function header() {
     <a href="/mission">병원소개</a>
     <a href="/doctors">의료진</a>
     <a href="/treatments">진료안내</a>
-    ${raw(CORE_TREATMENTS.map(t => `<a href="/treatments/${t.slug}" style="font-size:1rem;padding-left:16px;color:var(--inv-soft)">· ${t.name}</a>`).join(''))}
+    ${raw(CORE_TREATMENTS.map(t => `<a href="/treatments/${t.slug}" style="font-size:1.05rem;padding-left:16px;color:var(--inv-soft)">· ${t.name}</a>`).join(''))}
     <a href="/cases">비포&애프터</a>
     <a href="/faq">자주묻는질문</a>
     <a href="/directions">오시는길</a>
@@ -219,7 +225,7 @@ function footer() {
       <div class="footer-grid">
         <div>
           <div class="footer-brand">${CLINIC.name}</div>
-          <p style="font-size:.92rem;color:var(--inv-soft);max-width:320px;line-height:1.8">${CLINIC.slogan}<br>남양주 마석, 한자리에서 지켜온 우리 동네 치과입니다.</p>
+          <p style="font-size:.96rem;color:var(--inv-soft);max-width:320px;line-height:1.8">${CLINIC.slogan}<br>남양주 마석, 한자리에서 지켜온 우리 동네 치과입니다.</p>
           <div class="footer-biz">
             상호 : ${CLINIC.business.company} &nbsp;|&nbsp; 대표자 : ${CLINIC.business.owner}<br>
             주소 : ${CLINIC.address}<br>
@@ -294,13 +300,11 @@ export function Layout(meta: SeoMeta, body: any) {
   <meta name="twitter:title" content="${meta.title}">
   <meta name="twitter:description" content="${meta.description}">
   <meta name="twitter:image" content="${ogImage}">
-  <meta name="theme-color" content="#0E2A47">
+  <meta name="theme-color" content="#2F6B5E">
   <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
   <link rel="apple-touch-icon" href="/static/img/favicon.svg">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
   <style>${raw(DESIGN_TOKENS)}</style>
   ${raw(jsonLdBlocks)}

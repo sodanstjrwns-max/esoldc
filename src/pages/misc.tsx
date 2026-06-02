@@ -3,7 +3,7 @@ import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatmen
 
 const PAGE_HERO = (crumb: string, title: string, sub: string) => `
 <section style="background:var(--navy);color:var(--inv);padding:180px 0 84px;position:relative;overflow:hidden">
-  <div style="position:absolute;inset:0;background:radial-gradient(700px 460px at 82% 24%,rgba(176,141,79,.16),transparent 60%)"></div>
+  <div style="position:absolute;inset:0;background:radial-gradient(700px 460px at 82% 24%,rgba(217,142,99,.16),transparent 60%)"></div>
   <div class="wrap" style="position:relative;z-index:2">
     <div style="font-size:.78rem;letter-spacing:.12em;color:rgba(250,248,244,.45);margin-bottom:22px"><a href="/" style="color:rgba(250,248,244,.45)">홈</a> / ${crumb}</div>
     <h1 style="font-size:clamp(2.3rem,5.4vw,3.8rem);line-height:1.25;color:var(--inv)">${title}</h1>
@@ -16,7 +16,7 @@ export function MissionPage() {
   return html`
   <style>
     .m-hero{min-height:90vh;display:flex;align-items:center;background:linear-gradient(135deg,var(--navy),var(--navy-2));color:#fff;position:relative;overflow:hidden}
-    .m-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 75% 35%,rgba(176,141,79,.18),transparent 55%)}
+    .m-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 75% 35%,rgba(217,142,99,.18),transparent 55%)}
     .m-hero .wrap{position:relative;z-index:2}
     .m-hero .eyebrow{color:var(--gold)}
     .m-hero h1{font-size:clamp(2.4rem,6vw,4.4rem);line-height:1.15;margin:18px 0}

@@ -4,7 +4,7 @@ import { CLINIC, TREATMENTS, CORE_TREATMENTS, getDoctorsForTreatment, NEARBY_ARE
 // 공통 스타일
 const TREAT_CSS = `
 .t-hero{background:var(--navy);color:var(--inv);padding:180px 0 84px;position:relative;overflow:hidden}
-.t-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(700px 460px at 82% 20%,rgba(176,141,79,.16),transparent 60%)}
+.t-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(700px 460px at 82% 20%,rgba(217,142,99,.16),transparent 60%)}
 .t-hero .wrap{position:relative;z-index:2}
 .t-hero .eyebrow{color:var(--gold-2)}
 .breadcrumb{font-size:.78rem;letter-spacing:.12em;color:var(--inv-faint);margin-bottom:22px}
@@ -39,7 +39,7 @@ const TREAT_CSS = `
 .t-rel-chips a{padding:11px 20px;border-radius:var(--radius);background:var(--bg-soft);border:1px solid var(--line);color:var(--navy);font-weight:600;font-size:.9rem;transition:all .3s}
 .t-rel-chips a:hover{background:var(--navy);color:var(--inv);border-color:var(--navy)}
 .t-cta{background:var(--navy);color:var(--inv);border-radius:var(--radius-lg);padding:52px;text-align:center;margin-top:52px;position:relative;overflow:hidden}
-.t-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(500px 320px at 50% 0%,rgba(176,141,79,.2),transparent 60%)}
+.t-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(500px 320px at 50% 0%,rgba(217,142,99,.2),transparent 60%)}
 .t-cta>*{position:relative;z-index:2}
 .t-cta h3{font-size:1.55rem;margin-bottom:12px;color:var(--inv);font-family:var(--serif)}
 .t-cta p{color:var(--inv-soft);margin-bottom:26px}

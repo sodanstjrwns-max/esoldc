@@ -7,8 +7,8 @@ export function HomePage() {
     /* ===== HERO ===== */
     .hero{position:relative;min-height:92vh;display:flex;align-items:center;background:var(--navy);color:var(--inv);overflow:hidden;padding:140px 0 90px}
     .hero::before{content:'';position:absolute;inset:0;background:
-      radial-gradient(900px 600px at 78% 18%,rgba(176,141,79,.16),transparent 60%),
-      radial-gradient(700px 500px at 10% 90%,rgba(30,69,107,.5),transparent 60%)}
+      radial-gradient(900px 600px at 78% 18%,rgba(217,142,99,.20),transparent 60%),
+      radial-gradient(700px 500px at 10% 90%,rgba(60,126,112,.55),transparent 60%)}
     .hero .wrap{position:relative;z-index:2}
     .hero-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:40px;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--inv-faint)}
     .hero-meta .r{text-align:right}
@@ -90,7 +90,7 @@ export function HomePage() {
 
     /* ===== FINAL CTA ===== */
     .cta{padding:130px 0;background:var(--navy);color:var(--inv);text-align:center;position:relative;overflow:hidden}
-    .cta::before{content:'';position:absolute;inset:0;background:radial-gradient(700px 500px at 50% 0%,rgba(176,141,79,.2),transparent 60%)}
+    .cta::before{content:'';position:absolute;inset:0;background:radial-gradient(700px 500px at 50% 0%,rgba(217,142,99,.24),transparent 60%)}
     .cta .wrap{position:relative;z-index:2}
     .cta h2{font-size:clamp(2rem,5vw,3.4rem);color:var(--inv);line-height:1.35}
     .cta h2 .gd{color:var(--gold-2)}
