@@ -3,12 +3,14 @@ import { CLINIC, TREATMENTS, CORE_TREATMENTS, getDoctorsForTreatment, NEARBY_ARE
 
 // 공통 스타일
 const TREAT_CSS = `
-.t-hero{background:linear-gradient(135deg,var(--brand-dark),var(--brand));color:#fff;padding:160px 0 80px;position:relative;overflow:hidden}
-.t-hero::after{content:'';position:absolute;right:-100px;top:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,106,.3),transparent 70%)}
-.breadcrumb{font-size:.85rem;color:rgba(255,255,255,.7);margin-bottom:18px}
-.breadcrumb a{color:rgba(255,255,255,.7)}.breadcrumb a:hover{color:#fff}
-.t-hero h1{font-size:clamp(2.2rem,5vw,3.6rem);margin-bottom:14px}
-.t-hero .sub{color:rgba(255,255,255,.85);font-size:1.15rem;max-width:640px}
+.t-hero{background:var(--bg-ink);color:var(--ink-inv);padding:200px 0 90px;position:relative;overflow:hidden}
+.t-hero::after{content:'';position:absolute;right:-120px;top:-80px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,106,.22),transparent 68%)}
+.t-hero .eyebrow{color:var(--accent)}
+.breadcrumb{font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,233,.5);margin-bottom:26px}
+.breadcrumb a{color:rgba(244,241,233,.5)}.breadcrumb a:hover{color:#fff}
+.t-hero h1{font-size:clamp(2.6rem,7vw,5.4rem);margin-bottom:18px;letter-spacing:-.03em;line-height:.98}
+.t-hero h1 .it{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--accent)}
+.t-hero .sub{color:rgba(244,241,233,.7);font-size:1.2rem;max-width:640px}
 .t-body{max-width:820px;margin:0 auto}
 .t-intro{font-size:1.2rem;line-height:1.8;color:var(--ink);background:var(--brand-soft);border-left:4px solid var(--brand);padding:24px 28px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:48px}
 .t-intro strong{color:var(--brand-dark)}
@@ -57,9 +59,9 @@ export function TreatmentsListPage() {
   <style>${raw(TREAT_CSS)}</style>
   <section class="t-hero">
     <div class="wrap">
-      <div class="breadcrumb"><a href="/">홈</a> › 진료안내</div>
-      <h1>진료안내</h1>
-      <p class="sub">임플란트·교정·소아치과를 중심으로, 전 연령의 다양한 진료를 한 곳에서 제공합니다.</p>
+      <div class="breadcrumb"><a href="/">홈</a> / 진료안내</div>
+      <h1 data-kinetic>진료안내</h1>
+      <p class="sub" data-words>임플란트·교정·소아치과를 중심으로, 전 연령의 다양한 진료를 한 곳에서 제공합니다.</p>
     </div>
   </section>
 
@@ -110,9 +112,9 @@ export function TreatmentDetailPage(t: Treatment) {
   <style>${raw(TREAT_CSS)}</style>
   <section class="t-hero">
     <div class="wrap">
-      <div class="breadcrumb"><a href="/">홈</a> › <a href="/treatments">진료안내</a> › ${t.name}</div>
-      <h1>${t.hero}</h1>
-      <p class="sub">${t.short}</p>
+      <div class="breadcrumb"><a href="/">홈</a> / <a href="/treatments">진료안내</a> / ${t.name}</div>
+      <h1 data-kinetic>${t.hero}</h1>
+      <p class="sub" data-words>${t.short}</p>
     </div>
   </section>
 

@@ -2,12 +2,12 @@ import { html, raw } from 'hono/html';
 import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatment, type Treatment } from '../data/clinic';
 
 const PAGE_HERO = (crumb: string, title: string, sub: string) => `
-<section style="background:linear-gradient(135deg,var(--brand-dark),var(--brand));color:#fff;padding:160px 0 80px;position:relative;overflow:hidden">
-  <div style="position:absolute;right:-80px;top:-80px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,106,.25),transparent 70%)"></div>
+<section style="background:var(--bg-ink);color:var(--ink-inv);padding:200px 0 90px;position:relative;overflow:hidden">
+  <div style="position:absolute;right:-100px;top:-80px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,106,.2),transparent 68%)"></div>
   <div class="wrap">
-    <div style="font-size:.85rem;color:rgba(255,255,255,.7);margin-bottom:18px"><a href="/" style="color:rgba(255,255,255,.7)">홈</a> › ${crumb}</div>
-    <h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">${title}</h1>
-    <p style="color:rgba(255,255,255,.85);font-size:1.1rem;max-width:640px;margin-top:12px">${sub}</p>
+    <div style="font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,233,.5);margin-bottom:26px"><a href="/" style="color:rgba(244,241,233,.5)">홈</a> / ${crumb}</div>
+    <h1 data-kinetic style="font-size:clamp(2.6rem,7vw,5rem);letter-spacing:-.03em;line-height:.98">${title}</h1>
+    <p data-words style="color:rgba(244,241,233,.7);font-size:1.15rem;max-width:640px;margin-top:14px">${sub}</p>
   </div>
 </section>`;
 
