@@ -35,7 +35,7 @@ export function MissionPage() {
     <div class="wrap">
       <span class="eyebrow">Our Mission</span>
       <h1 class="reveal in">기분 좋게<br>진료를 마칠 때까지</h1>
-      <p class="reveal in reveal-d1">남양주 마석에서 15년. 화려한 수식어 대신, 한자리에서 묵묵히 지역 주민과 함께해 온 동네 치과입니다.</p>
+      <p class="reveal in reveal-d1">남양주 마석에서 15년. 한자리를 지키며 지역 주민과 따뜻하게 함께해 온, 가장 편하게 떠올릴 수 있는 우리 동네 치과입니다.</p>
     </div>
   </section>
 

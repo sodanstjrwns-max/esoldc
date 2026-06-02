@@ -58,17 +58,18 @@ export function HomePage() {
     .why-item p{color:var(--ink-soft);font-size:.95rem}
     .why-item{border-top:2px solid var(--navy);padding-top:24px}
 
-    /* ===== 전체진료 ===== */
-    .all{padding:120px 0;background:var(--navy);color:var(--inv)}
-    .all .section-head h2{color:var(--inv)}
-    .all .section-head p{color:var(--inv-soft)}
-    .all-list{max-width:880px;margin:0 auto}
-    .all-row{display:flex;align-items:center;justify-content:space-between;padding:26px 4px;border-bottom:1px solid rgba(250,248,244,.14);transition:all .35s var(--ease)}
-    .all-row .an{font-family:var(--serif);font-size:clamp(1.2rem,2.6vw,1.7rem);font-weight:600;color:var(--inv);display:flex;gap:18px;align-items:baseline}
-    .all-row .an .ai{font-size:.85rem;color:var(--gold-2)}
-    .all-row .as{color:var(--inv-faint);font-size:.92rem}
-    .all-row:hover{padding-left:18px;border-color:var(--gold)}
-    .all-row:hover .an{color:var(--gold-2)}
+    /* ===== 전체진료 (밝은 카드형 — 어르신 가독성) ===== */
+    .all{padding:120px 0;background:var(--bg)}
+    .all-list{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:980px;margin:0 auto}
+    .all-row{display:flex;align-items:center;gap:18px;padding:24px 26px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);transition:all .35s var(--ease)}
+    .all-row .ar-ic{width:50px;height:50px;border-radius:13px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;font-size:1.25rem;flex:none}
+    .all-row .an{font-size:1.18rem;font-weight:800;color:var(--navy)}
+    .all-row .as{color:var(--ink-soft);font-size:.9rem;margin-top:2px}
+    .all-row .ar-go{margin-left:auto;color:var(--ink-faint);transition:all .3s}
+    .all-row:hover{border-color:var(--navy);box-shadow:var(--shadow-sm);transform:translateY(-3px)}
+    .all-row:hover .ar-go{color:var(--gold);transform:translateX(4px)}
+    @media(max-width:880px){.all-list{grid-template-columns:1fr 1fr}}
+    @media(max-width:560px){.all-list{grid-template-columns:1fr}}
 
     /* ===== 의료진 ===== */
     .team{padding:120px 0}
@@ -83,10 +84,11 @@ export function HomePage() {
 
     /* ===== 지역 ===== */
     .geo{padding:110px 0;background:var(--bg-soft);text-align:center}
-    .geo .addr{font-family:var(--serif);font-size:1.15rem;color:var(--navy);margin:18px 0 28px}
+    .geo .addr{font-size:1.2rem;font-weight:700;color:var(--navy);margin:18px 0 28px;display:inline-flex;align-items:center;gap:10px}
+    .geo .addr i{color:var(--gold)}
     .geo-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:760px;margin:0 auto}
-    .geo-chips a{padding:11px 22px;border-radius:var(--radius);background:#fff;border:1px solid var(--line);font-weight:600;font-size:.9rem;color:var(--navy);transition:all .3s var(--ease)}
-    .geo-chips a:hover{background:var(--navy);color:var(--inv);border-color:var(--navy)}
+    .geo-chips a{padding:12px 24px;border-radius:var(--radius-pill);background:#fff;border:1px solid var(--line);font-weight:700;font-size:.95rem;color:var(--navy);transition:all .3s var(--ease)}
+    .geo-chips a:hover{background:var(--navy);color:var(--inv);border-color:var(--navy);transform:translateY(-2px)}
 
     /* ===== FINAL CTA ===== */
     .cta{padding:130px 0;background:var(--navy);color:var(--inv);text-align:center;position:relative;overflow:hidden}
@@ -113,12 +115,12 @@ export function HomePage() {
   <section class="hero">
     <div class="wrap">
       <div class="hero-meta reveal">
-        <div>EST. 2011 · 남양주 마석<br>각 분야 전문의 상주</div>
-        <div class="r">ISOL DENTAL CLINIC<br>${CLINIC.addressShort}</div>
+        <div><i class="fas fa-location-dot" style="color:var(--gold-2)"></i> 남양주 마석 · 개원 15년차<br>각 분야 전문의 상주</div>
+        <div class="r">전 연령 통합 진료<br>${CLINIC.addressShort}</div>
       </div>
       <h1 class="reveal reveal-d1">기분 좋게<br><span class="gd">진료를 마칠</span> 때까지</h1>
       <div class="hero-sub reveal reveal-d2">
-        <p>화려한 수식어 대신, 한자리에서 쌓아온 시간으로. 임플란트·치아교정·소아치과, 각 분야 전문의가 충분히 상담하고 정밀하게 진료합니다.</p>
+        <p>우리 동네에서 오래 함께한 치과입니다. 임플란트·치아교정·소아치과, 각 분야 전문의가 서두르지 않고 충분히 상담하며 따뜻하게 진료해 드립니다.</p>
         <div class="hero-actions">
           <a href="/reservation" class="btn-line fill"><i class="fas fa-calendar-check"></i> 진료 예약 문의</a>
           <a href="/treatments" class="btn-line">진료 둘러보기 <i class="fas fa-arrow-right"></i></a>
@@ -198,14 +200,16 @@ export function HomePage() {
   <section class="all">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow" style="justify-content:center;color:var(--gold-2)">All Treatments</span>
+        <span class="eyebrow" style="justify-content:center">All Treatments</span>
         <h2>전체 진료과목</h2>
+        <p>충치 치료부터 임플란트까지, 온 가족 진료를 한 곳에서.</p>
       </div>
       <div class="all-list">
-        ${raw(TREATMENTS.map((t, i) => `
+        ${raw(TREATMENTS.map((t) => `
           <a href="/treatments/${t.slug}" class="all-row reveal">
-            <span class="an"><span class="ai">${String(i + 1).padStart(2, '0')}</span> ${t.name}</span>
-            <span class="as">${t.short} <i class="fas fa-arrow-right" style="margin-left:10px"></i></span>
+            <span class="ar-ic"><i class="fas ${t.icon}"></i></span>
+            <span><span class="an">${t.name}</span><span class="as">${t.short}</span></span>
+            <i class="fas fa-arrow-right ar-go"></i>
           </a>`).join(''))}
       </div>
     </div>
@@ -234,7 +238,7 @@ export function HomePage() {
   <section class="geo">
     <div class="wrap">
       <span class="eyebrow" style="justify-content:center">Location</span>
-      <div class="addr">${CLINIC.address}</div>
+      <div class="addr"><i class="fas fa-location-dot"></i> ${CLINIC.address}</div>
       <div class="geo-chips reveal">
         ${raw(NEARBY_AREAS.slice(0, 6).map(a => `<a href="/area/${a.slug}-implant">${a.name} 임플란트</a>`).join(''))}
         ${raw(NEARBY_AREAS.slice(0, 4).map(a => `<a href="/area/${a.slug}-orthodontics">${a.name} 교정</a>`).join(''))}
