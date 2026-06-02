@@ -131,8 +131,42 @@ img{max-width:100%;display:block}
   .footer-grid{grid-template-columns:1fr}
   body{font-size:16px}
 }
+/* ===== 어워드급 인터랙션 레이어 ===== */
+/* 커스텀 커서 (데스크탑 전용) */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;border-radius:50%;pointer-events:none;z-index:9999;opacity:0;mix-blend-mode:difference;will-change:transform}
+.cursor-dot{width:7px;height:7px;background:#fff;transform:translate(-50%,-50%)}
+.cursor-ring{width:42px;height:42px;border:1.5px solid rgba(255,255,255,.65);transform:translate(-50%,-50%);transition:width .3s var(--ease),height .3s var(--ease),background .3s var(--ease),border-color .3s var(--ease)}
+.cursor-ring.hover{width:64px;height:64px;background:rgba(255,255,255,.12);border-color:transparent}
+body.cursor-on .cursor-dot,body.cursor-on .cursor-ring{opacity:1}
+body.cursor-on,body.cursor-on a,body.cursor-on button{cursor:none}
+
+/* 마그네틱 버튼 */
+.magnetic{display:inline-block;will-change:transform}
+.magnetic>*{display:inline-flex;pointer-events:none}
+
+/* 3D 틸트 카드 */
+.tilt{transform-style:preserve-3d;will-change:transform;transition:transform .12s ease-out}
+.tilt .tilt-inner{transform:translateZ(40px);transform-style:preserve-3d}
+
+/* 키네틱 타이포 — 글자/단어 단위 reveal */
+.kin{display:inline-block;overflow:hidden;vertical-align:top}
+.kin>.kin-i{display:inline-block;transform:translateY(110%);will-change:transform}
+.kin-line{display:block;overflow:hidden}
+
+/* 패럴랙스 */
+[data-par]{will-change:transform}
+
+/* 스크롤 진행 바 */
+.scroll-prog{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-2));z-index:1200;will-change:width}
+
+@media(hover:none),(max-width:1024px){
+  .cursor-dot,.cursor-ring{display:none!important}
+  body.cursor-on,body.cursor-on a,body.cursor-on button{cursor:auto}
+}
 @media(prefers-reduced-motion:reduce){
   .reveal{opacity:1!important;transform:none!important;transition:none!important}
+  .kin>.kin-i{transform:none!important}
+  .cursor-dot,.cursor-ring{display:none!important}
   html{scroll-behavior:auto}
 }
 `;
@@ -142,33 +176,154 @@ img{max-width:100%;display:block}
 // ============================================================================
 const INTERACTION_JS = `
 (function(){
+  var RM = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var FINE = window.matchMedia('(hover:hover) and (pointer:fine)').matches && window.innerWidth>1024;
+  var hasGSAP = !!(window.gsap);
+  if(hasGSAP && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------- 헤더 스크롤 상태 ---------- */
   var header=document.querySelector('.site-header');
   function onScroll(){ if(window.scrollY>40) header.classList.add('scrolled'); else header.classList.remove('scrolled'); }
   window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
 
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
-  },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
-  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+  /* ---------- Lenis 스무스 스크롤 ---------- */
+  var lenis=null;
+  if(window.Lenis && !RM){
+    lenis=new Lenis({duration:1.1,easing:function(t){return Math.min(1,1.001-Math.pow(2,-10*t));},smoothWheel:true});
+    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+    if(hasGSAP && window.ScrollTrigger){
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(function(t){ lenis.raf(t*1000); }); gsap.ticker.lagSmoothing(0);
+    }
+  }
 
-  var co=new IntersectionObserver(function(es){
-    es.forEach(function(e){
-      if(!e.isIntersecting) return; var el=e.target; co.unobserve(el);
-      var target=parseFloat(el.dataset.count), suffix=el.dataset.suffix||'', dur=1500, t0=null;
-      function step(t){ if(!t0)t0=t; var p=Math.min((t-t0)/dur,1); var ev=1-Math.pow(1-p,3);
-        var val=target*ev; el.textContent=(target%1===0?Math.floor(val):val.toFixed(1))+suffix;
-        if(p<1)requestAnimationFrame(step);}
-      requestAnimationFrame(step);
+  /* ---------- 스크롤 진행 바 ---------- */
+  var prog=document.createElement('div'); prog.className='scroll-prog'; document.body.appendChild(prog);
+  function updProg(){ var h=document.documentElement.scrollHeight-window.innerHeight; prog.style.width=(h>0?(window.scrollY/h*100):0)+'%'; }
+  window.addEventListener('scroll',updProg,{passive:true}); updProg();
+
+  /* ---------- 키네틱 타이포: [data-kinetic] 안의 글자/단어 split ---------- */
+  function splitKinetic(){
+    document.querySelectorAll('[data-kinetic]').forEach(function(el){
+      if(el.dataset.kineticDone) return; el.dataset.kineticDone='1';
+      var mode=el.dataset.kinetic||'word';
+      var text=el.textContent; el.textContent='';
+      var units = mode==='char' ? text.split('') : text.split(/(\\s+)/);
+      units.forEach(function(u){
+        if(/^\\s+$/.test(u)){ el.appendChild(document.createTextNode(u)); return; }
+        var w=document.createElement('span'); w.className='kin';
+        var i=document.createElement('span'); i.className='kin-i'; i.textContent=u;
+        w.appendChild(i); el.appendChild(w);
+      });
     });
-  },{threshold:.5});
+  }
+  splitKinetic();
+
+  /* ---------- reveal & 키네틱 애니메이션 ---------- */
+  if(hasGSAP && !RM){
+    // 일반 reveal
+    gsap.utils.toArray('.reveal').forEach(function(el){
+      var d=0; ['reveal-d1','reveal-d2','reveal-d3','reveal-d4'].forEach(function(c,idx){ if(el.classList.contains(c)) d=(idx+1)*0.08; });
+      gsap.fromTo(el,{y:34,opacity:0},{y:0,opacity:1,duration:1,delay:d,ease:'power3.out',
+        scrollTrigger:{trigger:el,start:'top 88%'}});
+    });
+    // 키네틱 라인 stagger
+    gsap.utils.toArray('[data-kinetic]').forEach(function(el){
+      gsap.to(el.querySelectorAll('.kin-i'),{yPercent:0,duration:1.05,ease:'power4.out',stagger:0.045,
+        scrollTrigger:{trigger:el,start:'top 90%'}});
+    });
+    // 패럴랙스
+    gsap.utils.toArray('[data-par]').forEach(function(el){
+      var sp=parseFloat(el.dataset.par)||0.2;
+      gsap.to(el,{yPercent:-sp*100,ease:'none',scrollTrigger:{trigger:el.closest('section')||el,start:'top bottom',end:'bottom top',scrub:true}});
+    });
+  } else {
+    // GSAP 없거나 reduced-motion → 즉시 표시
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');el.style.opacity='1';el.style.transform='none';});
+    document.querySelectorAll('.kin-i').forEach(function(el){el.style.transform='none';});
+  }
+
+  /* ---------- 카운트업 (스크롤 진입 시) ---------- */
+  var counted=[];
+  function runCount(el){
+    if(counted.indexOf(el)>=0) return; counted.push(el);
+    var target=parseFloat(el.dataset.count), suffix=el.dataset.suffix||'', dur=1600, t0=null;
+    function step(t){ if(!t0)t0=t; var p=Math.min((t-t0)/dur,1); var ev=1-Math.pow(1-p,3);
+      var val=target*ev; el.textContent=(target%1===0?Math.floor(val):val.toFixed(1))+suffix;
+      if(p<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);
+  }
+  var co=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){runCount(e.target);co.unobserve(e.target);}});},{threshold:.5});
   document.querySelectorAll('[data-count]').forEach(function(el){co.observe(el)});
 
+  /* ---------- 커스텀 커서 (데스크탑 전용) ---------- */
+  if(FINE && !RM){
+    document.body.classList.add('cursor-on');
+    var dot=document.querySelector('.cursor-dot'), ring=document.querySelector('.cursor-ring');
+    var mx=window.innerWidth/2,my=window.innerHeight/2, rx=mx,ry=my;
+    window.addEventListener('mousemove',function(e){ mx=e.clientX; my=e.clientY;
+      if(dot){dot.style.transform='translate('+mx+'px,'+my+'px) translate(-50%,-50%)';} },{passive:true});
+    function ringRaf(){ rx+=(mx-rx)*0.18; ry+=(my-ry)*0.18;
+      if(ring){ring.style.transform='translate('+rx+'px,'+ry+'px) translate(-50%,-50%)';} requestAnimationFrame(ringRaf); }
+    ringRaf();
+    document.querySelectorAll('a,button,.tilt,.core-card,.all-row').forEach(function(el){
+      el.addEventListener('mouseenter',function(){ring&&ring.classList.add('hover');});
+      el.addEventListener('mouseleave',function(){ring&&ring.classList.remove('hover');});
+    });
+  }
+
+  /* ---------- 마그네틱 버튼 ---------- */
+  if(FINE && !RM && hasGSAP){
+    document.querySelectorAll('.magnetic').forEach(function(el){
+      var inner=el.firstElementChild||el;
+      el.addEventListener('mousemove',function(e){
+        var r=el.getBoundingClientRect();
+        var x=(e.clientX-(r.left+r.width/2)), y=(e.clientY-(r.top+r.height/2));
+        gsap.to(el,{x:x*0.4,y:y*0.4,duration:.4,ease:'power3.out'});
+        gsap.to(inner,{x:x*0.2,y:y*0.2,duration:.4,ease:'power3.out'});
+      });
+      el.addEventListener('mouseleave',function(){
+        gsap.to(el,{x:0,y:0,duration:.6,ease:'elastic.out(1,0.4)'});
+        gsap.to(inner,{x:0,y:0,duration:.6,ease:'elastic.out(1,0.4)'});
+      });
+    });
+  }
+
+  /* ---------- 3D 틸트 카드 ---------- */
+  if(FINE && !RM && hasGSAP){
+    document.querySelectorAll('.tilt').forEach(function(el){
+      el.addEventListener('mousemove',function(e){
+        var r=el.getBoundingClientRect();
+        var px=(e.clientX-r.left)/r.width-0.5, py=(e.clientY-r.top)/r.height-0.5;
+        gsap.to(el,{rotateY:px*10,rotateX:-py*10,duration:.4,ease:'power2.out',transformPerspective:900});
+      });
+      el.addEventListener('mouseleave',function(){ gsap.to(el,{rotateY:0,rotateX:0,duration:.7,ease:'power3.out'}); });
+    });
+  }
+
+  /* ---------- 모바일 메뉴 ---------- */
   var burger=document.querySelector('.burger'), mm=document.querySelector('.mobile-menu');
   if(burger&&mm){
-    burger.addEventListener('click',function(){mm.classList.add('open');document.body.style.overflow='hidden';});
-    mm.querySelector('.close').addEventListener('click',function(){mm.classList.remove('open');document.body.style.overflow='';});
-    mm.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){mm.classList.remove('open');document.body.style.overflow='';});});
+    function closeMM(){mm.classList.remove('open');document.body.style.overflow='';lenis&&lenis.start();}
+    burger.addEventListener('click',function(){mm.classList.add('open');document.body.style.overflow='hidden';lenis&&lenis.stop();});
+    mm.querySelector('.close').addEventListener('click',closeMM);
+    mm.querySelectorAll('a').forEach(function(a){a.addEventListener('click',closeMM);});
   }
+
+  if(hasGSAP && window.ScrollTrigger) setTimeout(function(){ScrollTrigger.refresh();},300);
+
+  /* ---------- 안전망: 라이브러리 로드 실패 대비 강제 표시 ---------- */
+  setTimeout(function(){
+    document.querySelectorAll('.reveal:not(.in)').forEach(function(el){
+      var s=getComputedStyle(el); if(parseFloat(s.opacity)<0.05){el.style.opacity='1';el.style.transform='none';}
+    });
+    document.querySelectorAll('.kin-i').forEach(function(el){
+      var r=el.getBoundingClientRect(); if(r.height>0 && getComputedStyle(el).transform!=='none'){
+        var st=el.style.transform; if(st.indexOf('110')>-1||st===''){el.style.transform='translateY(0)';}
+      }
+    });
+  },2500);
 })();
 `;
 
@@ -199,7 +354,7 @@ function header() {
       </ul>
       <div class="nav-cta">
         <a href="tel:${CLINIC.tel}" class="nav-tel"><i class="fas fa-phone" style="font-size:.85em"></i> ${CLINIC.tel}</a>
-        <a href="/reservation" class="btn btn-primary">예약 문의</a>
+        <span class="magnetic"><a href="/reservation" class="btn btn-primary">예약 문의</a></span>
         <button class="burger" aria-label="메뉴 열기"><i class="fas fa-bars"></i></button>
       </div>
     </div>
@@ -310,9 +465,14 @@ export function Layout(meta: SeoMeta, body: any) {
   ${raw(jsonLdBlocks)}
 </head>
 <body>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
   ${header()}
   <main>${body}</main>
   ${footer()}
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <script>${raw(INTERACTION_JS)}</script>
 </body>
 </html>`;
