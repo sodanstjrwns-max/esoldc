@@ -148,9 +148,10 @@ body.cursor-on,body.cursor-on a,body.cursor-on button{cursor:none}
 .tilt{transform-style:preserve-3d;will-change:transform;transition:transform .12s ease-out}
 .tilt .tilt-inner{transform:translateZ(40px);transform-style:preserve-3d}
 
-/* 키네틱 타이포 — 글자/단어 단위 reveal */
+/* 키네틱 타이포 — 글자/단어 단위 reveal (JS가 활성화될 때만 숨김 → FOUC/빈화면 방지) */
 .kin{display:inline-block;overflow:hidden;vertical-align:top}
-.kin>.kin-i{display:inline-block;transform:translateY(110%);will-change:transform}
+.kin>.kin-i{display:inline-block;will-change:transform}
+body.js-kin .kin>.kin-i{transform:translateY(110%)}
 .kin-line{display:block;overflow:hidden}
 
 /* 패럴랙스 */
@@ -205,6 +206,8 @@ const INTERACTION_JS = `
 
   /* ---------- 키네틱 타이포: [data-kinetic] 안의 글자/단어 split ---------- */
   function splitKinetic(){
+    // GSAP로 재생 가능할 때만 숨김 처리 (아니면 글자 그대로 노출)
+    if(hasGSAP && !RM) document.body.classList.add('js-kin');
     document.querySelectorAll('[data-kinetic]').forEach(function(el){
       if(el.dataset.kineticDone) return; el.dataset.kineticDone='1';
       var mode=el.dataset.kinetic||'word';
@@ -228,10 +231,16 @@ const INTERACTION_JS = `
       gsap.fromTo(el,{y:34,opacity:0},{y:0,opacity:1,duration:1,delay:d,ease:'power3.out',
         scrollTrigger:{trigger:el,start:'top 88%'}});
     });
-    // 키네틱 라인 stagger
+    // 키네틱 라인 stagger — 첫 화면(뷰포트 상단)은 즉시 재생, 아래는 스크롤 트리거
     gsap.utils.toArray('[data-kinetic]').forEach(function(el){
-      gsap.to(el.querySelectorAll('.kin-i'),{yPercent:0,duration:1.05,ease:'power4.out',stagger:0.045,
-        scrollTrigger:{trigger:el,start:'top 90%'}});
+      var items=el.querySelectorAll('.kin-i'); if(!items.length) return;
+      var top=el.getBoundingClientRect().top;
+      if(top < window.innerHeight*0.9){
+        gsap.to(items,{yPercent:0,duration:1.05,ease:'power4.out',stagger:0.045,delay:0.25});
+      } else {
+        gsap.to(items,{yPercent:0,duration:1.05,ease:'power4.out',stagger:0.045,
+          scrollTrigger:{trigger:el,start:'top 90%'}});
+      }
     });
     // 패럴랙스
     gsap.utils.toArray('[data-par]').forEach(function(el){
@@ -319,8 +328,11 @@ const INTERACTION_JS = `
       var s=getComputedStyle(el); if(parseFloat(s.opacity)<0.05){el.style.opacity='1';el.style.transform='none';}
     });
     document.querySelectorAll('.kin-i').forEach(function(el){
-      var r=el.getBoundingClientRect(); if(r.height>0 && getComputedStyle(el).transform!=='none'){
-        var st=el.style.transform; if(st.indexOf('110')>-1||st===''){el.style.transform='translateY(0)';}
+      var st=getComputedStyle(el).transform;
+      // 아직 아래로 숨겨져 있으면(translateY 양수) 강제로 올림
+      if(st && st!=='none'){
+        var m=st.match(/matrix\\(([^)]+)\\)/);
+        if(m){ var v=m[1].split(','); var ty=parseFloat(v[5]||0); if(ty>2){ el.style.transform='translateY(0)'; } }
       }
     });
   },2500);
