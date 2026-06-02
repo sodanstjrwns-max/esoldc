@@ -7,25 +7,25 @@ export function HomePage() {
     /* ============ HERO : 인터랙티브 캔버스 + 키네틱 타이포 ============ */
     .hero{position:relative;min-height:100svh;background:var(--bg-ink);color:var(--ink-inv);overflow:hidden;display:flex;flex-direction:column;justify-content:center}
     #heroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}
-    .hero::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 60%,transparent 40%,rgba(12,20,19,.7) 100%)}
+    .hero::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 60%,transparent 40%,rgba(35,28,52,.72) 100%)}
     .hero-inner{position:relative;z-index:3;width:100%;pointer-events:none}
-    .hero-meta{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:42px;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(244,241,233,.5)}
+    .hero-meta{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:42px;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,253,251,.55)}
     .hero-meta .r{text-align:right}
     .hero h1{font-size:clamp(3rem,11vw,10rem);line-height:.92;font-weight:800;letter-spacing:-.045em;margin:0}
     .hero h1 .it{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--accent);letter-spacing:-.01em}
     .hero-sub{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;margin-top:48px;pointer-events:auto}
-    .hero-sub p{max-width:440px;color:rgba(244,241,233,.7);font-size:1.05rem;line-height:1.7}
+    .hero-sub p{max-width:440px;color:rgba(255,253,251,.78);font-size:1.05rem;line-height:1.7}
     .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
-    .btn-line{display:inline-flex;align-items:center;gap:10px;color:var(--ink-inv);font-weight:700;padding:16px 30px;border-radius:999px;border:1px solid rgba(244,241,233,.25);transition:all .4s var(--ease);font-size:.95rem}
-    .btn-line:hover{background:var(--ink-inv);color:var(--bg-ink);border-color:var(--ink-inv)}
-    .btn-line.fill{background:var(--accent);color:#1a1407;border-color:var(--accent)}
-    .btn-line.fill:hover{background:#e0bd7d}
-    .scroll-ind{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:3;color:rgba(244,241,233,.4);font-size:.7rem;letter-spacing:.3em;display:flex;flex-direction:column;align-items:center;gap:10px}
-    .scroll-ind::after{content:'';width:1px;height:48px;background:linear-gradient(rgba(244,241,233,.5),transparent);animation:scline 2s var(--ease) infinite}
+    .btn-line{display:inline-flex;align-items:center;gap:10px;color:var(--ink-inv);font-weight:700;padding:16px 30px;border-radius:999px;border:2px solid rgba(255,253,251,.3);transition:all .4s var(--ease);font-size:.95rem}
+    .btn-line:hover{background:var(--ink-inv);color:var(--bg-ink);border-color:var(--ink-inv);transform:translateY(-3px)}
+    .btn-line.fill{background:var(--accent);color:#5a2c1c;border-color:var(--accent)}
+    .btn-line.fill:hover{background:#ff8a66;transform:translateY(-3px) scale(1.02)}
+    .scroll-ind{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:3;color:rgba(255,253,251,.45);font-size:.7rem;letter-spacing:.3em;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .scroll-ind::after{content:'';width:1px;height:48px;background:linear-gradient(rgba(255,253,251,.55),transparent);animation:scline 2s var(--ease) infinite}
     @keyframes scline{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.1%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 
     /* ============ 마퀴 (running ticker) ============ */
-    .marquee{background:var(--accent);color:#1a1407;padding:18px 0;overflow:hidden;white-space:nowrap;border-top:1px solid rgba(0,0,0,.1)}
+    .marquee{background:var(--accent);color:#5a2c1c;padding:18px 0;overflow:hidden;white-space:nowrap;border-top:1px solid rgba(0,0,0,.06)}
     .marquee-track{display:inline-flex;gap:54px;animation:marq 28s linear infinite;font-family:var(--serif);font-style:italic;font-size:1.5rem;font-weight:500}
     .marquee-track span{display:inline-flex;align-items:center;gap:54px}
     .marquee-track span::after{content:'✺';font-style:normal;opacity:.6}
@@ -37,22 +37,23 @@ export function HomePage() {
     .manifesto .big{font-size:clamp(1.8rem,5vw,4rem);font-weight:800;line-height:1.25;letter-spacing:-.03em;color:var(--ink);max-width:1000px}
     .manifesto .big em{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--brand)}
 
-    /* ============ 에디토리얼 인덱스 — 핵심진료 ============ */
-    .index{background:var(--bg-ink);color:var(--ink-inv);padding:140px 0}
-    .index-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid rgba(244,241,233,.15);padding-bottom:28px;margin-bottom:10px}
-    .index-head .lbl{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,233,.5)}
+    /* ============ 에디토리얼 인덱스 — 핵심진료 (밝은 민트크림) ============ */
+    .index{background:var(--bg-mint);color:var(--ink);padding:140px 0}
+    .index-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--line);padding-bottom:28px;margin-bottom:10px}
+    .index-head .lbl{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--brand-dark)}
     .index-head h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800}
-    .idx-row{display:grid;grid-template-columns:120px 1fr auto;gap:30px;align-items:center;padding:42px 0;border-bottom:1px solid rgba(244,241,233,.12);position:relative;transition:all .5s var(--ease);overflow:hidden}
+    .idx-row{display:grid;grid-template-columns:120px 1fr auto;gap:30px;align-items:center;padding:42px 0;border-bottom:2px solid var(--line);position:relative;transition:all .5s var(--ease);overflow:hidden;border-radius:var(--radius-lg)}
     .idx-row .idx-num{font-size:4.5rem}
     .idx-row .idx-mid h3{font-size:clamp(1.8rem,4vw,3.2rem);font-weight:800;letter-spacing:-.02em;transition:transform .5s var(--ease-kinetic),color .4s}
-    .idx-row .idx-mid p{color:rgba(244,241,233,.55);margin-top:6px;font-size:1rem;transition:opacity .4s}
-    .idx-row .idx-go{width:56px;height:56px;border-radius:50%;border:1px solid rgba(244,241,233,.3);display:grid;place-items:center;font-size:1.1rem;transition:all .5s var(--ease);flex:none}
-    .idx-row::before{content:'';position:absolute;left:0;bottom:0;width:0;height:100%;background:var(--accent);z-index:-1;transition:width .55s var(--ease-kinetic)}
+    .idx-row .idx-mid p{color:var(--ink-soft);margin-top:6px;font-size:1rem;transition:opacity .4s}
+    .idx-row .idx-go{width:56px;height:56px;border-radius:50%;border:2px solid var(--brand-light);display:grid;place-items:center;font-size:1.1rem;transition:all .5s var(--ease);flex:none;color:var(--brand-dark)}
+    .idx-row::before{content:'';position:absolute;left:0;bottom:0;width:0;height:100%;background:var(--brand);z-index:-1;transition:width .55s var(--ease-kinetic);border-radius:var(--radius-lg)}
     .idx-row:hover::before{width:100%}
-    .idx-row:hover .idx-num{color:#1a1407}
-    .idx-row:hover .idx-mid h3{color:#1a1407;transform:translateX(14px)}
-    .idx-row:hover .idx-mid p{color:rgba(26,20,7,.7)}
-    .idx-row:hover .idx-go{background:#1a1407;color:var(--accent);border-color:#1a1407;transform:rotate(-45deg)}
+    .idx-row:hover{padding-left:24px;padding-right:24px}
+    .idx-row:hover .idx-num{color:#fff}
+    .idx-row:hover .idx-mid h3{color:#fff;transform:translateX(14px)}
+    .idx-row:hover .idx-mid p{color:rgba(255,255,255,.85)}
+    .idx-row:hover .idx-go{background:#fff;color:var(--brand-dark);border-color:#fff;transform:rotate(-45deg)}
     @media(max-width:760px){.idx-row{grid-template-columns:64px 1fr;gap:18px}.idx-row .idx-num{font-size:2.4rem}.idx-row .idx-go{display:none}}
 
     /* ============ STICKY 철학 ============ */
@@ -72,20 +73,21 @@ export function HomePage() {
     .why-tile h3{font-size:1.6rem;margin:0 0 8px}
     .why-tile p{font-size:.96rem;line-height:1.7}
     .why-tile:hover{transform:translateY(-6px)}
-    .wt-dark{background:var(--bg-ink);color:var(--ink-inv);grid-row:span 2}
-    .wt-dark h3{font-size:2.2rem}.wt-dark p{color:rgba(244,241,233,.65)}
-    .wt-green{background:var(--brand);color:#fff}.wt-green p{color:rgba(255,255,255,.8)}
-    .wt-gold{background:var(--accent);color:#1a1407}.wt-gold p{color:rgba(26,20,7,.72)}
+    .wt-dark{background:var(--lav);color:#2d2740;grid-row:span 2}
+    .wt-dark h3{font-size:2.2rem}.wt-dark p{color:rgba(45,39,64,.75)}
+    .wt-green{background:var(--brand);color:#fff}.wt-green p{color:rgba(255,255,255,.85)}
+    .wt-gold{background:var(--accent);color:#5a2c1c}.wt-gold p{color:rgba(90,44,28,.78)}
     .wt-cream{background:var(--bg-cream);color:var(--ink);grid-column:span 2}.wt-cream p{color:var(--ink-soft)}
+    .why-tile:hover{transform:translateY(-8px);box-shadow:var(--shadow-jelly)}
     @media(max-width:860px){.why-mag{grid-template-columns:1fr}.wt-dark,.wt-cream{grid-row:auto;grid-column:auto}}
 
-    /* ============ 전체진료 — 호버 리스트 ============ */
-    .all-treat{background:var(--bg-ink);color:var(--ink-inv);padding:120px 0}
-    .at-list a{display:flex;align-items:center;justify-content:space-between;padding:26px 0;border-bottom:1px solid rgba(244,241,233,.12);transition:all .4s var(--ease)}
+    /* ============ 전체진료 — 호버 리스트 (라벤더 소프트) ============ */
+    .all-treat{background:var(--lav-soft);color:var(--ink);padding:120px 0}
+    .at-list a{display:flex;align-items:center;justify-content:space-between;padding:26px 0;border-bottom:2px solid var(--line);transition:all .4s var(--ease)}
     .at-list a .atn{font-size:clamp(1.3rem,3vw,2rem);font-weight:700;transition:transform .4s var(--ease-kinetic)}
-    .at-list a .ats{color:rgba(244,241,233,.45);font-size:.9rem}
+    .at-list a .ats{color:var(--ink-soft);font-size:.9rem}
     .at-list a:hover{padding-left:20px}
-    .at-list a:hover .atn{color:var(--accent);transform:translateX(6px)}
+    .at-list a:hover .atn{color:var(--brand-dark);transform:translateX(6px)}
 
     /* ============ 의료진 — 가로 스크롤 카드 ============ */
     .docs2{background:var(--bg);padding:140px 0 120px}
@@ -106,20 +108,20 @@ export function HomePage() {
     .geo-track{display:inline-flex;gap:40px;animation:marq 30s linear infinite}
     .geo-track span::after{content:'·';margin-left:40px;color:var(--accent)}
     .geo-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:40px}
-    .geo-chips a{padding:11px 20px;border-radius:999px;background:#fff;border:1px solid var(--line);font-weight:600;font-size:.9rem;transition:all .35s var(--ease)}
+    .geo-chips a{padding:11px 20px;border-radius:999px;background:#fff;border:2px solid var(--line);font-weight:600;font-size:.9rem;transition:all .35s var(--ease)}
     .geo-chips a:hover{background:var(--brand);color:#fff;border-color:var(--brand);transform:translateY(-3px)}
 
     /* ============ FINAL ============ */
     .final2{background:var(--bg-ink);color:var(--ink-inv);padding:150px 0;text-align:center;position:relative;overflow:hidden}
-    .final2 .glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,106,.25),transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%)}
+    .final2 .glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(255,158,128,.28),transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%)}
     .final2 h2{font-size:clamp(2.4rem,7vw,6rem);font-weight:800;line-height:1;letter-spacing:-.03em;position:relative}
     .final2 h2 .it{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--accent)}
-    .final2 p{color:rgba(244,241,233,.6);margin:24px 0 40px;position:relative}
+    .final2 p{color:rgba(255,253,251,.68);margin:24px 0 40px;position:relative}
     .final2 .tel{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:800;letter-spacing:-.01em;position:relative;display:inline-flex;gap:14px;align-items:center}
   </style>
 
   <!-- ================= HERO ================= -->
-  <section class="hero">
+  <section class="hero" data-dark>
     <canvas id="heroCanvas"></canvas>
     <div class="wrap hero-inner">
       <div class="hero-meta">
@@ -206,7 +208,7 @@ export function HomePage() {
   <!-- ================= 전체진료 호버 리스트 ================= -->
   <section class="all-treat">
     <div class="wrap">
-      <div class="index-head reveal"><div><div class="lbl" style="color:rgba(244,241,233,.5)">All Treatments</div><h2>전체 진료과목</h2></div></div>
+      <div class="index-head reveal"><div><div class="lbl" style="color:var(--lav)">All Treatments</div><h2>전체 진료과목</h2></div></div>
       <div class="at-list" style="margin-top:10px">
         ${raw(TREATMENTS.map((t, i) => `
           <a href="/treatments/${t.slug}" class="reveal" data-cursor>
@@ -248,7 +250,7 @@ export function HomePage() {
   </section>
 
   <!-- ================= FINAL ================= -->
-  <section class="final2">
+  <section class="final2" data-dark>
     <div class="glow"></div>
     <div class="wrap">
       <h2 data-kinetic>지금,<br><span class="it">편하게</span> 문의하세요</h2>
@@ -268,7 +270,8 @@ export function HomePage() {
       var ctx=cv.getContext('2d'),W,H,pts=[],mouse={x:-999,y:-999},DPR=Math.min(devicePixelRatio||1,2);
       function resize(){W=cv.width=innerWidth*DPR;H=cv.height=cv.offsetHeight*DPR;cv.style.width=innerWidth+'px';
         var n=Math.min(70,Math.floor(innerWidth/22));pts=[];
-        for(var i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3*DPR,vy:(Math.random()-.5)*.3*DPR});}
+        var cols=['rgba(255,158,128,.9)','rgba(126,208,190,.9)','rgba(184,174,232,.9)'];
+        for(var i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3*DPR,vy:(Math.random()-.5)*.3*DPR,c:cols[i%3]});}
       resize();window.addEventListener('resize',resize);
       cv.parentElement.addEventListener('mousemove',function(e){mouse.x=e.clientX*DPR;mouse.y=e.clientY*DPR;});
       cv.parentElement.addEventListener('mouseleave',function(){mouse.x=-999;mouse.y=-999;});
@@ -279,17 +282,17 @@ export function HomePage() {
           if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
           var dxm=mouse.x-p.x,dym=mouse.y-p.y,dm=Math.hypot(dxm,dym);
           if(dm<140*DPR){p.x-=dxm/dm*1.2;p.y-=dym/dm*1.2;}
-          ctx.beginPath();ctx.arc(p.x,p.y,1.4*DPR,0,6.28);ctx.fillStyle='rgba(201,168,106,.85)';ctx.fill();
+          ctx.beginPath();ctx.arc(p.x,p.y,1.5*DPR,0,6.28);ctx.fillStyle=(p.c||'rgba(255,158,128,.9)');ctx.fill();
         }
         for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){
           var a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
           if(d<120*DPR){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
-            ctx.strokeStyle='rgba(120,170,160,'+(.16*(1-d/(120*DPR)))+')';ctx.lineWidth=DPR*.6;ctx.stroke();}
+            ctx.strokeStyle='rgba(184,174,232,'+(.20*(1-d/(120*DPR)))+')';ctx.lineWidth=DPR*.7;ctx.stroke();}
         }
         requestAnimationFrame(draw);
       }
       draw();
-    } else if(cv){ cv.style.background='radial-gradient(circle at 50% 50%,#143e39,#0c1413)'; }
+    } else if(cv){ cv.style.background='radial-gradient(circle at 50% 40%,#3D3450,#332B45)'; }
 
     // ---- STICKY 철학: 스크롤 진행에 따라 단어 순차 점등 ----
     var philo=document.getElementById('philo'),seqs=document.querySelectorAll('#philoText .seq');

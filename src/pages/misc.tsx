@@ -2,12 +2,13 @@ import { html, raw } from 'hono/html';
 import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatment, type Treatment } from '../data/clinic';
 
 const PAGE_HERO = (crumb: string, title: string, sub: string) => `
-<section style="background:var(--bg-ink);color:var(--ink-inv);padding:200px 0 90px;position:relative;overflow:hidden">
-  <div style="position:absolute;right:-100px;top:-80px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,106,.2),transparent 68%)"></div>
-  <div class="wrap">
-    <div style="font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,233,.5);margin-bottom:26px"><a href="/" style="color:rgba(244,241,233,.5)">홈</a> / ${crumb}</div>
+<section data-dark style="background:var(--bg-ink);color:var(--ink-inv);padding:200px 0 90px;position:relative;overflow:hidden">
+  <div style="position:absolute;right:-100px;top:-80px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(255,158,128,.24),transparent 68%)"></div>
+  <div style="position:absolute;left:-110px;bottom:-150px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(184,174,232,.22),transparent 68%)"></div>
+  <div class="wrap" style="position:relative;z-index:2">
+    <div style="font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,253,251,.55);margin-bottom:26px"><a href="/" style="color:rgba(255,253,251,.55)">홈</a> / ${crumb}</div>
     <h1 data-kinetic style="font-size:clamp(2.6rem,7vw,5rem);letter-spacing:-.03em;line-height:.98">${title}</h1>
-    <p data-words style="color:rgba(244,241,233,.7);font-size:1.15rem;max-width:640px;margin-top:14px">${sub}</p>
+    <p data-words style="color:rgba(255,253,251,.78);font-size:1.15rem;max-width:640px;margin-top:14px">${sub}</p>
   </div>
 </section>`;
 
@@ -15,8 +16,8 @@ const PAGE_HERO = (crumb: string, title: string, sub: string) => `
 export function MissionPage() {
   return html`
   <style>
-    .m-hero{min-height:90vh;display:flex;align-items:center;background:linear-gradient(135deg,#143e39,#1f5e57);color:#fff;position:relative;overflow:hidden}
-    .m-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 40%,rgba(201,168,106,.2),transparent 50%)}
+    .m-hero{min-height:90vh;display:flex;align-items:center;background:linear-gradient(135deg,var(--bg-ink),var(--bg-ink-2));color:#fff;position:relative;overflow:hidden}
+    .m-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 40%,rgba(255,158,128,.22),transparent 50%),radial-gradient(circle at 20% 80%,rgba(184,174,232,.18),transparent 50%)}
     .m-hero .wrap{position:relative;z-index:2}
     .m-hero .eyebrow{color:var(--accent)}
     .m-hero h1{font-size:clamp(2.4rem,6vw,4.4rem);line-height:1.15;margin:18px 0}
@@ -31,7 +32,7 @@ export function MissionPage() {
     .m-val h3{font-size:1.3rem;margin-bottom:10px}.m-val p{color:var(--ink-soft);font-size:.95rem}
     @media(max-width:860px){.m-values{grid-template-columns:1fr}}
   </style>
-  <section class="m-hero">
+  <section class="m-hero" data-dark>
     <div class="wrap">
       <span class="eyebrow reveal" style="opacity:1">Our Mission</span>
       <h1 class="reveal in">기분 좋게<br>진료를 마칠 때까지</h1>
@@ -222,7 +223,7 @@ export function ReservationPage() {
         </div>
         <div class="res-side reveal reveal-d1">
           <h3>전화 예약이 가장 빠릅니다</h3>
-          <div class="si"><i class="fas fa-phone"></i><div><div style="font-weight:800;font-size:1.2rem">${CLINIC.tel}</div><div style="color:#a8c4bf;font-size:.85rem">진료시간 내 전화 문의</div></div></div>
+          <div class="si"><i class="fas fa-phone"></i><div><div style="font-weight:800;font-size:1.2rem">${CLINIC.tel}</div><div style="color:rgba(255,255,255,.7);font-size:.85rem">진료시간 내 전화 문의</div></div></div>
           <div class="si"><i class="fas fa-map-marker-alt"></i><div>${CLINIC.address}</div></div>
           <div class="si" style="border:none"><i class="fas fa-clock"></i><div>${raw(CLINIC.hours.map(h=>`${h.day} ${h.time}`).join('<br>'))}</div></div>
           <a href="tel:${CLINIC.tel}" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:24px"><i class="fas fa-phone"></i> 지금 전화하기</a>

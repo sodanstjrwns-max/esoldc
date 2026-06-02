@@ -6,11 +6,12 @@
 - **위치**: 경기도 남양주시 화도읍 마석중앙로 51 / ☎ 031-582-7528
 - **컨셉**: 개원 15년차, 각 분야 전문의 상주 / "기분 좋게 진료를 마칠 때까지"
 
-## 디자인 방향 (신청서 §C 반영)
-- **무드**: 따뜻하고 친근 + 전문/신뢰감 (Q24)
-- **컬러(AI 보완)**: 딥 틸-그린 `#1f5e57` + 웜 샌드 골드 `#c9a86a` — 비디치과 브라운 계열과 완전히 다른 독자 팔레트
-- **인터랙션**: 풀스크린 시네마틱 히어로, 스크롤 reveal(Intersection Observer), 숫자 카운트업, 패럴랙스, 마이크로 인터랙션(hover transform/shadow), 메가 드롭다운, 모바일 슬라이드 메뉴
-- **성능**: GPU 가속(transform/opacity) 기반, `prefers-reduced-motion` 존중, Pretendard preconnect
+## 디자인 방향 (신청서 §C 반영 · v3 파스텔/젤리 리디자인)
+- **무드**: 밝고 보송한 젤리 표면감 + 친근/신뢰 (다크 시네마틱 → 파스텔 전환)
+- **컬러(소프트 파스텔/젤리)**: 민트 `#3FB89E` · 피치 `#FF9E80` · 라벤더 `#B8AEE8` · 크림 `#FFF6EF` 베이스, 가지빛 잉크 `#3B3349`, 부드러운 다크 섹션 `#332B45`(블랙 대신 에그플랜트)
+- **폰트**: 헤드라인 Gmarket Sans(둥근 디스플레이) · 포인트 Gowun Batang(부드러운 명조) · 본문 Pretendard
+- **인터랙션**: 마우스 반응 캔버스 파티클 히어로(민트·피치·라벤더 3색), 키네틱 타이포(줄/단어 분할), 커스텀 커서(다크 섹션 자동 반전), 마그네틱 버튼, 에디토리얼 인덱스, sticky 철학 시퀀스, 매거진 그리드, 젤리 바운스 이징 `cubic-bezier(.34,1.56,.64,1)`
+- **성능/접근성**: GPU 가속(transform/opacity), `prefers-reduced-motion`·`hover:none` 가드, 폰트 preconnect/`font-display:swap`
 
 ## 완료된 기능 (Currently Completed)
 - ✅ 메인 페이지 — 히어로 + 퍼널 전구간(신뢰 스탯 / 핵심진료 / 철학 / 강점 / 전체진료 / 의료진 / 지역SEO / CTA)
@@ -66,4 +67,4 @@
 - **프론트**: Vanilla JS + Pretendard + Font Awesome (CDN)
 - **플랫폼**: Cloudflare Pages/Workers
 - **상태**: ✅ 로컬 동작 확인 / ⏳ 프로덕션 미배포
-- **Last Updated**: 2026-06-02
+- **Last Updated**: 2026-06-02 (v3 파스텔/젤리 리디자인 — 컬러·폰트 전면 교체)
