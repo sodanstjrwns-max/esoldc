@@ -13,8 +13,8 @@ export function HomePage() {
     .hero .wrap{position:relative;z-index:2}
     .hero-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:44px;font-size:.82rem;letter-spacing:.04em;color:var(--inv-soft)}
     .hero-meta .r{text-align:right}
-    .hero h1{font-size:clamp(3rem,7.6vw,6.4rem);line-height:1.1;font-weight:600;letter-spacing:-.01em;color:var(--inv)}
-    .hero h1 .gd{color:var(--gold-2);font-style:italic}
+    .hero h1{font-size:clamp(3rem,7.6vw,6.4rem);line-height:1.16;font-weight:900;letter-spacing:-.03em;color:var(--inv);word-break:keep-all}
+    .hero h1 .gd{color:var(--gold-2);font-weight:900}
     .hero-sub{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:30px;margin-top:46px}
     .hero-sub p{max-width:560px;color:var(--inv-soft);font-size:1.12rem;line-height:1.85}
     .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
@@ -34,7 +34,7 @@ export function HomePage() {
     /* ===== 소개 인트로 ===== */
     .intro{padding:120px 0}
     .intro-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:72px;align-items:center}
-    .intro-quote{font-family:var(--display);font-size:clamp(1.9rem,3.6vw,2.9rem);line-height:1.5;color:var(--navy);font-weight:500;letter-spacing:0}
+    .intro-quote{font-family:var(--display);font-size:clamp(1.9rem,3.6vw,2.9rem);line-height:1.55;color:var(--navy);font-weight:700;letter-spacing:-.02em;word-break:keep-all}
     .intro-quote em{font-style:normal;color:var(--gold);border-bottom:2px solid var(--gold-soft)}
     .intro p{color:var(--ink-soft);font-size:1.05rem;margin:0 0 18px}
     .intro .sign{margin-top:28px;font-family:var(--serif);color:var(--navy);font-weight:600}
