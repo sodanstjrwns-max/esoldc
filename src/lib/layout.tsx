@@ -10,8 +10,8 @@ import { SITE_URL, type SeoMeta } from './seo';
 //   --navy* = 딥 세이지/에버그린(메인)  --gold* = 웜 테라코타(포인트)
 // ============================================================================
 const DESIGN_TOKENS = `
-/* ===== 헤드라인 디스플레이 폰트: Cafe24 Ssurround (둥글·통통·따뜻한 손맛) ===== */
-@font-face{font-family:'Cafe24Ssurround';font-weight:700;font-display:swap;src:url('https://cdn.jsdelivr.net/npm/@noonnu/cafe24-ssurround/fonts/cafe24ssurround-normal.woff') format('woff')}
+/* ===== 헤드라인 폰트: RIDIBatang(모던 명조) + Cormorant Garamond(영문 세리프) — 고급·세련 ===== */
+@font-face{font-family:'RIDIBatang';font-weight:400;font-display:swap;src:url('https://cdn.jsdelivr.net/npm/@noonnu/ridibatang/RIDIBatang.woff') format('woff')}
 :root{
   --navy:#2F6B5E;          /* 메인: 딥 세이지/에버그린 (자연·청결·신뢰) */
   --navy-2:#27574C;
@@ -39,14 +39,17 @@ const DESIGN_TOKENS = `
   --glass:rgba(251,248,243,.72);
   --ease:cubic-bezier(.22,.61,.36,1);
   --max:1220px;
-  --display:'Cafe24Ssurround','Pretendard',sans-serif;  /* 헤드라인 디스플레이 (둥글·따뜻) */
-  --serif:'Cafe24Ssurround','Pretendard',sans-serif;    /* 레거시 호환(페이지들이 참조) → 디스플레이로 */
+  --display:'Cormorant Garamond','RIDIBatang','Pretendard',serif;  /* 헤드라인: 영문 세리프+한글 모던명조 */
+  --serif:'Cormorant Garamond','RIDIBatang','Pretendard',serif;    /* 레거시 호환(페이지들이 참조) */
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.8;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:17px}
-h1,h2,h3,h4{font-family:var(--display);line-height:1.24;letter-spacing:-.03em;margin:0;font-weight:800;color:var(--navy)}
-h1{font-weight:900}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.22;letter-spacing:-.01em;margin:0;font-weight:600;color:var(--navy)}
+h1{font-weight:600}
+h3,h4{font-weight:700}
+/* 한글 헤드라인만 RIDIBatang 적용 (영문은 Cormorant 우선) */
+h1:lang(ko),h2:lang(ko){letter-spacing:0}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
@@ -475,7 +478,9 @@ export function Layout(meta: SeoMeta, body: any) {
   <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
   <link rel="apple-touch-icon" href="/static/img/favicon.svg">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" as="font" type="font/woff" crossorigin href="https://cdn.jsdelivr.net/npm/@noonnu/cafe24-ssurround/fonts/cafe24ssurround-normal.woff">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="font" type="font/woff" crossorigin href="https://cdn.jsdelivr.net/npm/@noonnu/ridibatang/RIDIBatang.woff">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap">
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
   <style>${raw(DESIGN_TOKENS)}</style>
