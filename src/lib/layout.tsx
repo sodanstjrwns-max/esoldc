@@ -49,6 +49,7 @@ const DESIGN_TOKENS = `
   --max:1200px;
   --display:'Pretendard','Apple SD Gothic Neo',system-ui,sans-serif;
   --serif:'Pretendard',sans-serif;
+  --mono:'SF Mono','JetBrains Mono','Roboto Mono',ui-monospace,monospace;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -57,28 +58,35 @@ body{
   line-height:1.78;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;font-size:17px;letter-spacing:-.01em;
 }
-h1,h2,h3,h4{font-family:var(--display);line-height:1.24;letter-spacing:-.035em;margin:0;font-weight:800;color:var(--navy);word-break:keep-all}
-h1{font-weight:850}
-h2{font-weight:800}
-h3,h4{font-weight:700}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.18;letter-spacing:-.045em;margin:0;font-weight:800;color:var(--navy);word-break:keep-all}
+h1{font-weight:860;letter-spacing:-.05em}
+h2{font-weight:820;letter-spacing:-.048em}
+h3,h4{font-weight:700;letter-spacing:-.035em}
+::selection{background:var(--navy);color:var(--bg)}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
 section{position:relative}
 
-/* ── eyebrow (작은 라벨) ── */
-.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);padding:8px 18px;border-radius:var(--radius-pill)}
-.eyebrow::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--gold)}
+/* ── eyebrow (미니멀 모노 라벨 — 2026 에디토리얼) ── */
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);background:none;padding:0}
+.eyebrow::before{content:'';width:22px;height:1.5px;border-radius:2px;background:var(--gold);opacity:.8}
+/* ── 섹션 모노 라벨 (번호 + 텍스트) ── */
+.mono-lbl{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.mono-lbl .num{color:var(--ink-faint)}
+.mono-lbl::before{content:'';width:22px;height:1.5px;background:var(--gold);opacity:.8}
 
-/* ── 버튼 ── */
-.btn{display:inline-flex;align-items:center;gap:.55em;padding:16px 34px;border-radius:var(--radius-pill);font-weight:700;font-size:1.04rem;transition:transform .35s var(--ease),box-shadow .35s var(--ease),background .35s var(--ease);cursor:pointer;border:2px solid transparent;letter-spacing:-.01em;font-family:var(--display)}
+/* ── 버튼 (2026: 살짝 각진 라운드 + 정교한 호버) ── */
+.btn{position:relative;display:inline-flex;align-items:center;gap:.6em;padding:15px 30px;border-radius:12px;font-weight:700;font-size:1.01rem;transition:transform .4s var(--ease),box-shadow .4s var(--ease),background .35s var(--ease),border-color .35s;cursor:pointer;border:1.5px solid transparent;letter-spacing:-.01em;font-family:var(--display);overflow:hidden}
+.btn i{transition:transform .35s var(--ease)}
+.btn:hover i.fa-arrow-right{transform:translateX(4px)}
 .btn-primary{background:var(--navy);color:var(--inv);box-shadow:var(--shadow-sm)}
 .btn-primary:hover{background:var(--navy-2);transform:translateY(-3px);box-shadow:var(--shadow)}
 .btn-accent{background:var(--gold);color:#fff;box-shadow:var(--shadow-sm)}
-.btn-accent:hover{background:var(--gold);filter:brightness(.95);transform:translateY(-3px);box-shadow:var(--shadow-warm)}
-.btn-ghost{background:var(--bg-card);color:var(--navy);border-color:var(--line)}
-.btn-ghost:hover{border-color:var(--navy);transform:translateY(-3px);box-shadow:var(--shadow-sm)}
-.btn-line{display:inline-flex;align-items:center;gap:.55em;color:var(--inv);font-weight:700;padding:16px 34px;border-radius:var(--radius-pill);border:2px solid var(--inv-faint);transition:all .35s var(--ease);font-size:1.04rem}
+.btn-accent:hover{filter:brightness(.96);transform:translateY(-3px);box-shadow:var(--shadow-warm)}
+.btn-ghost{background:transparent;color:var(--navy);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--navy);background:var(--bg-card);transform:translateY(-3px);box-shadow:var(--shadow-sm)}
+.btn-line{display:inline-flex;align-items:center;gap:.6em;color:var(--inv);font-weight:700;padding:15px 30px;border-radius:12px;border:1.5px solid var(--inv-faint);transition:all .4s var(--ease);font-size:1.01rem}
 .btn-line:hover{border-color:var(--inv);background:rgba(250,245,236,.1);transform:translateY(-3px)}
 
 /* ── 헤더 ── */
