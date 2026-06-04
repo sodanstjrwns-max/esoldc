@@ -83,6 +83,28 @@ export function HomePage() {
     .all-card strong{display:block;font-size:1.1rem;color:var(--navy);margin-bottom:2px}
     .all-card .desc{font-size:.9rem;color:var(--ink-soft)}
 
+    /* ====================== 이전 안내 바 ====================== */
+    .relocate{background:var(--navy);color:var(--inv)}
+    .relocate-inner{display:flex;align-items:center;gap:18px;padding:13px 0;flex-wrap:wrap}
+    .relocate .rl-tag{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--navy);background:var(--gold-2);padding:5px 11px;border-radius:7px;flex:none}
+    .relocate p{margin:0;font-size:.95rem;color:var(--inv-soft);line-height:1.5}
+    .relocate p b{color:var(--inv);font-weight:700}
+    .relocate a{margin-left:auto;font-family:var(--mono);font-size:.78rem;letter-spacing:.05em;color:var(--gold-2);font-weight:600;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transition:gap .3s var(--ease)}
+    .relocate a:hover{gap:11px}
+
+    /* ====================== 보유 장비 ====================== */
+    .equip{background:var(--bg-soft)}
+    .equip-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--line)}
+    .equip-card{padding:34px 26px 34px 0;border-right:1px solid var(--line);margin-right:26px;transition:transform .4s var(--ease)}
+    .equip-card:last-child{border-right:none;margin-right:0}
+    .equip-card:hover{transform:translateY(-6px)}
+    .equip-card .eq-ic{width:50px;height:50px;border-radius:14px;background:var(--bg-card);border:1px solid var(--line);color:var(--navy);display:grid;place-items:center;font-size:1.25rem;margin-bottom:20px;transition:all .4s var(--ease)}
+    .equip-card:hover .eq-ic{background:var(--navy);color:var(--gold-2);border-color:var(--navy)}
+    .equip-card h4{font-size:1.08rem;margin-bottom:9px;line-height:1.3}
+    .equip-card p{font-size:.9rem;color:var(--ink-soft);line-height:1.62;margin:0;word-break:keep-all}
+    .equip-note{margin-top:38px;font-size:.92rem;color:var(--ink-faint);display:flex;align-items:center;gap:9px}
+    .equip-note i{color:var(--gold)}
+
     /* ====================== 의료진 ====================== */
     .team-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
     .team-card{transition:transform .4s var(--ease)}
@@ -119,6 +141,11 @@ export function HomePage() {
       .why-card{border-right:none;border-bottom:1px solid rgba(250,245,236,.14);margin-right:0;padding:32px 0}
       .why-card:last-child{border-bottom:none}
       .team-grid{grid-template-columns:repeat(3,1fr)}
+      .equip-grid{grid-template-columns:1fr 1fr}
+      .equip-card{border-right:none;border-bottom:1px solid var(--line);margin-right:0;padding:28px 0}
+      .equip-card:nth-child(odd){border-right:1px solid var(--line);padding-right:26px;margin-right:26px}
+      .equip-card:last-child{border-bottom:none}
+      .relocate a{margin-left:0;width:100%}
     }
     @media(max-width:560px){
       .core-grid,.all-grid{grid-template-columns:1fr}
@@ -126,8 +153,19 @@ export function HomePage() {
       .hero-meta .hm{padding-right:22px;margin-right:22px}
       .cta-box{padding:54px 26px}
       .team-grid{grid-template-columns:repeat(2,1fr)}
+      .equip-grid{grid-template-columns:1fr}
+      .equip-card,.equip-card:nth-child(odd){border-right:none;padding-right:0;margin-right:0;padding:24px 0}
     }
   </style>
+
+  <!-- ============ 이전 안내 ============ -->
+  <section class="relocate">
+    <div class="wrap relocate-inner">
+      <span class="rl-tag">NEW</span>
+      <p>이솔치과의원이 <b>${CLINIC.addressShort}</b>로 새롭게 자리를 옮겼습니다. 더 넓고 쾌적한 공간에서 맞이하겠습니다.</p>
+      <a href="/directions">오시는 길 <i class="fas fa-arrow-right"></i></a>
+    </div>
+  </section>
 
   <!-- ============ HERO ============ -->
   <section class="hero">
@@ -241,11 +279,34 @@ export function HomePage() {
     </div>
   </section>
 
+  <!-- ============ 보유 장비 ============ -->
+  <section class="sec equip">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="mono-lbl"><span class="num">/05</span> 진단 · 장비</span>
+        <h2>3대가 함께 믿고 맡기는 이유</h2>
+        <p>${CLINIC.subSlogan}. 정밀한 진단 장비로 보이지 않는 부분까지 꼼꼼히 살핍니다.</p>
+      </div>
+      <div class="equip-grid">
+        ${raw(CLINIC.equipment.map((e, i) => `
+          <div class="equip-card" data-reveal data-reveal-d="${(i % 5) + 1}">
+            <div class="eq-ic"><i class="fas ${['fa-x-ray','fa-cube','fa-magnifying-glass','fa-face-smile','fa-child-reaching'][i] || 'fa-tooth'}"></i></div>
+            <h4>${e.name}</h4>
+            <p>${e.desc}</p>
+          </div>`).join(''))}
+      </div>
+      <div class="equip-note" data-reveal>
+        <i class="fas fa-circle-info"></i>
+        <span>장비 보유 현황은 진료 환경 개선에 따라 달라질 수 있으며, 자세한 사항은 내원 시 안내드립니다.</span>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ 의료진 ============ -->
   <section class="sec intro">
     <div class="wrap">
       <div class="sec-head" data-reveal>
-        <span class="mono-lbl"><span class="num">/05</span> 의료진 소개</span>
+        <span class="mono-lbl"><span class="num">/06</span> 의료진 소개</span>
         <h2>각 분야 전문의가 상주합니다</h2>
         <p>분야별 전문의가 함께하여, 한곳에서 전 연령의 진료를 책임집니다.</p>
       </div>
@@ -268,7 +329,7 @@ export function HomePage() {
   <section class="sec geo">
     <div class="wrap">
       <div class="sec-head center" data-reveal>
-        <span class="mono-lbl"><span class="num">/06</span> 진료 가능 지역</span>
+        <span class="mono-lbl"><span class="num">/07</span> 진료 가능 지역</span>
         <h2>마석 인근에서 편하게 오세요</h2>
         <p>마석을 중심으로 화도·남양주·가평 등 인근 지역에서 찾아주십니다.</p>
       </div>
