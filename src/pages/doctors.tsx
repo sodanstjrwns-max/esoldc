@@ -2,8 +2,8 @@ import { html, raw } from 'hono/html';
 import { CLINIC, DOCTORS, getTreatmentsForDoctor, type Doctor } from '../data/clinic';
 
 const DOC_CSS = `
-.d-hero{background:var(--navy);color:var(--inv);padding:180px 0 84px;position:relative;overflow:hidden}
-.d-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(700px 460px at 18% 30%,rgba(217,142,99,.16),transparent 60%)}
+.d-hero{background:var(--navy);color:var(--inv);padding:104px 0 80px;position:relative;overflow:hidden}
+.d-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(700px 460px at 18% 30%,rgba(200,119,90,.16),transparent 60%)}
 .d-hero .wrap{position:relative;z-index:2}
 .d-hero .eyebrow{color:var(--gold-2)}
 .d-hero h1{font-size:clamp(2.3rem,5.4vw,3.8rem);line-height:1.25;color:var(--inv);margin-top:14px}
