@@ -10,7 +10,7 @@ export function HomePage() {
     .hero-top .eyebrow{font-size:.76rem}
     .hero-coords{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:var(--ink-faint);text-align:right;line-height:1.7}
     /* 거대 디스플레이 헤드라인 */
-    .hero-display{font-family:var(--serif);font-weight:700;line-height:.92;letter-spacing:-.03em;color:var(--navy);font-size:clamp(3rem,8.5vw,7.6rem);margin:0}
+    .hero-display{font-family:var(--serif);font-weight:700;line-height:.92;letter-spacing:-.055em;word-spacing:-.06em;color:var(--navy);font-size:clamp(3rem,8.5vw,7.6rem);margin:0}
     .hero-display .l2{padding-left:.14em}
     .hero-display .accent{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     /* 거대 아웃라인 워드마크 (매거진 커버 무드) */
@@ -49,7 +49,7 @@ export function HomePage() {
     .sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
     .sec-head .mono-lbl{margin-bottom:22px}
     .sec-head.center .mono-lbl{justify-content:center}
-    .sec-head h2{font-family:var(--serif);font-weight:700;font-size:clamp(2.3rem,5.2vw,4.4rem);margin-bottom:20px;letter-spacing:-.03em;line-height:1.02}
+    .sec-head h2{font-family:var(--serif);font-weight:700;font-size:clamp(2.3rem,5.2vw,4.4rem);margin-bottom:20px;letter-spacing:-.05em;line-height:1.02}
     .sec-head h2 em{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     .sec-head.center h2[data-line] > span{display:inline-block}
     .sec-head p{font-size:1.14rem;color:var(--ink-soft);line-height:1.8;max-width:580px}
@@ -62,7 +62,7 @@ export function HomePage() {
     .intro-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
     .intro-img:hover img{transform:scale(1.04)}
     .intro .mono-lbl{margin-bottom:26px}
-    .intro-quote{font-family:var(--serif);font-size:clamp(1.9rem,3.8vw,3.1rem);font-weight:700;color:var(--navy);line-height:1.24;letter-spacing:-.025em;margin-bottom:30px}
+    .intro-quote{font-family:var(--serif);font-size:clamp(1.9rem,3.8vw,3.1rem);font-weight:700;color:var(--navy);line-height:1.24;letter-spacing:-.045em;margin-bottom:30px}
     .intro-quote em{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     .intro p{font-size:1.08rem;color:var(--ink-soft);line-height:1.9;margin:0 0 18px}
     .intro-sign{margin-top:32px;padding-top:26px;border-top:1px solid var(--line);font-weight:700;color:var(--navy);font-size:1.05rem}
@@ -157,7 +157,7 @@ export function HomePage() {
     .cta-box::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.55),transparent)}
     .cta-box .mono-lbl{color:var(--gold-2);justify-content:center;margin-bottom:20px}
     .cta-box .mono-lbl::before{background:var(--gold-2)}
-    .cta-box h2{font-family:var(--serif);font-weight:700;color:var(--inv);font-size:clamp(2.3rem,5vw,4rem);margin-bottom:18px;position:relative;line-height:1.06;letter-spacing:-.025em}
+    .cta-box h2{font-family:var(--serif);font-weight:700;color:var(--inv);font-size:clamp(2.3rem,5vw,4rem);margin-bottom:18px;position:relative;line-height:1.06;letter-spacing:-.045em}
     .cta-box h2 em{font-style:normal;background:linear-gradient(135deg,#E7C98C,#C99A52);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     .cta-box p{color:var(--inv-soft);font-size:1.14rem;margin-bottom:36px;max-width:520px;margin-left:auto;margin-right:auto;position:relative}
     .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
