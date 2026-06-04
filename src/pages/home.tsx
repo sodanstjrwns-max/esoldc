@@ -13,6 +13,10 @@ export function HomePage() {
     .hero-display{font-family:var(--serif);font-weight:700;line-height:.92;letter-spacing:-.03em;color:var(--navy);font-size:clamp(3rem,8.5vw,7.6rem);margin:0}
     .hero-display .l2{padding-left:.14em}
     .hero-display .accent{color:var(--gold);font-style:italic}
+    /* 거대 아웃라인 워드마크 (매거진 커버 무드) */
+    .hero-bigword{font-family:var(--grotesk);font-weight:700;font-size:clamp(2.4rem,7vw,6rem);line-height:.9;letter-spacing:-.03em;margin:14px 0 0;display:flex;align-items:baseline;gap:.22em;flex-wrap:wrap}
+    .hero-bigword em{font-style:normal;color:var(--gold);opacity:.92}
+    @media(max-width:560px){.hero-bigword{font-size:clamp(2rem,12vw,3.2rem);margin-top:8px}}
     /* 히어로 본문 + 이미지가 겹치는 비대칭 영역 */
     .hero-body{position:relative}
     .hero-stage{display:grid;grid-template-columns:1.1fr .9fr;gap:54px;align-items:end;margin-top:40px}
@@ -92,8 +96,9 @@ export function HomePage() {
     .why-card{padding:44px 36px 44px 0;border-right:1px solid rgba(250,245,236,.14);margin-right:36px;transition:padding-left .4s var(--ease)}
     .why-card:last-child{border-right:none;margin-right:0}
     .why-card:hover{padding-left:8px}
-    .why-card .wn{font-family:var(--mono);font-size:3.4rem;font-weight:300;color:var(--gold-2);letter-spacing:-.04em;margin-bottom:22px;line-height:1;opacity:.85}
-    .why-card h3{font-size:1.4rem;margin-bottom:13px;color:var(--inv)}
+    .why-card .wn{font-family:var(--grotesk);font-size:clamp(3.6rem,5vw,5.4rem);font-weight:600;color:transparent;-webkit-text-stroke:1.4px var(--gold-2);text-stroke:1.4px var(--gold-2);letter-spacing:-.05em;margin-bottom:22px;line-height:.85;display:block;transition:color .5s var(--ease)}
+    .why-card:hover .wn{color:var(--gold-2)}
+    .why-card h3{font-family:var(--serif);font-weight:700;font-size:1.55rem;margin-bottom:13px;color:var(--inv);letter-spacing:-.02em}
     .why-card p{color:var(--inv-soft);font-size:1.01rem;line-height:1.78;margin:0}
 
     /* ====================== 전체 진료 ====================== */
@@ -213,12 +218,12 @@ export function HomePage() {
         <span data-line data-line-d="1"><span>기분 좋게</span></span>
         <span class="l2" data-line data-line-d="2"><span><span class="accent">진료를 마칠</span> 때까지</span></span>
       </h1>
+      <div class="hero-bigword" aria-hidden="true"><span class="t-stroke">ISOL</span> <em>DENTAL</em></div>
       <div class="hero-body">
         <div class="hero-stage">
           <div class="hero-lead">
-            <p class="hero-sub" data-reveal data-reveal-d="2">
-              치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며,
-              충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
+            <p class="hero-sub" data-words>
+              치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며, 충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
             </p>
             <div class="hero-cta" data-reveal data-reveal-d="3">
               <a href="/reservation" class="btn btn-primary"><i class="fas fa-calendar-check"></i> 예약 문의하기</a>
@@ -277,7 +282,9 @@ export function HomePage() {
 
   <!-- ============ 핵심 진료 ============ -->
   <section class="sec">
-    <div class="wrap">
+    <span class="kicker-v">CORE TREATMENTS</span>
+    <div class="wrap folio">
+      <span class="folio-num" aria-hidden="true">02</span>
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/02</span> 핵심 진료</span>
         <h2 data-line><span>가장 <em>집중하는</em> 세 가지</span></h2>
@@ -300,7 +307,9 @@ export function HomePage() {
 
   <!-- ============ 강점 ============ -->
   <section class="sec why">
-    <div class="wrap">
+    <span class="kicker-v">WHY ISOL</span>
+    <div class="wrap folio">
+      <span class="folio-num" aria-hidden="true">03</span>
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/03</span> 왜 이솔치과일까요</span>
         <h2 data-line><span>오래 다녀도 <em>편안한</em> 이유</span></h2>
@@ -326,7 +335,7 @@ export function HomePage() {
   </section>
 
   <!-- ============ 인버트 마퀴 띠 ============ -->
-  <div class="marquee invert" aria-hidden="true">
+  <div class="marquee invert reverse" aria-hidden="true">
     <div class="marquee-track">
       ${raw(Array(2).fill(0).map(() => `
         <span class="marquee-item">충분한 상담</span>
@@ -340,7 +349,9 @@ export function HomePage() {
 
   <!-- ============ 전체 진료 ============ -->
   <section class="sec">
-    <div class="wrap">
+    <span class="kicker-v">ALL CARE</span>
+    <div class="wrap folio">
+      <span class="folio-num" aria-hidden="true">04</span>
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/04</span> 전체 진료 안내</span>
         <h2 data-line><span>한곳에서 받는 <em>온 가족</em> 진료</span></h2>
@@ -358,7 +369,9 @@ export function HomePage() {
 
   <!-- ============ 보유 장비 ============ -->
   <section class="sec equip">
-    <div class="wrap">
+    <span class="kicker-v">DIAGNOSIS</span>
+    <div class="wrap folio">
+      <span class="folio-num" aria-hidden="true">05</span>
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/05</span> 진단 · 장비</span>
         <h2 data-line><span>3대가 함께 <em>믿고 맡기는</em> 이유</span></h2>
@@ -381,7 +394,9 @@ export function HomePage() {
 
   <!-- ============ 의료진 ============ -->
   <section class="sec intro">
-    <div class="wrap">
+    <span class="kicker-v">SPECIALISTS</span>
+    <div class="wrap folio">
+      <span class="folio-num" aria-hidden="true">06</span>
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/06</span> 의료진 소개</span>
         <h2 data-line><span>각 분야 <em>전문의</em>가 상주합니다</span></h2>

@@ -172,7 +172,30 @@ section{position:relative}
 .marquee.invert .marquee-item{color:var(--inv)}
 .marquee.invert .marquee-item::after{background:var(--gold-2)}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee.reverse .marquee-track{animation-direction:reverse}
 @media(prefers-reduced-motion:reduce){.marquee-track{animation:none}}
+
+/* ── 2026 강화: 거대 고스트 폴리오 넘버 (섹션 인덱스) ── */
+.sec{overflow:hidden}
+.folio{position:relative}
+.folio-num{position:absolute;top:-.34em;right:-.02em;font-family:var(--grotesk);font-weight:700;font-size:clamp(9rem,24vw,22rem);line-height:.8;letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.4px var(--line);text-stroke:1.4px var(--line);pointer-events:none;z-index:0;user-select:none;opacity:.9}
+.folio > *{position:relative;z-index:1}
+.why .folio-num{-webkit-text-stroke-color:rgba(250,245,236,.16);text-stroke:1.4px rgba(250,245,236,.16)}
+@media(max-width:760px){.folio-num{font-size:38vw;top:-.2em;right:-.04em;opacity:.7}}
+
+/* ── 2026 강화: 아웃라인(스트로크) 디스플레이 텍스트 ── */
+.t-stroke{color:transparent;-webkit-text-stroke:1.6px var(--navy);text-stroke:1.6px var(--navy)}
+.why .t-stroke,.cta-box .t-stroke{-webkit-text-stroke-color:var(--inv);text-stroke:1.6px var(--inv)}
+
+/* ── 2026 강화: 세로 키커 (러닝 사이드 라벨) ── */
+.kicker-v{position:absolute;left:-2px;top:0;writing-mode:vertical-rl;font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--ink-faint);opacity:.7;pointer-events:none}
+@media(max-width:980px){.kicker-v{display:none}}
+
+/* ── 2026 강화: 단어 단위 캐스케이드 (히어로) ── */
+[data-words]{overflow:hidden}
+[data-words] .w{display:inline-block;overflow:hidden;vertical-align:top}
+[data-words] .w > span{display:inline-block;transform:translateY(110%);transition:transform .95s var(--ease)}
+[data-words].words-in .w > span{transform:translateY(0)}
 
 /* ── 반응형 ── */
 @media(max-width:980px){
@@ -190,6 +213,7 @@ section{position:relative}
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
   [data-reveal]{opacity:1!important;transform:none!important}
+  [data-words] .w > span{transform:none!important}
 }
 `;
 
@@ -303,6 +327,52 @@ const INTERACTION_JS = `
     lineEls.forEach(function(el){ io3.observe(el); });
   } else {
     document.querySelectorAll('[data-line]').forEach(function(el){ el.classList.add('line-in'); });
+  }
+
+  // 단어 단위 캐스케이드 (data-words: 공백 기준 분할 후 순차 슬라이드업)
+  var wordEls = document.querySelectorAll('[data-words]');
+  wordEls.forEach(function(el){
+    if(el.getAttribute('data-split') === '1') return;
+    el.setAttribute('data-split','1');
+    var parts = el.textContent.split(/(\\s+)/);
+    el.textContent = '';
+    var i = 0;
+    parts.forEach(function(p){
+      if(/^\\s+$/.test(p)){ el.appendChild(document.createTextNode(' ')); return; }
+      if(!p) return;
+      var w = document.createElement('span'); w.className='w';
+      var inner = document.createElement('span');
+      inner.textContent = p;
+      inner.style.transitionDelay = (0.06 + i*0.07) + 's';
+      w.appendChild(inner); el.appendChild(w); i++;
+    });
+  });
+  if(RM){ wordEls.forEach(function(el){ el.classList.add('words-in'); }); }
+  else if('IntersectionObserver' in window){
+    var io4 = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('words-in'); io4.unobserve(e.target); } });
+    }, {threshold:.4});
+    wordEls.forEach(function(el){ io4.observe(el); });
+  } else { wordEls.forEach(function(el){ el.classList.add('words-in'); }); }
+
+  // 스크롤 속도 반응형 마퀴 (스크롤 시 잠깐 가속 — 에디토리얼 리듬)
+  if(!RM){
+    var tracks = document.querySelectorAll('.marquee-track');
+    if(tracks.length){
+      var lastY = window.scrollY, boost = 0, ticking = false;
+      function applyBoost(){
+        var dur = Math.max(8, 38 - boost*30);
+        tracks.forEach(function(t){ t.style.animationDuration = dur + 's'; });
+        boost *= 0.9;
+        if(boost > 0.01){ requestAnimationFrame(applyBoost); }
+        else { tracks.forEach(function(t){ t.style.animationDuration = '38s'; }); ticking = false; }
+      }
+      window.addEventListener('scroll', function(){
+        var dy = Math.abs(window.scrollY - lastY); lastY = window.scrollY;
+        boost = Math.min(1, boost + dy/900);
+        if(!ticking){ ticking = true; requestAnimationFrame(applyBoost); }
+      }, {passive:true});
+    }
   }
 })();
 `;
