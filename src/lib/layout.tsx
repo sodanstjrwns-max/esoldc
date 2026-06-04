@@ -165,9 +165,11 @@ section{position:relative}
 [data-reveal-d="5"],.reveal-d5{transition-delay:.4s}
 
 /* ── 라인 마스크 reveal (디스플레이 타이포 등장 — 2026) ── */
-[data-line]{overflow:hidden}
-[data-line] > *{display:block;transform:translateY(105%);transition:transform 1s var(--ease)}
+[data-line]{overflow:hidden;padding-bottom:.16em;padding-top:.04em}
+[data-line] > *{display:block;transform:translateY(110%);transition:transform 1s var(--ease)}
 [data-line].line-in > *{transform:translateY(0)}
+/* reveal 종료 후 overflow 해제 → 세리프 받침·이탤릭 꼬리 잘림 방지 */
+[data-line].line-in{overflow:visible;transition:overflow 0s linear .9s}
 [data-line][data-line-d="1"] > *{transition-delay:.1s}
 [data-line][data-line-d="2"] > *{transition-delay:.22s}
 

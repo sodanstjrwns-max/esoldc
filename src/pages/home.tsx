@@ -51,7 +51,6 @@ export function HomePage() {
     .sec-head.center .mono-lbl{justify-content:center}
     .sec-head h2{font-family:var(--serif);font-weight:700;font-size:clamp(2.3rem,5.2vw,4.4rem);margin-bottom:20px;letter-spacing:-.03em;line-height:1.02}
     .sec-head h2 em{font-style:italic;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
-    .sec-head h2[data-line]{padding-bottom:.08em}
     .sec-head.center h2[data-line] > span{display:inline-block}
     .sec-head p{font-size:1.14rem;color:var(--ink-soft);line-height:1.8;max-width:580px}
     .sec-head.center p{margin-left:auto;margin-right:auto}
