@@ -12,7 +12,7 @@ export function HomePage() {
     /* 거대 디스플레이 헤드라인 */
     .hero-display{font-family:var(--serif);font-weight:700;line-height:.92;letter-spacing:-.03em;color:var(--navy);font-size:clamp(3rem,8.5vw,7.6rem);margin:0}
     .hero-display .l2{padding-left:.14em}
-    .hero-display .accent{color:var(--gold);font-style:italic}
+    .hero-display .accent{font-style:italic;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     /* 거대 아웃라인 워드마크 (매거진 커버 무드) */
     .hero-bigword{font-family:var(--grotesk);font-weight:700;font-size:clamp(2.4rem,7vw,6rem);line-height:.9;letter-spacing:-.03em;margin:14px 0 0;display:flex;align-items:baseline;gap:.22em;flex-wrap:wrap}
     .hero-bigword em{font-style:normal;color:var(--gold);opacity:.92}
@@ -50,7 +50,7 @@ export function HomePage() {
     .sec-head .mono-lbl{margin-bottom:22px}
     .sec-head.center .mono-lbl{justify-content:center}
     .sec-head h2{font-family:var(--serif);font-weight:700;font-size:clamp(2.3rem,5.2vw,4.4rem);margin-bottom:20px;letter-spacing:-.03em;line-height:1.02}
-    .sec-head h2 em{font-style:italic;color:var(--gold)}
+    .sec-head h2 em{font-style:italic;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     .sec-head h2[data-line]{padding-bottom:.08em}
     .sec-head.center h2[data-line] > span{display:inline-block}
     .sec-head p{font-size:1.14rem;color:var(--ink-soft);line-height:1.8;max-width:580px}
@@ -64,7 +64,7 @@ export function HomePage() {
     .intro-img:hover img{transform:scale(1.04)}
     .intro .mono-lbl{margin-bottom:26px}
     .intro-quote{font-family:var(--serif);font-size:clamp(1.9rem,3.8vw,3.1rem);font-weight:700;color:var(--navy);line-height:1.24;letter-spacing:-.025em;margin-bottom:30px}
-    .intro-quote em{font-style:italic;color:var(--gold)}
+    .intro-quote em{font-style:italic;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     .intro p{font-size:1.08rem;color:var(--ink-soft);line-height:1.9;margin:0 0 18px}
     .intro-sign{margin-top:32px;padding-top:26px;border-top:1px solid var(--line);font-weight:700;color:var(--navy);font-size:1.05rem}
     .intro-sign span{display:block;font-size:.94rem;color:var(--ink-faint);font-weight:500;margin-top:5px;font-style:italic}
@@ -88,8 +88,11 @@ export function HomePage() {
     .core-row:hover .cr-ic{color:var(--gold-2)}
 
     /* ====================== 강점 (2026: 거대 숫자 + 그리드) ====================== */
-    .why{background:var(--navy);color:var(--inv)}
+    .why{background:linear-gradient(155deg,#52402F 0%,var(--navy) 40%,var(--navy-2) 100%);color:var(--inv);position:relative}
+    .why::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.45),transparent)}
+    .why::after{content:'';position:absolute;top:-100px;left:-60px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(201,154,82,.16),transparent 70%);pointer-events:none}
     .why .sec-head h2{color:var(--inv)}
+    .why .sec-head h2 em,.cta-box h2 em{background:linear-gradient(135deg,#E7C98C,#C99A52);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     .why .sec-head .mono-lbl{color:var(--gold-2)}
     .why .sec-head .mono-lbl::before{background:var(--gold-2)}
     .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid rgba(250,245,236,.18)}
@@ -111,7 +114,7 @@ export function HomePage() {
     .all-card .desc{font-size:.9rem;color:var(--ink-soft)}
 
     /* ====================== 이전 안내 바 ====================== */
-    .relocate{background:var(--navy);color:var(--inv)}
+    .relocate{background:linear-gradient(100deg,var(--navy-2),var(--navy));color:var(--inv);border-bottom:1px solid rgba(201,154,82,.22)}
     .relocate-inner{display:flex;align-items:center;gap:18px;padding:13px 0;flex-wrap:wrap}
     .relocate .rl-tag{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--navy);background:var(--gold-2);padding:5px 11px;border-radius:7px;flex:none}
     .relocate p{margin:0;font-size:.95rem;color:var(--inv-soft);line-height:1.5}
@@ -150,12 +153,13 @@ export function HomePage() {
     .geo-chips a:hover{background:var(--navy);color:var(--inv);border-color:var(--navy);transform:translateY(-2px)}
 
     /* ====================== CTA (2026: 비대칭 + 큰 카피) ====================== */
-    .cta-box{position:relative;background:var(--navy);border-radius:var(--radius-xl);padding:80px 56px;text-align:center;color:var(--inv);overflow:hidden}
-    .cta-box::before{content:'';position:absolute;top:-140px;right:-100px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(185,138,78,.22),transparent 70%);pointer-events:none}
+    .cta-box{position:relative;background:linear-gradient(140deg,#56432F 0%,var(--navy) 44%,var(--navy-2) 100%);border-radius:var(--radius-xl);padding:80px 56px;text-align:center;color:var(--inv);overflow:hidden;box-shadow:0 40px 90px rgba(54,39,30,.32);border:1px solid rgba(201,154,82,.16)}
+    .cta-box::before{content:'';position:absolute;top:-140px;right:-100px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(201,154,82,.28),transparent 68%);pointer-events:none}
+    .cta-box::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.55),transparent)}
     .cta-box .mono-lbl{color:var(--gold-2);justify-content:center;margin-bottom:20px}
     .cta-box .mono-lbl::before{background:var(--gold-2)}
     .cta-box h2{font-family:var(--serif);font-weight:700;color:var(--inv);font-size:clamp(2.3rem,5vw,4rem);margin-bottom:18px;position:relative;line-height:1.06;letter-spacing:-.025em}
-    .cta-box h2 em{font-style:italic;color:var(--gold-2)}
+    .cta-box h2 em{font-style:italic;background:linear-gradient(135deg,#E7C98C,#C99A52);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     .cta-box p{color:var(--inv-soft);font-size:1.14rem;margin-bottom:36px;max-width:520px;margin-left:auto;margin-right:auto;position:relative}
     .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
 

@@ -12,23 +12,31 @@ import { SITE_URL, type SeoMeta } from './seo';
 const DESIGN_TOKENS = `
 :root{
   /* ── 메인: 딥 우드/에스프레소 브라운 (전문·신뢰·고급) ── */
-  --navy:#5A463A;
-  --navy-2:#46352B;
-  --navy-3:#74604F;
-  /* ── 포인트: 따뜻한 카멜/골드 ── */
-  --gold:#B98A4E;
-  --gold-2:#D2AB73;
-  --gold-soft:#F1E6D2;
-  /* ── 잉크(텍스트) — 웜 브라운-그레이 ── */
-  --ink:#33302B;
-  --ink-soft:#6B6359;
-  --ink-faint:#9A9183;
-  --line:#E8E0D2;
-  /* ── 배경 — 따뜻한 크림/베이지 ── */
-  --bg:#FAF5EC;
-  --bg-soft:#F2EADB;
-  --bg-deep:#ECE2CF;
-  --bg-card:#FFFDF8;
+  --navy:#4A382D;
+  --navy-2:#36271E;
+  --navy-3:#6B5747;
+  /* ── 포인트: 따뜻한 카멜/골드 (더 깊고 메탈릭) ── */
+  --gold:#A6772F;
+  --gold-2:#C99A52;
+  --gold-3:#8A5F26;
+  --gold-soft:#EFE2C9;
+  /* 골드 메탈릭 그라데이션 (텍스트·테두리용) */
+  --gold-grad:linear-gradient(135deg,#D9B675 0%,#A6772F 48%,#C99A52 100%);
+  --gold-grad-deep:linear-gradient(135deg,#C99A52 0%,#8A5F26 100%);
+  /* ── 잉크(텍스트) — 웜 브라운-그레이 (살짝 더 깊게) ── */
+  --ink:#2C2620;
+  --ink-soft:#615A50;
+  --ink-faint:#94897A;
+  --line:#E2D8C6;
+  --line-soft:#EDE5D6;
+  /* ── 배경 — 따뜻한 크림/베이지 (한 톤 가라앉혀 깊이감) ── */
+  --bg:#F6EFE2;
+  --bg-soft:#EFE6D5;
+  --bg-deep:#E6DAC4;
+  --bg-card:#FCF8F0;
+  /* 미묘한 웜 그라데이션 배경 (플랫 탈피) */
+  --bg-grad:radial-gradient(120% 90% at 80% -10%,#FBF6EC 0%,#F6EFE2 42%,#EFE7D6 100%);
+  --bg-grad-soft:linear-gradient(180deg,#F1E8D8 0%,#EFE6D4 100%);
   /* ── 그린 위 텍스트 ── */
   --inv:#FAF5EC;
   --inv-soft:rgba(250,245,236,.80);
@@ -63,7 +71,8 @@ const DESIGN_TOKENS = `
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
-  margin:0;font-family:var(--display);color:var(--ink);background:var(--bg);
+  margin:0;font-family:var(--display);color:var(--ink);
+  background:var(--bg);background-image:var(--bg-grad);background-attachment:fixed;
   line-height:1.78;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;font-size:17px;letter-spacing:-.01em;
 }
@@ -79,11 +88,11 @@ section{position:relative}
 
 /* ── eyebrow (미니멀 모노 라벨 — 2026 에디토리얼) ── */
 .eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);background:none;padding:0}
-.eyebrow::before{content:'';width:22px;height:1.5px;border-radius:2px;background:var(--gold);opacity:.8}
+.eyebrow::before{content:'';width:24px;height:1.5px;border-radius:2px;background:var(--gold-grad);opacity:.95}
 /* ── 섹션 모노 라벨 (번호 + 텍스트) ── */
 .mono-lbl{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
 .mono-lbl .num{color:var(--ink-faint)}
-.mono-lbl::before{content:'';width:22px;height:1.5px;background:var(--gold);opacity:.8}
+.mono-lbl::before{content:'';width:24px;height:1.5px;background:var(--gold-grad);opacity:.95}
 
 /* ── 버튼 (2026: 살짝 각진 라운드 + 정교한 호버) ── */
 .btn{position:relative;display:inline-flex;align-items:center;gap:.6em;padding:15px 30px;border-radius:12px;font-weight:700;font-size:1.01rem;transition:transform .4s var(--ease),box-shadow .4s var(--ease),background .35s var(--ease),border-color .35s;cursor:pointer;border:1.5px solid transparent;letter-spacing:-.01em;font-family:var(--display);overflow:hidden}
@@ -91,8 +100,10 @@ section{position:relative}
 .btn:hover i.fa-arrow-right{transform:translateX(4px)}
 .btn-primary{background:var(--navy);color:var(--inv);box-shadow:var(--shadow-sm)}
 .btn-primary:hover{background:var(--navy-2);transform:translateY(-3px);box-shadow:var(--shadow)}
-.btn-accent{background:var(--gold);color:#fff;box-shadow:var(--shadow-sm)}
-.btn-accent:hover{filter:brightness(.96);transform:translateY(-3px);box-shadow:var(--shadow-warm)}
+.btn-accent{background:var(--gold-grad);background-size:160% 160%;background-position:0% 50%;color:#fff;box-shadow:0 10px 28px rgba(138,95,38,.32);transition:transform .4s var(--ease),box-shadow .4s var(--ease),background-position .6s var(--ease)}
+.btn-accent:hover{background-position:100% 50%;transform:translateY(-3px);box-shadow:0 16px 40px rgba(138,95,38,.42)}
+/* ── 메탈릭 골드 그라데이션 텍스트 ── */
+.gold-text{background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 .btn-ghost{background:transparent;color:var(--navy);border-color:var(--line)}
 .btn-ghost:hover{border-color:var(--navy);background:var(--bg-card);transform:translateY(-3px);box-shadow:var(--shadow-sm)}
 .btn-line{display:inline-flex;align-items:center;gap:.6em;color:var(--inv);font-weight:700;padding:15px 30px;border-radius:12px;border:1.5px solid var(--inv-faint);transition:all .4s var(--ease);font-size:1.01rem}
@@ -126,8 +137,9 @@ section{position:relative}
 .mobile-menu .close{position:absolute;top:26px;right:28px;background:none;border:none;color:var(--inv);font-size:1.7rem;cursor:pointer}
 
 /* ── 푸터 ── */
-.site-footer{background:linear-gradient(165deg,var(--navy),var(--navy-2));color:var(--inv);padding:80px 0 36px;margin-top:60px;position:relative;overflow:hidden}
-.site-footer::before{content:'';position:absolute;top:-120px;right:-80px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(185,138,78,.24),transparent 70%)}
+.site-footer{background:linear-gradient(160deg,#52402F 0%,var(--navy) 38%,var(--navy-2) 100%);color:var(--inv);padding:80px 0 36px;margin-top:60px;position:relative;overflow:hidden}
+.site-footer::before{content:'';position:absolute;top:-120px;right:-80px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(201,154,82,.28),transparent 68%)}
+.site-footer::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.5),transparent)}
 .footer-grid{display:grid;grid-template-columns:1.7fr 1fr 1fr 1.2fr;gap:44px;position:relative}
 .footer-brand{font-size:1.4rem;font-weight:800;margin-bottom:14px;color:var(--inv)}
 .footer-grid h4{color:var(--inv);font-size:1rem;margin-bottom:14px}
@@ -163,7 +175,7 @@ section{position:relative}
 .scroll-prog{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-2));z-index:900;transition:width .1s linear}
 
 /* ── 마퀴 (무한 흐르는 텍스트 띠 — 2026 에디토리얼 리듬) ── */
-.marquee{overflow:hidden;white-space:nowrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg);padding:22px 0}
+.marquee{overflow:hidden;white-space:nowrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg-grad-soft);padding:22px 0}
 .marquee-track{display:inline-flex;align-items:center;gap:0;animation:marquee 38s linear infinite;will-change:transform}
 .marquee:hover .marquee-track{animation-play-state:paused}
 .marquee-item{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.4rem);font-weight:700;color:var(--navy);letter-spacing:-.02em;padding:0 26px;display:inline-flex;align-items:center;gap:26px}
