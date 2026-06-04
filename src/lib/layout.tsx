@@ -34,9 +34,9 @@ const DESIGN_TOKENS = `
   --inv-soft:rgba(250,245,236,.80);
   --inv-faint:rgba(250,245,236,.52);
   /* ── 라운드 (2026: 크고 부드럽게) ── */
-  --radius:18px;
-  --radius-lg:32px;
-  --radius-xl:48px;
+  --radius:12px;
+  --radius-lg:18px;
+  --radius-xl:24px;
   --radius-pill:999px;
   /* ── 그림자 (부드럽고 따뜻하게) ── */
   --shadow-sm:0 4px 20px rgba(59,107,90,.07);
@@ -56,11 +56,6 @@ body{
   margin:0;font-family:var(--display);color:var(--ink);background:var(--bg);
   line-height:1.78;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;font-size:17px;letter-spacing:-.01em;
-}
-/* 미세 그레인 텍스처 (종이 같은 따뜻함, 2026) */
-body::before{
-  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.025;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 h1,h2,h3,h4{font-family:var(--display);line-height:1.24;letter-spacing:-.035em;margin:0;font-weight:800;color:var(--navy);word-break:keep-all}
 h1{font-weight:850}
@@ -130,9 +125,6 @@ section{position:relative}
 .float-cta a{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1.3rem;box-shadow:var(--shadow);transition:transform .3s var(--ease)}
 .float-cta a:hover{transform:scale(1.1)}
 .fc-tel{background:var(--navy)}.fc-map{background:var(--navy-3)}.fc-book{background:var(--gold)}
-
-/* ── 유기적 곡선 구분선(블롭/웨이브) ── */
-.blob{position:absolute;border-radius:46% 54% 58% 42%/52% 44% 56% 48%;filter:blur(8px);opacity:.5;pointer-events:none;z-index:0}
 
 /* ── 스크롤 리빌 (data-reveal = home / .reveal = 기타 페이지 호환) ── */
 [data-reveal],.reveal{opacity:0;transform:translateY(36px);transition:opacity .9s var(--ease-soft),transform .9s var(--ease-soft)}

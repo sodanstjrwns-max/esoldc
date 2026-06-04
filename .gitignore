@@ -31,3 +31,8 @@ lerna-debug.log*
 
 # misc
 .DS_Store
+
+# self-inspection artifacts
+shot.cjs
+shot-*.png
+tmp_img/
