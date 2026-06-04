@@ -1,6 +1,6 @@
 import { CLINIC, DOCTORS, TREATMENTS, type Treatment } from '../data/clinic';
 
-export const SITE_URL = 'https://isoldent.pages.dev'; // 배포 후 커스텀 도메인으로 교체
+export const SITE_URL = 'https://isoldent.com'; // 실 도메인 (6/3 시트)
 
 export interface SeoMeta {
   title: string;

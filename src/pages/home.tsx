@@ -125,7 +125,7 @@ export function HomePage() {
           <a href="/treatments" class="btn btn-ghost">진료 안내 보기</a>
         </div>
         <div class="hero-meta" data-reveal data-reveal-d="4">
-          <div class="hm"><b><span data-count="15" data-suffix="년+">0</span></b><span>한자리에서 함께</span></div>
+          <div class="hm"><b><span data-count="10" data-suffix="년째">0</span></b><span>한자리에서 함께</span></div>
           <div class="hm"><b><span data-count="5" data-suffix="인">0</span></b><span>상주 의료진</span></div>
           <div class="hm"><b>전 연령</b><span>아이부터 어르신까지</span></div>
         </div>

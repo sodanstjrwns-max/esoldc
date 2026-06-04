@@ -6,7 +6,7 @@
     </linearGradient>
   </defs>
   <rect width="400" height="400" fill="url(#bg)"/>
-  <circle cx="200" cy="158" r="64" fill="#3B6B5A" opacity="0.85"/>
-  <path d="M84 360c0-64 52-104 116-104s116 40 116 104z" fill="#3B6B5A" opacity="0.85"/>
-  <circle cx="296" cy="120" r="26" fill="#E0A07F"/>
+  <circle cx="200" cy="158" r="64" fill="#5A463A" opacity="0.85"/>
+  <path d="M84 360c0-64 52-104 116-104s116 40 116 104z" fill="#5A463A" opacity="0.85"/>
+  <circle cx="296" cy="120" r="26" fill="#D2AB73"/>
 </svg>

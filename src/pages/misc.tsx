@@ -3,7 +3,7 @@ import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatmen
 
 const PAGE_HERO = (crumb: string, title: string, sub: string) => `
 <section style="background:var(--navy);color:var(--inv);padding:104px 0 80px;position:relative;overflow:hidden">
-  <div style="position:absolute;inset:0;background:radial-gradient(700px 460px at 82% 24%,rgba(200,119,90,.16),transparent 60%)"></div>
+  <div style="position:absolute;inset:0;background:radial-gradient(700px 460px at 82% 24%,rgba(185,138,78,.16),transparent 60%)"></div>
   <div class="wrap" style="position:relative;z-index:2">
     <div style="font-size:.78rem;letter-spacing:.12em;color:rgba(250,248,244,.45);margin-bottom:22px"><a href="/" style="color:rgba(250,248,244,.45)">홈</a> / ${crumb}</div>
     <h1 style="font-size:clamp(2.3rem,5.4vw,3.8rem);line-height:1.25;color:var(--inv)">${title}</h1>
@@ -16,7 +16,7 @@ export function MissionPage() {
   return html`
   <style>
     .m-hero{min-height:90vh;display:flex;align-items:center;background:linear-gradient(135deg,var(--navy),var(--navy-2));color:#fff;position:relative;overflow:hidden}
-    .m-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 75% 35%,rgba(200,119,90,.18),transparent 55%)}
+    .m-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 75% 35%,rgba(185,138,78,.18),transparent 55%)}
     .m-hero .wrap{position:relative;z-index:2}
     .m-hero .eyebrow{color:var(--gold)}
     .m-hero h1{font-size:clamp(2.4rem,6vw,4.4rem);line-height:1.15;margin:18px 0}
@@ -35,7 +35,7 @@ export function MissionPage() {
     <div class="wrap">
       <span class="eyebrow">Our Mission</span>
       <h1 class="reveal in">기분 좋게<br>진료를 마칠 때까지</h1>
-      <p class="reveal in reveal-d1">남양주 마석에서 15년. 한자리를 지키며 지역 주민과 따뜻하게 함께해 온, 가장 편하게 떠올릴 수 있는 우리 동네 치과입니다.</p>
+      <p class="reveal in reveal-d1">남양주 마석에서 10년째 한자리. 소아부터 조부모님까지 3대가 함께 다니는, 가장 편하게 떠올릴 수 있는 우리 가족 치과 주치의입니다.</p>
     </div>
   </section>
 
@@ -46,9 +46,9 @@ export function MissionPage() {
         <h2 style="font-size:2rem;margin-top:14px">우리가 치과를 시작한 이유</h2>
       </div>
       <p class="reveal">치과는 누구에게나 조금은 긴장되는 공간입니다. 그 긴장을 덜어드리고, 진료가 끝났을 때 "오길 잘했다"는 마음으로 돌아가시는 것 — 그것이 이솔치과가 처음부터 바라온 모습입니다.</p>
-      <p class="reveal">개원 이래 15년 동안 우리는 한자리를 지켰습니다. 처음 오셨던 아이가 학부모가 되어 다시 찾아오고, 가족 모두의 구강 건강을 함께 돌보게 되는 시간 속에서, 동네 치과의 의미를 다시 새기게 됩니다.</p>
+      <p class="reveal">2017년 개원 이래 10년째, 우리는 한자리를 지켰습니다. 처음 오셨던 아이가 학부모가 되어 다시 찾아오고, 가족 모두의 구강 건강을 함께 돌보게 되는 시간 속에서, 동네 치과의 의미를 다시 새기게 됩니다.</p>
       <p class="big reveal">"지역 안에서 자리 잘 잡은 치과,<br>가장 편하게 떠올릴 수 있는 치과가 되는 것."</p>
-      <p class="reveal">그래서 우리는 쫓기듯 진료하지 않습니다. 충분히 상담하고, 정밀하게 진단하고, 환자분이 이해하고 안심할 수 있을 때까지 설명합니다. 각 분야 전문의가 상주하기에 가능한 일입니다.</p>
+      <p class="reveal">그래서 우리는 쫓기듯 진료하지 않습니다. 충분히 상담하고, 정밀하게 진단하고, 환자분이 이해하고 안심할 수 있을 때까지 설명합니다. 각 분야 전문의가 상주하기에(임플란트 제외) 가능한 일입니다.</p>
     </div>
   </section>
 
@@ -61,7 +61,7 @@ export function MissionPage() {
       <div class="m-values">
         <div class="m-val reveal"><div class="vi"><i class="fas fa-hand-holding-heart"></i></div><h3>따뜻한 진료</h3><p>친절을 진료의 기본으로 여깁니다. 환자분이 편안한 마음으로 진료받을 수 있도록 노력합니다.</p></div>
         <div class="m-val reveal reveal-d1"><div class="vi"><i class="fas fa-microscope"></i></div><h3>정밀한 진단</h3><p>전문의 의료진의 정밀 진단을 진료의 출발점으로 삼습니다.</p></div>
-        <div class="m-val reveal reveal-d2"><div class="vi"><i class="fas fa-handshake"></i></div><h3>오래가는 신뢰</h3><p>15년간 한자리를 지키며 쌓아온 신뢰를 가장 소중히 여깁니다.</p></div>
+        <div class="m-val reveal reveal-d2"><div class="vi"><i class="fas fa-handshake"></i></div><h3>오래가는 신뢰</h3><p>10년째 한자리를 지키며 쌓아온 지역 신뢰를 가장 소중히 여깁니다.</p></div>
       </div>
     </div>
   </section>
@@ -101,7 +101,7 @@ export function DirectionsPage() {
           <h2 style="font-size:1.8rem;margin-bottom:10px">${CLINIC.name}</h2>
           <div class="row"><div class="ri"><i class="fas fa-map-marker-alt"></i></div><div><div class="rt">주소</div><div class="rd">${CLINIC.address}</div></div></div>
           <div class="row"><div class="ri"><i class="fas fa-phone"></i></div><div><div class="rt">대표전화</div><div class="rd"><a href="tel:${CLINIC.tel}" style="color:var(--gold);font-weight:700">${CLINIC.tel}</a></div></div></div>
-          <div class="row"><div class="ri"><i class="fas fa-subway"></i></div><div><div class="rt">대중교통</div><div class="rd">경춘선 마석역 인근 · 마석중앙로변</div></div></div>
+          <div class="row"><div class="ri"><i class="fas fa-subway"></i></div><div><div class="rt">대중교통</div><div class="rd">경춘선 마석역 인근 · 마석로 25, 4층</div></div></div>
           <div class="row"><div class="ri"><i class="fas fa-car"></i></div><div><div class="rt">주차</div><div class="rd">자세한 주차 안내는 전화로 문의해 주세요.</div></div></div>
           <a href="https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:24px"><i class="fas fa-map"></i> 네이버 지도로 보기</a>
         </div>
@@ -282,7 +282,7 @@ export function AreaPage(area: { slug: string; name: string; full: string }, t: 
   <section class="section">
     <div class="wrap area-body">
       <div class="reveal" style="background:var(--gold-soft);border-radius:var(--radius);padding:24px 28px;margin-bottom:32px">
-        <p style="font-size:1.1rem;color:var(--ink)"><strong>${area.full}에서 ${t.name} 치과를 찾고 계신가요?</strong> 이솔치과의원은 ${CLINIC.address}에 위치하여, ${area.name} 지역에서 가깝게 방문하실 수 있는 동네 치과입니다. 개원 15년차, 각 분야 전문의가 상주합니다.</p>
+        <p style="font-size:1.1rem;color:var(--ink)"><strong>${area.full}에서 ${t.name} 치과를 찾고 계신가요?</strong> 이솔치과의원은 ${CLINIC.address}에 위치하여, ${area.name} 지역에서 가깝게 방문하실 수 있는 동네 치과입니다. 각 분야 전문의가 상주합니다(임플란트 제외).</p>
       </div>
       <h2>${area.name} 주민을 위한 ${t.name} 진료</h2>
       <p>${t.intro.replace(/^[^?]*\?/, '').trim()}</p>

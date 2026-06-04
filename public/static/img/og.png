@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3B6B5A"/>
-      <stop offset="1" stop-color="#2E5648"/>
+      <stop offset="0" stop-color="#5A463A"/>
+      <stop offset="1" stop-color="#46352B"/>
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#g)"/>
-  <circle cx="1050" cy="120" r="220" fill="#C8775A" opacity="0.22"/>
-  <circle cx="120" cy="560" r="260" fill="#4E8470" opacity="0.35"/>
+  <circle cx="1050" cy="120" r="220" fill="#B98A4E" opacity="0.22"/>
+  <circle cx="120" cy="560" r="260" fill="#74604F" opacity="0.35"/>
   <g transform="translate(100,210)">
     <rect x="0" y="0" width="84" height="84" rx="22" fill="#FAF5EC"/>
-    <path d="M42 18c-4 0-6 2-9 2s-4-1.3-4 2.7c0 4.7 2 8 3.3 12 1 3 2 6 4 6 1.7 0 2-2.7 3.3-2.7s1.7 2.7 3.3 2.7c2 0 3-3 4-6 1.3-4 3.3-7.3 3.3-12 0-4-1.3-2.7-4-2.7s-4.7-2-9-2z" fill="#3B6B5A"/>
+    <path d="M42 18c-4 0-6 2-9 2s-4-1.3-4 2.7c0 4.7 2 8 3.3 12 1 3 2 6 4 6 1.7 0 2-2.7 3.3-2.7s1.7 2.7 3.3 2.7c2 0 3-3 4-6 1.3-4 3.3-7.3 3.3-12 0-4-1.3-2.7-4-2.7s-4.7-2-9-2z" fill="#5A463A"/>
   </g>
   <text x="100" y="380" font-family="Pretendard,sans-serif" font-size="78" font-weight="800" fill="#FAF5EC" letter-spacing="-2">이솔치과의원</text>
-  <text x="100" y="450" font-family="Pretendard,sans-serif" font-size="38" font-weight="500" fill="#E0A07F">기분 좋게 진료를 마칠 때까지</text>
-  <text x="100" y="510" font-family="Pretendard,sans-serif" font-size="30" font-weight="400" fill="rgba(250,245,236,.8)">남양주 마석 · 개원 15년차 · 전문의 상주</text>
+  <text x="100" y="450" font-family="Pretendard,sans-serif" font-size="38" font-weight="500" fill="#D2AB73">기분 좋게 진료를 마칠 때까지</text>
+  <text x="100" y="510" font-family="Pretendard,sans-serif" font-size="30" font-weight="400" fill="rgba(250,245,236,.8)">남양주 마석 · 3대가 함께하는 가족치과</text>
 </svg>

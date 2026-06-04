@@ -30,7 +30,7 @@ app.use('/api/*', cors());
 app.get('/', (c) => {
   return c.html(Layout({
     title: `${CLINIC.name} | 남양주 마석 임플란트·교정·소아치과`,
-    description: `남양주 마석 ${CLINIC.name}. 개원 15년차, 각 분야 전문의 상주. 임플란트·치아교정·소아치과를 중심으로 전 연령 통합 진료. 기분 좋게 진료를 마칠 때까지.`,
+    description: `남양주 마석 ${CLINIC.name}. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과. 임플란트·치아교정·소아치과 전 연령 통합 진료. 기분 좋게 진료를 마칠 때까지.`,
     path: '/',
     jsonLd: [dentistSchema(), localBusinessSchema()],
   }, HomePage()));
@@ -42,7 +42,7 @@ app.get('/', (c) => {
 app.get('/mission', (c) => {
   return c.html(Layout({
     title: `병원소개 | ${CLINIC.name} - 남양주 마석 치과`,
-    description: `${CLINIC.name}의 이야기. 남양주 마석에서 15년, "기분 좋게 진료를 마칠 때까지"라는 철학으로 지역 주민과 함께해 온 동네 치과입니다.`,
+    description: `${CLINIC.name}의 이야기. 남양주 마석에서 10년째 한자리, "기분 좋게 진료를 마칠 때까지"라는 철학으로 지역 주민과 함께해 온 동네 치과입니다.`,
     path: '/mission',
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '병원소개', path: '/mission' }])],
   }, MissionPage()));
@@ -169,7 +169,7 @@ app.get('/area/:combo', (c) => {
   if (!area || !t) return c.notFound();
   return c.html(Layout({
     title: `${area.name} ${t.name} | ${CLINIC.name} - ${area.full}`,
-    description: `${area.full} ${t.name} 치과를 찾으신다면 ${CLINIC.name}. ${CLINIC.addressShort}, 개원 15년차, 전문의 상주. ${t.name} 진료 안내.`,
+    description: `${area.full} ${t.name} 치과를 찾으신다면 ${CLINIC.name}. ${CLINIC.addressShort}, 각 분야 전문의 상주(임플란트 제외). ${t.name} 진료 안내.`,
     path: `/area/${combo}`,
     jsonLd: [
       { '@context': 'https://schema.org', '@type': 'City', name: area.full },
@@ -271,7 +271,7 @@ Sitemap: ${SITE_URL}/sitemap.xml`, 200, { 'Content-Type': 'text/plain' });
 app.get('/llms.txt', (c) => {
   return c.text(`# ${CLINIC.name} (${CLINIC.nameEn})
 
-> 남양주 마석에 위치한 개원 15년차 치과의원. 각 분야 전문의가 상주하며, "기분 좋게 진료를 마칠 때까지"를 진료 철학으로 합니다.
+> 남양주 마석에 위치한 동네 치과의원(2017년 개원, 10년째 한자리). 임플란트를 제외한 각 분야 전문의가 상주하며, 소아부터 노인까지 3대가 함께 다니는 가족 치과를 지향합니다. "기분 좋게 진료를 마칠 때까지"를 진료 철학으로 합니다.
 
 ## 기본 정보
 - 병원명: ${CLINIC.name}

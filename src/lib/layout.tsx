@@ -4,21 +4,21 @@ import { SITE_URL, type SeoMeta } from './seo';
 
 // ============================================================================
 // 디자인 토큰 — "Soft Organic" (2026 웜 내추럴)
-// 방향: 카페 같은 편안함. 따뜻한 크림/베이지 베이스 + 차분한 세이지 그린 +
+// 방향: 카페 같은 편안함. 따뜻한 크림/베이지 베이스 + 딥 우드 브라운 +
 //       살구빛 포인트. 유기적 곡선·넉넉한 여백·큰 본문(중장년 가독성).
 // 토큰 이름은 유지(전 페이지 호환), 값만 새 팔레트로 매핑:
-//   --navy* = 딥 세이지 그린(메인)  --gold* = 살구/클레이(포인트)
+//   --navy* = 딥 우드 브라운(메인)  --gold* = 카멜/골드(포인트)
 // ============================================================================
 const DESIGN_TOKENS = `
 :root{
-  /* ── 메인: 딥 세이지 그린 (자연·청결·신뢰) ── */
-  --navy:#3B6B5A;
-  --navy-2:#2E5648;
-  --navy-3:#4E8470;
-  /* ── 포인트: 따뜻한 클레이/살구 ── */
-  --gold:#C8775A;
-  --gold-2:#E0A07F;
-  --gold-soft:#F6E4D7;
+  /* ── 메인: 딥 우드/에스프레소 브라운 (전문·신뢰·고급) ── */
+  --navy:#5A463A;
+  --navy-2:#46352B;
+  --navy-3:#74604F;
+  /* ── 포인트: 따뜻한 카멜/골드 ── */
+  --gold:#B98A4E;
+  --gold-2:#D2AB73;
+  --gold-soft:#F1E6D2;
   /* ── 잉크(텍스트) — 웜 브라운-그레이 ── */
   --ink:#33302B;
   --ink-soft:#6B6359;
@@ -39,10 +39,10 @@ const DESIGN_TOKENS = `
   --radius-xl:24px;
   --radius-pill:999px;
   /* ── 그림자 (부드럽고 따뜻하게) ── */
-  --shadow-sm:0 4px 20px rgba(59,107,90,.07);
-  --shadow:0 16px 44px rgba(59,107,90,.11);
-  --shadow-lg:0 34px 80px rgba(59,107,90,.16);
-  --shadow-warm:0 22px 56px rgba(200,119,90,.20);
+  --shadow-sm:0 4px 20px rgba(90,70,58,.07);
+  --shadow:0 16px 44px rgba(90,70,58,.12);
+  --shadow-lg:0 34px 80px rgba(90,70,58,.17);
+  --shadow-warm:0 22px 56px rgba(185,138,78,.22);
   --glass:rgba(250,245,236,.78);
   --ease:cubic-bezier(.22,.61,.36,1);
   --ease-soft:cubic-bezier(.4,0,.2,1);
@@ -110,7 +110,7 @@ section{position:relative}
 
 /* ── 푸터 ── */
 .site-footer{background:linear-gradient(165deg,var(--navy),var(--navy-2));color:var(--inv);padding:80px 0 36px;margin-top:60px;position:relative;overflow:hidden}
-.site-footer::before{content:'';position:absolute;top:-120px;right:-80px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(200,119,90,.22),transparent 70%)}
+.site-footer::before{content:'';position:absolute;top:-120px;right:-80px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(185,138,78,.24),transparent 70%)}
 .footer-grid{display:grid;grid-template-columns:1.7fr 1fr 1fr 1.2fr;gap:44px;position:relative}
 .footer-brand{font-size:1.4rem;font-weight:800;margin-bottom:14px;color:var(--inv)}
 .footer-grid h4{color:var(--inv);font-size:1rem;margin-bottom:14px}
@@ -345,7 +345,7 @@ export function Layout(meta: SeoMeta, body: any) {
   <meta property="og:image" content="${ogImage}">
   <meta property="og:locale" content="ko_KR">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#3B6B5A">
+  <meta name="theme-color" content="#5A463A">
   <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
   <link rel="apple-touch-icon" href="/static/img/favicon.svg">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
