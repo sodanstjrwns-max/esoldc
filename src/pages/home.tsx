@@ -39,14 +39,18 @@ export function HomePage() {
     @keyframes spin-badge{from{transform:rotate(0)}to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.hero-badge{animation:none}}
 
-    /* ====================== 섹션 공통 ====================== */
-    .sec{padding:104px 0}
-    .sec-head{max-width:660px;margin-bottom:54px}
+    /* ====================== 섹션 공통 (2026: 거대 세리프 헤드) ====================== */
+    .sec{padding:116px 0}
+    .sec-head{max-width:740px;margin-bottom:60px}
     .sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
-    .sec-head .mono-lbl{margin-bottom:20px}
+    .sec-head .mono-lbl{margin-bottom:22px}
     .sec-head.center .mono-lbl{justify-content:center}
-    .sec-head h2{font-size:clamp(2rem,4vw,3rem);margin-bottom:16px;letter-spacing:-.05em;line-height:1.1}
-    .sec-head p{font-size:1.12rem;color:var(--ink-soft);line-height:1.78}
+    .sec-head h2{font-family:var(--serif);font-weight:700;font-size:clamp(2.3rem,5.2vw,4.4rem);margin-bottom:20px;letter-spacing:-.03em;line-height:1.02}
+    .sec-head h2 em{font-style:italic;color:var(--gold)}
+    .sec-head h2[data-line]{padding-bottom:.08em}
+    .sec-head.center h2[data-line] > span{display:inline-block}
+    .sec-head p{font-size:1.14rem;color:var(--ink-soft);line-height:1.8;max-width:580px}
+    .sec-head.center p{margin-left:auto;margin-right:auto}
 
     /* ====================== 소개 (스토리 + 실사) ====================== */
     .intro{background:var(--bg-soft)}
@@ -54,26 +58,30 @@ export function HomePage() {
     .intro-img{position:relative;border-radius:var(--radius-xl);overflow:hidden;aspect-ratio:3/4;box-shadow:var(--shadow-lg)}
     .intro-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
     .intro-img:hover img{transform:scale(1.04)}
-    .intro .mono-lbl{margin-bottom:24px}
-    .intro-quote{font-size:clamp(1.8rem,3.2vw,2.5rem);font-weight:840;color:var(--navy);line-height:1.32;letter-spacing:-.05em;margin-bottom:28px}
+    .intro .mono-lbl{margin-bottom:26px}
+    .intro-quote{font-family:var(--serif);font-size:clamp(1.9rem,3.8vw,3.1rem);font-weight:700;color:var(--navy);line-height:1.24;letter-spacing:-.025em;margin-bottom:30px}
+    .intro-quote em{font-style:italic;color:var(--gold)}
     .intro p{font-size:1.08rem;color:var(--ink-soft);line-height:1.9;margin:0 0 18px}
     .intro-sign{margin-top:32px;padding-top:26px;border-top:1px solid var(--line);font-weight:700;color:var(--navy);font-size:1.05rem}
     .intro-sign span{display:block;font-size:.94rem;color:var(--ink-faint);font-weight:500;margin-top:5px;font-style:italic}
 
-    /* ====================== 핵심 진료 (2026: 큰 인덱스 + 정교 호버) ====================== */
-    .core-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-    .core-card{position:relative;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:38px 32px;transition:transform .45s var(--ease),box-shadow .45s var(--ease),border-color .35s;display:flex;flex-direction:column;overflow:hidden}
-    .core-card::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
-    .core-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg);border-color:transparent}
-    .core-card:hover::after{transform:scaleX(1)}
-    .core-card .cc-idx{position:absolute;top:24px;right:28px;font-family:var(--mono);font-size:.78rem;color:var(--ink-faint);letter-spacing:.06em}
-    .core-card .cc-icon{width:58px;height:58px;border-radius:16px;background:var(--navy);color:var(--bg);display:grid;place-items:center;font-size:1.45rem;margin-bottom:26px;transition:transform .45s var(--ease)}
-    .core-card:hover .cc-icon{transform:scale(1.08) rotate(-4deg)}
-    .core-card h3{font-size:1.5rem;margin-bottom:11px}
-    .core-card p{color:var(--ink-soft);font-size:1.01rem;line-height:1.7;flex:1;margin:0 0 24px}
-    .core-card .cc-link{font-weight:700;color:var(--navy);display:inline-flex;align-items:center;gap:9px;font-size:.98rem}
-    .core-card .cc-link i{transition:transform .35s var(--ease)}
-    .core-card:hover .cc-link i{transform:translateX(5px)}
+    /* ====================== 핵심 진료 (2026: 에디토리얼 넘버드 리스트) ====================== */
+    .core-list{border-top:1px solid var(--ink);margin-top:8px}
+    .core-row{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:40px;align-items:center;padding:40px 8px;border-bottom:1px solid var(--line);transition:padding .5s var(--ease),background .4s var(--ease)}
+    .core-row::before{content:'';position:absolute;inset:0;background:var(--navy);transform:scaleY(0);transform-origin:bottom;transition:transform .5s var(--ease);z-index:0}
+    .core-row > *{position:relative;z-index:1}
+    .core-row:hover{padding-left:32px;padding-right:24px}
+    .core-row:hover::before{transform:scaleY(1)}
+    .core-row .cr-num{font-family:var(--grotesk);font-size:clamp(2.4rem,5vw,4.2rem);font-weight:500;color:var(--ink-faint);letter-spacing:-.04em;line-height:.9;transition:color .4s var(--ease);min-width:1.6em}
+    .core-row:hover .cr-num{color:var(--gold-2)}
+    .core-row .cr-mid h3{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.5rem);font-weight:700;letter-spacing:-.02em;margin-bottom:8px;transition:color .4s var(--ease);line-height:1.1}
+    .core-row .cr-mid p{color:var(--ink-soft);font-size:1.04rem;line-height:1.6;margin:0;max-width:560px;transition:color .4s var(--ease)}
+    .core-row:hover .cr-mid h3{color:var(--inv)}
+    .core-row:hover .cr-mid p{color:var(--inv-soft)}
+    .core-row .cr-go{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:var(--navy);font-size:1.1rem;flex:none;transition:all .5s var(--ease)}
+    .core-row:hover .cr-go{border-color:var(--gold-2);background:var(--gold-2);color:var(--navy);transform:rotate(-45deg) scale(1.08)}
+    .core-row .cr-ic{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);display:block;margin-bottom:6px;transition:color .4s var(--ease)}
+    .core-row:hover .cr-ic{color:var(--gold-2)}
 
     /* ====================== 강점 (2026: 거대 숫자 + 그리드) ====================== */
     .why{background:var(--navy);color:var(--inv)}
@@ -141,7 +149,8 @@ export function HomePage() {
     .cta-box::before{content:'';position:absolute;top:-140px;right:-100px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(185,138,78,.22),transparent 70%);pointer-events:none}
     .cta-box .mono-lbl{color:var(--gold-2);justify-content:center;margin-bottom:20px}
     .cta-box .mono-lbl::before{background:var(--gold-2)}
-    .cta-box h2{color:var(--inv);font-size:clamp(2.1rem,4vw,3rem);margin-bottom:16px;position:relative}
+    .cta-box h2{font-family:var(--serif);font-weight:700;color:var(--inv);font-size:clamp(2.3rem,5vw,4rem);margin-bottom:18px;position:relative;line-height:1.06;letter-spacing:-.025em}
+    .cta-box h2 em{font-style:italic;color:var(--gold-2)}
     .cta-box p{color:var(--inv-soft);font-size:1.14rem;margin-bottom:36px;max-width:520px;margin-left:auto;margin-right:auto;position:relative}
     .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
 
@@ -156,7 +165,10 @@ export function HomePage() {
       .hero-coords{display:none}
       .intro-grid{grid-template-columns:1fr;gap:44px}
       .intro-img{aspect-ratio:4/3;max-height:420px}
-      .core-grid,.all-grid{grid-template-columns:1fr 1fr}
+      .all-grid{grid-template-columns:1fr 1fr}
+      .core-row{gap:22px;padding:30px 4px}
+      .core-row:hover{padding-left:18px;padding-right:14px}
+      .core-row .cr-num{min-width:1.4em}
       .why-grid{grid-template-columns:1fr}
       .why-card{border-right:none;border-bottom:1px solid rgba(250,245,236,.14);margin-right:0;padding:32px 0}
       .why-card:last-child{border-bottom:none}
@@ -168,8 +180,11 @@ export function HomePage() {
       .relocate a{margin-left:0;width:100%}
     }
     @media(max-width:560px){
-      .core-grid,.all-grid{grid-template-columns:1fr}
-      .sec{padding:68px 0}
+      .all-grid{grid-template-columns:1fr}
+      .core-row{grid-template-columns:auto 1fr;gap:18px}
+      .core-row .cr-go{display:none}
+      .core-row .cr-mid h3{font-size:1.4rem}
+      .sec{padding:72px 0}
       .hero-meta .hm{padding-right:22px;margin-right:22px}
       .cta-box{padding:54px 26px}
       .team-grid{grid-template-columns:repeat(2,1fr)}
@@ -246,7 +261,7 @@ export function HomePage() {
     <div class="wrap intro-grid">
       <div data-reveal>
         <span class="mono-lbl"><span class="num">/01</span> 우리 이야기</span>
-        <p class="intro-quote">치과를 떠올릴 때<br>가장 먼저 생각나는 곳이고 싶습니다.</p>
+        <p class="intro-quote" data-line><span>치과를 떠올릴 때 <em>가장 먼저</em><br>생각나는 곳이고 싶습니다.</span></p>
         <p>이솔치과의원은 남양주 마석에서 한자리를 지키며, 지역 주민과 따뜻하게 함께해 온 동네 치과입니다. 화려한 것보다 정직한 진료, 빠른 것보다 충분히 설명드리는 진료를 더 중요하게 생각합니다.</p>
         <p>아이의 첫 치과부터 어르신의 임플란트까지, 온 가족이 마음 편히 찾을 수 있는 곳. 진료가 끝나는 순간 “오길 잘했다”는 기분이 드시도록, 작은 부분까지 살피겠습니다.</p>
         <div class="intro-sign">
@@ -265,17 +280,19 @@ export function HomePage() {
     <div class="wrap">
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/02</span> 핵심 진료</span>
-        <h2>우리가 가장 집중하는 진료</h2>
+        <h2 data-line><span>가장 <em>집중하는</em> 세 가지</span></h2>
         <p>임플란트·치아교정·소아치과를 중심으로, 각 분야 전문의가 책임지고 진료합니다.</p>
       </div>
-      <div class="core-grid">
+      <div class="core-list">
         ${raw(CORE_TREATMENTS.map((t, i) => `
-          <a href="/treatments/${t.slug}" class="core-card" data-reveal data-reveal-d="${i + 1}">
-            <span class="cc-idx">/0${i + 1}</span>
-            <div class="cc-icon"><i class="fas ${t.icon}"></i></div>
-            <h3>${t.name}</h3>
-            <p>${t.short}.</p>
-            <span class="cc-link">자세히 보기 <i class="fas fa-arrow-right"></i></span>
+          <a href="/treatments/${t.slug}" class="core-row" data-reveal data-reveal-d="${i + 1}">
+            <span class="cr-num">0${i + 1}</span>
+            <span class="cr-mid">
+              <span class="cr-ic"><i class="fas ${t.icon}"></i> ${t.name}</span>
+              <h3>${t.name}</h3>
+              <p>${t.short}.</p>
+            </span>
+            <span class="cr-go"><i class="fas fa-arrow-right"></i></span>
           </a>`).join(''))}
       </div>
     </div>
@@ -286,7 +303,7 @@ export function HomePage() {
     <div class="wrap">
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/03</span> 왜 이솔치과일까요</span>
-        <h2>오래 다녀도 편안한 이유</h2>
+        <h2 data-line><span>오래 다녀도 <em>편안한</em> 이유</span></h2>
       </div>
       <div class="why-grid">
         <div class="why-card" data-reveal data-reveal-d="1">
@@ -308,12 +325,25 @@ export function HomePage() {
     </div>
   </section>
 
+  <!-- ============ 인버트 마퀴 띠 ============ -->
+  <div class="marquee invert" aria-hidden="true">
+    <div class="marquee-track">
+      ${raw(Array(2).fill(0).map(() => `
+        <span class="marquee-item">충분한 상담</span>
+        <span class="marquee-item">정밀한 진단</span>
+        <span class="marquee-item">3대가 함께</span>
+        <span class="marquee-item">전 연령 진료</span>
+        <span class="marquee-item">10년째 한자리</span>
+      `).join(''))}
+    </div>
+  </div>
+
   <!-- ============ 전체 진료 ============ -->
   <section class="sec">
     <div class="wrap">
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/04</span> 전체 진료 안내</span>
-        <h2>한곳에서 받는 온 가족 진료</h2>
+        <h2 data-line><span>한곳에서 받는 <em>온 가족</em> 진료</span></h2>
         <p>핵심 진료 외에도 일상적인 구강 건강 관리를 폭넓게 돌봅니다.</p>
       </div>
       <div class="all-grid">
@@ -331,7 +361,7 @@ export function HomePage() {
     <div class="wrap">
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/05</span> 진단 · 장비</span>
-        <h2>3대가 함께 믿고 맡기는 이유</h2>
+        <h2 data-line><span>3대가 함께 <em>믿고 맡기는</em> 이유</span></h2>
         <p>${CLINIC.subSlogan}. 정밀한 진단 장비로 보이지 않는 부분까지 꼼꼼히 살핍니다.</p>
       </div>
       <div class="equip-grid">
@@ -354,7 +384,7 @@ export function HomePage() {
     <div class="wrap">
       <div class="sec-head" data-reveal>
         <span class="mono-lbl"><span class="num">/06</span> 의료진 소개</span>
-        <h2>각 분야 전문의가 상주합니다</h2>
+        <h2 data-line><span>각 분야 <em>전문의</em>가 상주합니다</span></h2>
         <p>분야별 전문의가 함께하여, 한곳에서 전 연령의 진료를 책임집니다.</p>
       </div>
       <div class="team-grid">
@@ -377,7 +407,7 @@ export function HomePage() {
     <div class="wrap">
       <div class="sec-head center" data-reveal>
         <span class="mono-lbl"><span class="num">/07</span> 진료 가능 지역</span>
-        <h2>마석 인근에서 편하게 오세요</h2>
+        <h2 data-line><span>마석 인근에서 <em>편하게</em> 오세요</span></h2>
         <p>마석을 중심으로 화도·남양주·가평 등 인근 지역에서 찾아주십니다.</p>
       </div>
       <div class="geo-chips" data-reveal>
@@ -391,7 +421,7 @@ export function HomePage() {
     <div class="wrap">
       <div class="cta-box" data-reveal>
         <span class="mono-lbl">예약 문의</span>
-        <h2>편안한 진료, 지금 시작하세요</h2>
+        <h2>편안한 진료,<br><em>지금</em> 시작하세요</h2>
         <p>궁금한 점은 전화로 편하게 물어보세요. 온라인 예약 문의도 가능합니다.</p>
         <div class="cta-actions">
           <a href="tel:${CLINIC.tel}" class="btn btn-accent"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
