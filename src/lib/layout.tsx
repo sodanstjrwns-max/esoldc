@@ -46,11 +46,20 @@ const DESIGN_TOKENS = `
   --glass:rgba(250,245,236,.78);
   --ease:cubic-bezier(.22,.61,.36,1);
   --ease-soft:cubic-bezier(.4,0,.2,1);
-  --max:1200px;
+  --max:1280px;
   --display:'Pretendard','Apple SD Gothic Neo',system-ui,sans-serif;
-  --serif:'Pretendard',sans-serif;
-  --mono:'SF Mono','JetBrains Mono','Roboto Mono',ui-monospace,monospace;
+  --serif:'Gowun Batang','Pretendard',serif;
+  --grotesk:'Space Grotesk','Pretendard',sans-serif;
+  --mono:'Space Grotesk','SF Mono','JetBrains Mono',ui-monospace,monospace;
 }
+/* ── 2026: 종이 그레인 텍스처 (디지털인데 따뜻한 무드) ── */
+.grain{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.05;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+/* ── 커스텀 커서 (데스크톱 전용) ── */
+.cursor-dot{position:fixed;top:0;left:0;width:8px;height:8px;border-radius:50%;background:var(--gold);z-index:10000;pointer-events:none;transform:translate(-50%,-50%);transition:width .25s var(--ease),height .25s var(--ease),background .25s;mix-blend-mode:normal;will-change:transform}
+.cursor-ring{position:fixed;top:0;left:0;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--gold);z-index:10000;pointer-events:none;transform:translate(-50%,-50%);transition:width .3s var(--ease),height .3s var(--ease),border-color .3s,opacity .3s;opacity:.6;will-change:transform}
+.cursor-dot.hover{width:0;height:0}
+.cursor-ring.hover{width:64px;height:64px;border-color:var(--navy);opacity:.9;background:rgba(185,138,78,.08)}
+@media(hover:none),(max-width:900px){.cursor-dot,.cursor-ring{display:none!important}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
@@ -143,8 +152,27 @@ section{position:relative}
 [data-reveal-d="4"],.reveal-d4{transition-delay:.32s}
 [data-reveal-d="5"],.reveal-d5{transition-delay:.4s}
 
+/* ── 라인 마스크 reveal (디스플레이 타이포 등장 — 2026) ── */
+[data-line]{overflow:hidden}
+[data-line] > *{display:block;transform:translateY(105%);transition:transform 1s var(--ease)}
+[data-line].line-in > *{transform:translateY(0)}
+[data-line][data-line-d="1"] > *{transition-delay:.1s}
+[data-line][data-line-d="2"] > *{transition-delay:.22s}
+
 /* ── 스크롤 진행바 ── */
 .scroll-prog{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-2));z-index:900;transition:width .1s linear}
+
+/* ── 마퀴 (무한 흐르는 텍스트 띠 — 2026 에디토리얼 리듬) ── */
+.marquee{overflow:hidden;white-space:nowrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg);padding:22px 0}
+.marquee-track{display:inline-flex;align-items:center;gap:0;animation:marquee 38s linear infinite;will-change:transform}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.marquee-item{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.4rem);font-weight:700;color:var(--navy);letter-spacing:-.02em;padding:0 26px;display:inline-flex;align-items:center;gap:26px}
+.marquee-item::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--gold);flex:none}
+.marquee.invert{background:var(--navy);border-color:transparent}
+.marquee.invert .marquee-item{color:var(--inv)}
+.marquee.invert .marquee-item::after{background:var(--gold-2)}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.marquee-track{animation:none}}
 
 /* ── 반응형 ── */
 @media(max-width:980px){
@@ -226,6 +254,56 @@ const INTERACTION_JS = `
   if(burger&&menu){ burger.addEventListener('click', function(){ menu.classList.add('open'); document.body.style.overflow='hidden'; }); }
   if(closeBtn){ closeBtn.addEventListener('click', closeMenu); }
   if(menu){ menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeMenu); }); }
+
+  // 커스텀 커서 (데스크톱·포인터 정밀 기기 전용, reduced-motion 제외)
+  var fine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  if(fine && !RM){
+    var dot = document.querySelector('.cursor-dot');
+    var ring = document.querySelector('.cursor-ring');
+    if(dot && ring){
+      var mx=window.innerWidth/2, my=window.innerHeight/2, rx=mx, ry=my;
+      window.addEventListener('mousemove', function(e){
+        mx=e.clientX; my=e.clientY;
+        dot.style.transform='translate('+mx+'px,'+my+'px) translate(-50%,-50%)';
+      }, {passive:true});
+      (function loop(){
+        rx += (mx-rx)*0.18; ry += (my-ry)*0.18;
+        ring.style.transform='translate('+rx+'px,'+ry+'px) translate(-50%,-50%)';
+        requestAnimationFrame(loop);
+      })();
+      // 호버 가능한 요소 위에서 커서 확대
+      document.querySelectorAll('a,button,.core-card,.equip-card,.geo-chips a,[data-cursor]').forEach(function(el){
+        el.addEventListener('mouseenter', function(){ dot.classList.add('hover'); ring.classList.add('hover'); });
+        el.addEventListener('mouseleave', function(){ dot.classList.remove('hover'); ring.classList.remove('hover'); });
+      });
+    }
+  }
+
+  // 마우스 패럴랙스 (data-parallax 요소를 마우스 방향으로 미세 이동)
+  if(fine && !RM){
+    var pxEls = document.querySelectorAll('[data-parallax]');
+    if(pxEls.length){
+      window.addEventListener('mousemove', function(e){
+        var nx = (e.clientX/window.innerWidth - .5);
+        var ny = (e.clientY/window.innerHeight - .5);
+        pxEls.forEach(function(el){
+          var s = parseFloat(el.getAttribute('data-parallax')) || 14;
+          el.style.transform = 'translate('+(nx*s)+'px,'+(ny*s)+'px)';
+        });
+      }, {passive:true});
+    }
+  }
+
+  // 스크롤 기반 텍스트 마스크 reveal (data-line: 단어 단위 슬라이드업)
+  if(!RM && 'IntersectionObserver' in window){
+    var lineEls = document.querySelectorAll('[data-line]');
+    var io3 = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('line-in'); io3.unobserve(e.target); } });
+    }, {threshold:.3});
+    lineEls.forEach(function(el){ io3.observe(el); });
+  } else {
+    document.querySelectorAll('[data-line]').forEach(function(el){ el.classList.add('line-in'); });
+  }
 })();
 `;
 
@@ -357,12 +435,18 @@ export function Layout(meta: SeoMeta, body: any) {
   <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
   <link rel="apple-touch-icon" href="/static/img/favicon.svg">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
   <style>${raw(DESIGN_TOKENS)}</style>
   ${raw(jsonLdBlocks)}
 </head>
 <body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
   <div class="scroll-prog" aria-hidden="true"></div>
   ${header()}
   <main>${body}</main>

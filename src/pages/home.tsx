@@ -4,26 +4,40 @@ import { CLINIC, CORE_TREATMENTS, TREATMENTS, DOCTORS, NEARBY_AREAS } from '../d
 export function HomePage() {
   return html`
   <style>
-    /* ====================== HERO (2026: 빅 타이포 + 에디토리얼) ====================== */
-    .hero{background:var(--bg);padding:88px 0 96px;position:relative}
-    .hero-inner{display:grid;grid-template-columns:1.08fr 1fr;gap:72px;align-items:center}
-    .hero h1{font-size:clamp(2.9rem,6vw,5rem);line-height:1.04;font-weight:860;letter-spacing:-.055em;color:var(--navy);margin:26px 0 26px}
-    .hero h1 .accent{color:var(--gold)}
-    .hero-sub{font-size:1.18rem;color:var(--ink-soft);line-height:1.82;max-width:480px;margin-bottom:40px}
-    .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
-    .hero-meta{display:flex;gap:0;flex-wrap:wrap;padding-top:30px;border-top:1px solid var(--line)}
-    .hero-meta .hm{display:flex;flex-direction:column;gap:3px;padding-right:34px;margin-right:34px;border-right:1px solid var(--line)}
+    /* ====================== HERO (2026: 에디토리얼 매거진 · 거대 타이포) ====================== */
+    .hero{background:var(--bg);padding:60px 0 64px;position:relative;overflow:hidden}
+    .hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:38px}
+    .hero-top .eyebrow{font-size:.76rem}
+    .hero-coords{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:var(--ink-faint);text-align:right;line-height:1.7}
+    /* 거대 디스플레이 헤드라인 */
+    .hero-display{font-family:var(--serif);font-weight:700;line-height:.92;letter-spacing:-.03em;color:var(--navy);font-size:clamp(3rem,8.5vw,7.6rem);margin:0}
+    .hero-display .l2{padding-left:.14em}
+    .hero-display .accent{color:var(--gold);font-style:italic}
+    /* 히어로 본문 + 이미지가 겹치는 비대칭 영역 */
+    .hero-body{position:relative}
+    .hero-stage{display:grid;grid-template-columns:1.1fr .9fr;gap:54px;align-items:end;margin-top:40px}
+    .hero-lead{padding-bottom:14px}
+    .hero-sub{font-size:1.2rem;color:var(--ink-soft);line-height:1.85;max-width:460px;margin:0 0 34px;word-break:keep-all}
+    .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:38px}
+    .hero-meta{display:flex;gap:0;flex-wrap:wrap;padding-top:28px;border-top:1px solid var(--line)}
+    .hero-meta .hm{display:flex;flex-direction:column;gap:3px;padding-right:30px;margin-right:30px;border-right:1px solid var(--line)}
     .hero-meta .hm:last-child{border-right:none;padding-right:0;margin-right:0}
-    .hero-meta .hm b{font-size:1.7rem;font-weight:850;color:var(--navy);letter-spacing:-.04em;line-height:1}
-    .hero-meta .hm span{font-size:.84rem;color:var(--ink-soft);letter-spacing:-.01em}
-    .hero-img{position:relative;border-radius:var(--radius-xl);overflow:hidden;aspect-ratio:4/3;box-shadow:var(--shadow-lg)}
-    .hero-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
-    .hero-img:hover img{transform:scale(1.04)}
-    .hero-img .tag{position:absolute;left:18px;bottom:18px;background:var(--glass);backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);padding:13px 19px;border-radius:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:13px;border:1px solid rgba(255,255,255,.4)}
+    .hero-meta .hm b{font-family:var(--grotesk);font-size:1.85rem;font-weight:600;color:var(--navy);letter-spacing:-.03em;line-height:1}
+    .hero-meta .hm span{font-size:.82rem;color:var(--ink-soft);letter-spacing:-.01em}
+    .hero-figure{position:relative}
+    .hero-img{position:relative;border-radius:var(--radius-xl);overflow:hidden;aspect-ratio:1/1.12;box-shadow:var(--shadow-lg);will-change:transform}
+    .hero-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease);transform:scale(1.06)}
+    .hero-img:hover img{transform:scale(1.12)}
+    .hero-img .tag{position:absolute;left:16px;bottom:16px;background:var(--glass);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);padding:13px 18px;border-radius:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.42)}
     .hero-img .tag .dot{width:9px;height:9px;border-radius:50%;background:#4CAF7D;box-shadow:0 0 0 4px rgba(76,175,125,.18);flex:none;animation:pulse 2.4s var(--ease) infinite}
     @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(76,175,125,.18)}50%{box-shadow:0 0 0 7px rgba(76,175,125,.06)}}
-    .hero-img .tag b{color:var(--navy);font-weight:700;font-size:.94rem}
-    .hero-img .tag span{color:var(--ink-soft);font-size:.83rem}
+    .hero-img .tag b{color:var(--navy);font-weight:700;font-size:.92rem}
+    .hero-img .tag span{color:var(--ink-soft);font-size:.81rem}
+    /* 이미지 위 떠있는 라운드 배지 */
+    .hero-badge{position:absolute;top:-26px;right:-12px;width:108px;height:108px;border-radius:50%;background:var(--gold);color:#fff;display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.04em;line-height:1.5;box-shadow:var(--shadow-warm);animation:spin-badge 18s linear infinite}
+    .hero-badge b{display:block;font-family:var(--grotesk);font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+    @keyframes spin-badge{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    @media(prefers-reduced-motion:reduce){.hero-badge{animation:none}}
 
     /* ====================== 섹션 공통 ====================== */
     .sec{padding:104px 0}
@@ -132,9 +146,15 @@ export function HomePage() {
     .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
 
     @media(max-width:880px){
-      .hero{padding:60px 0 72px}
-      .hero-inner,.intro-grid{grid-template-columns:1fr;gap:44px}
-      .hero-img{order:-1;aspect-ratio:16/10}
+      .hero{padding:44px 0 0}
+      .hero-stage{grid-template-columns:1fr;gap:36px;margin-top:26px}
+      .hero-display{font-size:clamp(2.9rem,15vw,5.5rem)}
+      .hero-body{margin-top:18px}
+      .hero-figure{order:-1}
+      .hero-img{aspect-ratio:4/3}
+      .hero-badge{width:88px;height:88px;top:-18px;right:6px}
+      .hero-coords{display:none}
+      .intro-grid{grid-template-columns:1fr;gap:44px}
       .intro-img{aspect-ratio:4/3;max-height:420px}
       .core-grid,.all-grid{grid-template-columns:1fr 1fr}
       .why-grid{grid-template-columns:1fr}
@@ -167,32 +187,59 @@ export function HomePage() {
     </div>
   </section>
 
-  <!-- ============ HERO ============ -->
+  <!-- ============ HERO (에디토리얼 매거진) ============ -->
   <section class="hero">
-    <div class="wrap hero-inner">
-      <div class="hero-text">
-        <span class="eyebrow" data-reveal>남양주 마석 · ${CLINIC.establishedLabel}</span>
-        <h1 data-reveal data-reveal-d="1">기분 좋게<br><span class="accent">진료를 마칠 때까지</span></h1>
-        <p class="hero-sub" data-reveal data-reveal-d="2">
-          치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며,
-          충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
-        </p>
-        <div class="hero-cta" data-reveal data-reveal-d="3">
-          <a href="/reservation" class="btn btn-primary"><i class="fas fa-calendar-check"></i> 예약 문의하기</a>
-          <a href="/treatments" class="btn btn-ghost">진료 안내 보기</a>
-        </div>
-        <div class="hero-meta" data-reveal data-reveal-d="4">
-          <div class="hm"><b><span data-count="10" data-suffix="년째">0</span></b><span>한자리에서 함께</span></div>
-          <div class="hm"><b><span data-count="5" data-suffix="인">0</span></b><span>상주 의료진</span></div>
-          <div class="hm"><b>전 연령</b><span>아이부터 어르신까지</span></div>
-        </div>
+    <div class="wrap">
+      <div class="hero-top" data-reveal>
+        <span class="eyebrow">남양주 마석 · ${CLINIC.establishedLabel}</span>
+        <div class="hero-coords">37.6478°N 127.3105°E<br>ISOL DENTAL CLINIC · EST. ${CLINIC.established}</div>
       </div>
-      <div class="hero-img" data-reveal data-reveal-d="2">
-        <img src="/static/img/clinic-reception.webp" alt="이솔치과의원 내부 전경" loading="eager">
-        <div class="tag"><span class="dot"></span><span><b>진료 중</b><br><span>평일 09:30 – 18:30 · 토요일 진료</span></span></div>
+      <h1 class="hero-display">
+        <span data-line data-line-d="1"><span>기분 좋게</span></span>
+        <span class="l2" data-line data-line-d="2"><span><span class="accent">진료를 마칠</span> 때까지</span></span>
+      </h1>
+      <div class="hero-body">
+        <div class="hero-stage">
+          <div class="hero-lead">
+            <p class="hero-sub" data-reveal data-reveal-d="2">
+              치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며,
+              충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
+            </p>
+            <div class="hero-cta" data-reveal data-reveal-d="3">
+              <a href="/reservation" class="btn btn-primary"><i class="fas fa-calendar-check"></i> 예약 문의하기</a>
+              <a href="/treatments" class="btn btn-ghost">진료 안내 보기 <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="hero-meta" data-reveal data-reveal-d="4">
+              <div class="hm"><b><span data-count="10" data-suffix="년째">0</span></b><span>한자리에서 함께</span></div>
+              <div class="hm"><b><span data-count="5" data-suffix="인">0</span></b><span>상주 의료진</span></div>
+              <div class="hm"><b>전 연령</b><span>아이부터 어르신까지</span></div>
+            </div>
+          </div>
+          <div class="hero-figure" data-reveal data-reveal-d="2">
+            <div class="hero-img" data-parallax="16">
+              <img src="/static/img/clinic-reception.webp" alt="이솔치과의원 내부 전경" loading="eager">
+              <div class="tag"><span class="dot"></span><span><b>진료 중</b><br><span>평일 09:30 – 18:30 · 토요일 진료</span></span></div>
+            </div>
+            <div class="hero-badge" aria-hidden="true"><span><b>3대</b>FAMILY<br>CARE</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
+
+  <!-- ============ 마퀴 띠 ============ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      ${raw(Array(2).fill(0).map(() => `
+        <span class="marquee-item">임플란트</span>
+        <span class="marquee-item">치아교정</span>
+        <span class="marquee-item">소아치과</span>
+        <span class="marquee-item">심미보철</span>
+        <span class="marquee-item">잇몸치료</span>
+        <span class="marquee-item">충치·신경치료</span>
+      `).join(''))}
+    </div>
+  </div>
 
   <!-- ============ 소개 ============ -->
   <section class="sec intro">
