@@ -12,8 +12,8 @@ import { SITE_URL, type SeoMeta } from './seo';
 const DESIGN_TOKENS = `
 :root{
   /* ── 메인: 딥 우드/에스프레소 브라운 (전문·신뢰·고급) ── */
-  --navy:#4A382D;
-  --navy-2:#36271E;
+  --navy:#3E2C1F;
+  --navy-2:#291C12;
   --navy-3:#6B5747;
   /* ── 포인트: 따뜻한 카멜/골드 (더 깊고 메탈릭) ── */
   --gold:#A6772F;
@@ -21,7 +21,7 @@ const DESIGN_TOKENS = `
   --gold-3:#8A5F26;
   --gold-soft:#EFE2C9;
   /* 골드 메탈릭 그라데이션 (텍스트·테두리용) */
-  --gold-grad:linear-gradient(135deg,#D9B675 0%,#A6772F 48%,#C99A52 100%);
+  --gold-grad:linear-gradient(110deg,#E8C885 0%,#C99A52 32%,#A6772F 58%,#D9B675 100%);
   --gold-grad-deep:linear-gradient(135deg,#C99A52 0%,#8A5F26 100%);
   /* ── 잉크(텍스트) — 웜 브라운-그레이 (살짝 더 깊게) ── */
   --ink:#2C2620;
@@ -30,7 +30,7 @@ const DESIGN_TOKENS = `
   --line:#E2D8C6;
   --line-soft:#EDE5D6;
   /* ── 배경 — 따뜻한 크림/베이지 (한 톤 가라앉혀 깊이감) ── */
-  --bg:#F6EFE2;
+  --bg:#F7F0E1;
   --bg-soft:#EFE6D5;
   --bg-deep:#E6DAC4;
   --bg-card:#FCF8F0;
@@ -214,8 +214,8 @@ section{position:relative}
 /* ── FABLE: 스크럽 텍스트 (스크롤하면 문장이 '읽히듯' 차오름) ── */
 [data-scrub] .sw{color:var(--ink-faint);transition:color .35s var(--ease-soft)}
 [data-scrub] .sw.on{color:var(--ink)}
-.why [data-scrub] .sw,.cta-box [data-scrub] .sw{color:var(--inv-faint)}
-.why [data-scrub] .sw.on,.cta-box [data-scrub] .sw.on{color:var(--inv)}
+.why [data-scrub] .sw,.cta-box [data-scrub] .sw,.epi [data-scrub] .sw{color:var(--inv-faint)}
+.why [data-scrub] .sw.on,.cta-box [data-scrub] .sw.on,.epi [data-scrub] .sw.on{color:var(--inv)}
 
 /* ── FABLE: 챕터 라벨 (서사 구조) ── */
 .chapter-lbl{display:flex;align-items:center;gap:14px;margin-bottom:22px}
@@ -231,6 +231,9 @@ section{position:relative}
 .bridge p{font-family:var(--serif);font-weight:700;font-size:clamp(1.25rem,2.6vw,1.8rem);color:var(--navy);letter-spacing:-.03em;line-height:1.5;margin:0;word-break:keep-all}
 .bridge p em{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 .bridge .bridge-pg{display:block;margin-top:14px;font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint)}
+
+/* ── FABLE v7: 드롭캡 (책의 첫 문장) ── */
+.dropcap::first-letter{font-family:var(--serif);font-weight:700;font-size:3.3em;float:left;line-height:.82;padding:8px 14px 0 0;color:var(--gold);letter-spacing:0}
 
 /* ── FABLE: 스토리 레일 (좌측 고정 챕터 내비) ── */
 .story-rail{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:600;display:flex;flex-direction:column;gap:4px}

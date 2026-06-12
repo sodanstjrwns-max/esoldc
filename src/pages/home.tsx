@@ -4,44 +4,72 @@ import { CLINIC, CORE_TREATMENTS, TREATMENTS, DOCTORS, NEARBY_AREAS } from '../d
 export function HomePage() {
   return html`
   <style>
-    /* ====================== HERO (2026: 에디토리얼 매거진 · 거대 타이포) ====================== */
-    .hero{background:var(--bg);padding:60px 0 64px;position:relative;overflow:hidden}
-    .hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:38px}
-    .hero-top .eyebrow{font-size:.76rem}
-    .hero-coords{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:var(--ink-faint);text-align:right;line-height:1.7}
-    /* 거대 디스플레이 헤드라인 */
-    .hero-display{font-family:var(--serif);font-weight:700;line-height:.92;letter-spacing:-.055em;word-spacing:-.06em;color:var(--navy);font-size:clamp(3rem,8.5vw,7.6rem);margin:0}
-    .hero-display .l2{padding-left:.14em}
-    .hero-display .accent{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
-    /* 거대 아웃라인 워드마크 (매거진 커버 무드) */
-    .hero-bigword{font-family:var(--grotesk);font-weight:700;font-size:clamp(2.4rem,7vw,6rem);line-height:.9;letter-spacing:-.03em;margin:14px 0 0;display:flex;align-items:baseline;gap:.22em;flex-wrap:wrap}
-    .hero-bigword em{font-style:normal;color:var(--gold);opacity:.92}
-    @media(max-width:560px){.hero-bigword{font-size:clamp(2rem,12vw,3.2rem);margin-top:8px}}
-    /* 히어로 본문 + 이미지가 겹치는 비대칭 영역 */
-    .hero-body{position:relative}
-    .hero-stage{display:grid;grid-template-columns:1.1fr .9fr;gap:54px;align-items:end;margin-top:40px}
-    .hero-lead{padding-bottom:14px}
-    .hero-sub{font-size:1.2rem;color:var(--ink-soft);line-height:1.85;max-width:460px;margin:0 0 34px;word-break:keep-all}
-    .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:38px}
-    .hero-meta{display:flex;gap:0;flex-wrap:wrap;padding-top:28px;border-top:1px solid var(--line)}
-    .hero-meta .hm{display:flex;flex-direction:column;gap:3px;padding-right:30px;margin-right:30px;border-right:1px solid var(--line)}
-    .hero-meta .hm:last-child{border-right:none;padding-right:0;margin-right:0}
-    .hero-meta .hm b{font-family:var(--grotesk);font-size:1.85rem;font-weight:600;color:var(--navy);letter-spacing:-.03em;line-height:1}
-    .hero-meta .hm span{font-size:.82rem;color:var(--ink-soft);letter-spacing:-.01em}
-    .hero-figure{position:relative}
-    .hero-img{position:relative;border-radius:var(--radius-xl);overflow:hidden;aspect-ratio:1/1.12;box-shadow:var(--shadow-lg);will-change:transform}
-    .hero-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease);transform:scale(1.06)}
-    .hero-img:hover img{transform:scale(1.12)}
-    .hero-img .tag{position:absolute;left:16px;bottom:16px;background:var(--glass);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);padding:13px 18px;border-radius:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.42)}
-    .hero-img .tag .dot{width:9px;height:9px;border-radius:50%;background:#4CAF7D;box-shadow:0 0 0 4px rgba(76,175,125,.18);flex:none;animation:pulse 2.4s var(--ease) infinite}
+    /* ====================== HERO v7 "Book Cover" (페이블: 책의 표지) ====================== */
+    .hero{min-height:94vh;display:flex;flex-direction:column;justify-content:flex-start;padding:64px 0 0;position:relative;overflow:hidden;text-align:center}
+    .hero::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:1100px;height:900px;background:radial-gradient(closest-side,rgba(201,154,82,.14),transparent 70%);pointer-events:none}
+    .hero .wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+    /* 표지 상단 — 책 인장 라인 */
+    .hero-kicker{display:flex;align-items:center;gap:16px;font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:34px}
+    .hero-kicker::before,.hero-kicker::after{content:'';width:44px;height:1px;background:linear-gradient(90deg,transparent,var(--gold));}
+    .hero-kicker::after{background:linear-gradient(90deg,var(--gold),transparent)}
+    .hero-kicker b{color:var(--gold);font-weight:600}
+    /* 표지 제목 — 거대 세리프 센터 */
+    .hero-display{font-family:var(--serif);font-weight:700;line-height:1.04;letter-spacing:-.052em;word-spacing:-.04em;color:var(--navy);font-size:clamp(3rem,8.6vw,7.8rem);margin:0}
+    .hero-display .accent{font-style:italic;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;padding-right:.06em}
+    .hero-sub{font-size:1.16rem;color:var(--ink-soft);line-height:1.9;max-width:520px;margin:30px auto 34px;word-break:keep-all}
+    .hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:54px}
+    /* 표지의 그림 — 아치(성당 창) 이미지 */
+    .hero-arch{position:relative;width:min(900px,100%);margin:0 auto}
+    .hero-arch .arch-frame{position:relative;border-radius:480px 480px 26px 26px;overflow:hidden;aspect-ratio:16/9.4;box-shadow:var(--shadow-lg);border:1px solid rgba(166,119,47,.18)}
+    .hero-arch img{width:100%;height:100%;object-fit:cover;transform:scale(1.06);transition:transform 1.6s var(--ease)}
+    .hero-arch:hover img{transform:scale(1.11)}
+    .hero-arch .arch-frame::after{content:'';position:absolute;inset:10px;border-radius:470px 470px 18px 18px;border:1px solid rgba(250,245,236,.4);pointer-events:none}
+    .hero-arch .tag{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;background:var(--glass);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);padding:12px 20px;border-radius:var(--radius-pill);box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.46);white-space:nowrap}
+    .hero-arch .tag .dot{width:9px;height:9px;border-radius:50%;background:#4CAF7D;box-shadow:0 0 0 4px rgba(76,175,125,.18);flex:none;animation:pulse 2.4s var(--ease) infinite}
     @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(76,175,125,.18)}50%{box-shadow:0 0 0 7px rgba(76,175,125,.06)}}
-    .hero-img .tag b{color:var(--navy);font-weight:700;font-size:.92rem}
-    .hero-img .tag span{color:var(--ink-soft);font-size:.81rem}
-    /* 이미지 위 떠있는 라운드 배지 */
-    .hero-badge{position:absolute;top:-26px;right:-12px;width:108px;height:108px;border-radius:50%;background:var(--gold);color:#fff;display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.04em;line-height:1.5;box-shadow:var(--shadow-warm);animation:spin-badge 18s linear infinite}
-    .hero-badge b{display:block;font-family:var(--grotesk);font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+    .hero-arch .tag b{color:var(--navy);font-weight:700;font-size:.9rem}
+    .hero-arch .tag span{color:var(--ink-soft);font-size:.8rem}
+    .hero-badge{position:absolute;top:-30px;right:4%;width:112px;height:112px;border-radius:50%;background:var(--navy);color:var(--gold-2);display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:.66rem;font-weight:600;letter-spacing:.06em;line-height:1.5;box-shadow:var(--shadow-lg);animation:spin-badge 20s linear infinite;border:1px solid rgba(201,154,82,.35);z-index:3}
+    .hero-badge b{display:block;font-family:var(--serif);font-size:1.5rem;font-weight:700;letter-spacing:-.02em;color:var(--inv)}
     @keyframes spin-badge{from{transform:rotate(0)}to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.hero-badge{animation:none}}
+    /* 아치 좌우 — 책장 같은 메타 칼럼 */
+    .hero-flank{position:absolute;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:22px;text-align:left;width:172px}
+    .hero-flank.fl-l{left:calc(50% - 450px - 206px)}
+    .hero-flank.fl-r{right:calc(50% - 450px - 206px);text-align:right;align-items:flex-end}
+    .hero-flank .fm b{display:block;font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--navy);letter-spacing:-.03em;line-height:1.05}
+    .hero-flank .fm span{font-size:.84rem;color:var(--ink-soft);display:block;margin-top:4px}
+    .hero-flank .fm{position:relative;padding-top:14px}
+    .hero-flank .fm::before{content:'';position:absolute;top:0;width:30px;height:1.5px;background:var(--gold-grad)}
+    .hero-flank.fl-l .fm::before{left:0}
+    .hero-flank.fl-r .fm::before{right:0}
+    @media(max-width:1320px){.hero-flank{display:none}}
+    /* 모바일 메타 (플랭크 대체) */
+    .hero-meta-m{display:none}
+    @media(max-width:1320px){
+      .hero-meta-m{display:flex;justify-content:center;gap:0;flex-wrap:wrap;margin-top:36px;padding:0 8px}
+      .hero-meta-m .hm{display:flex;flex-direction:column;gap:3px;padding:0 26px;border-right:1px solid var(--line);text-align:center}
+      .hero-meta-m .hm:last-child{border-right:none}
+      .hero-meta-m .hm b{font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--navy);letter-spacing:-.03em;line-height:1.1}
+      .hero-meta-m .hm span{font-size:.8rem;color:var(--ink-soft)}
+    }
+    /* 스크롤 큐 — "이야기를 시작하세요" */
+    .hero-scroll{margin:46px auto 0;display:flex;flex-direction:column;align-items:center;gap:12px;padding-bottom:34px}
+    .hero-scroll span{font-family:var(--mono);font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-faint)}
+    .hero-scroll .sline{width:1.5px;height:52px;background:var(--line);position:relative;overflow:hidden}
+    .hero-scroll .sline::after{content:'';position:absolute;top:-50%;left:0;width:100%;height:50%;background:var(--gold);animation:scue 2.2s var(--ease-soft) infinite}
+    @keyframes scue{0%{top:-50%}70%,100%{top:110%}}
+    @media(prefers-reduced-motion:reduce){.hero-scroll .sline::after{animation:none}}
+    @media(max-width:880px){
+      .hero{min-height:auto;padding:46px 0 0}
+      .hero-display{font-size:clamp(2.7rem,12.5vw,4.6rem)}
+      .hero-kicker{letter-spacing:.18em;margin-bottom:26px}
+      .hero-arch .arch-frame{border-radius:300px 300px 20px 20px;aspect-ratio:4/3.4}
+      .hero-arch .arch-frame::after{border-radius:292px 292px 14px 14px}
+      .hero-badge{width:88px;height:88px;top:-18px;right:2%}
+      .hero-badge b{font-size:1.2rem}
+      .hero-scroll{margin-top:34px}
+    }
 
     /* ====================== 섹션 공통 (2026: 거대 세리프 헤드) ====================== */
     .sec{padding:116px 0}
@@ -58,7 +86,8 @@ export function HomePage() {
     /* ====================== 소개 (스토리 + 실사) ====================== */
     .intro{background:var(--bg-soft)}
     .intro-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:72px;align-items:center}
-    .intro-img{position:relative;border-radius:var(--radius-xl);overflow:hidden;aspect-ratio:3/4;box-shadow:var(--shadow-lg)}
+    .intro-img{position:relative;border-radius:300px 300px 22px 22px;overflow:hidden;aspect-ratio:3/4;box-shadow:var(--shadow-lg);border:1px solid rgba(166,119,47,.16)}
+    .intro-img::after{content:'';position:absolute;inset:9px;border-radius:292px 292px 16px 16px;border:1px solid rgba(250,245,236,.45);pointer-events:none;z-index:2}
     .intro-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
     .intro-img:hover img{transform:scale(1.04)}
     .intro .mono-lbl{margin-bottom:26px}
@@ -127,8 +156,8 @@ export function HomePage() {
     .equip-card{padding:34px 26px 34px 0;border-right:1px solid var(--line);margin-right:26px;transition:transform .4s var(--ease)}
     .equip-card:last-child{border-right:none;margin-right:0}
     .equip-card:hover{transform:translateY(-6px)}
-    .equip-card .eq-ic{width:50px;height:50px;border-radius:14px;background:var(--bg-card);border:1px solid var(--line);color:var(--navy);display:grid;place-items:center;font-size:1.25rem;margin-bottom:20px;transition:all .4s var(--ease)}
-    .equip-card:hover .eq-ic{background:var(--navy);color:var(--gold-2);border-color:var(--navy)}
+    .equip-card .eq-ic{width:54px;height:54px;border-radius:50%;background:var(--bg-card);border:1px solid var(--gold-soft);color:var(--gold-3);display:grid;place-items:center;font-size:1.2rem;margin-bottom:20px;transition:all .4s var(--ease);box-shadow:0 0 0 5px rgba(166,119,47,.05)}
+    .equip-card:hover .eq-ic{background:var(--navy);color:var(--gold-2);border-color:var(--navy);box-shadow:0 0 0 7px rgba(62,44,31,.08);transform:rotate(-8deg)}
     .equip-card h4{font-size:1.08rem;margin-bottom:9px;line-height:1.3}
     .equip-card p{font-size:.9rem;color:var(--ink-soft);line-height:1.62;margin:0;word-break:keep-all}
     .equip-note{margin-top:38px;font-size:.92rem;color:var(--ink-faint);display:flex;align-items:center;gap:9px}
@@ -138,7 +167,9 @@ export function HomePage() {
     .team-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
     .team-card{transition:transform .4s var(--ease)}
     .team-card:hover{transform:translateY(-6px)}
-    .team-photo{position:relative;aspect-ratio:3/4;border-radius:var(--radius-lg);background:var(--bg-soft);overflow:hidden;margin-bottom:16px;border:1px solid var(--line)}
+    .team-photo{position:relative;aspect-ratio:3/4;border-radius:160px 160px 16px 16px;background:var(--bg-soft);overflow:hidden;margin-bottom:16px;border:1px solid var(--line);transition:border-color .4s var(--ease)}
+    .team-card:hover .team-photo{border-color:var(--gold)}
+    .team-photo::after{content:'';position:absolute;inset:7px;border-radius:154px 154px 11px 11px;border:1px solid rgba(250,245,236,.5);pointer-events:none;z-index:2}
     .team-photo img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
     .team-card:hover .team-photo img{transform:scale(1.05)}
     .team-card h4{font-size:1.12rem;margin-bottom:3px}
@@ -151,16 +182,19 @@ export function HomePage() {
     .geo-chips a{padding:12px 24px;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-pill);font-weight:600;color:var(--ink);transition:all .35s var(--ease);font-size:.96rem}
     .geo-chips a:hover{background:var(--navy);color:var(--inv);border-color:var(--navy);transform:translateY(-2px)}
 
-    /* ====================== CTA (2026: 비대칭 + 큰 카피) ====================== */
-    .cta-box{position:relative;background:linear-gradient(140deg,#56432F 0%,var(--navy) 44%,var(--navy-2) 100%);border-radius:var(--radius-xl);padding:80px 56px;text-align:center;color:var(--inv);overflow:hidden;box-shadow:0 40px 90px rgba(54,39,30,.32);border:1px solid rgba(201,154,82,.16)}
-    .cta-box::before{content:'';position:absolute;top:-140px;right:-100px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(201,154,82,.28),transparent 68%);pointer-events:none}
-    .cta-box::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.55),transparent)}
-    .cta-box .mono-lbl{color:var(--gold-2);justify-content:center;margin-bottom:20px}
-    .cta-box .mono-lbl::before{background:var(--gold-2)}
-    .cta-box h2{font-family:var(--serif);font-weight:700;color:var(--inv);font-size:clamp(2.3rem,5vw,4rem);margin-bottom:18px;position:relative;line-height:1.06;letter-spacing:-.045em}
-    .cta-box h2 em{font-style:normal;background:linear-gradient(135deg,#E7C98C,#C99A52);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
-    .cta-box p{color:var(--inv-soft);font-size:1.14rem;margin-bottom:36px;max-width:520px;margin-left:auto;margin-right:auto;position:relative}
+    /* ====================== EPILOGUE v7 (책의 마지막 장) ====================== */
+    .epi{position:relative;background:linear-gradient(165deg,#4A3624 0%,var(--navy) 42%,var(--navy-2) 100%);border-radius:var(--radius-xl);padding:96px 56px 84px;text-align:center;color:var(--inv);overflow:hidden;box-shadow:0 40px 90px rgba(41,28,18,.38);border:1px solid rgba(201,154,82,.18)}
+    .epi::before{content:'';position:absolute;top:-160px;left:50%;transform:translateX(-50%);width:680px;height:520px;background:radial-gradient(closest-side,rgba(201,154,82,.22),transparent 70%);pointer-events:none}
+    .epi::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.6),transparent)}
+    .epi-fin{font-family:var(--mono);font-size:.68rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-2);display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:30px;position:relative}
+    .epi-fin::before,.epi-fin::after{content:'';width:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.6))}
+    .epi-fin::after{background:linear-gradient(90deg,rgba(201,154,82,.6),transparent)}
+    .epi h2{font-family:var(--serif);font-weight:700;color:var(--inv);font-size:clamp(2.3rem,5vw,4.2rem);margin-bottom:22px;position:relative;line-height:1.12;letter-spacing:-.045em}
+    .epi h2 em{font-style:italic;background:linear-gradient(110deg,#EDD49B,#C99A52);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+    .epi .epi-copy{color:var(--inv-soft);font-size:1.14rem;margin:0 auto 40px;max-width:560px;position:relative;line-height:1.9;word-break:keep-all}
     .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+    .epi .epi-sign{margin-top:46px;padding-top:30px;border-top:1px solid rgba(250,245,236,.14);font-family:var(--serif);font-size:1rem;color:var(--inv-faint);position:relative}
+    .epi .epi-sign b{color:var(--gold-2);font-weight:700}
 
     @media(max-width:880px){
       .hero{padding:44px 0 0}
@@ -194,7 +228,7 @@ export function HomePage() {
       .core-row .cr-mid h3{font-size:1.4rem}
       .sec{padding:72px 0}
       .hero-meta .hm{padding-right:22px;margin-right:22px}
-      .cta-box{padding:54px 26px}
+      .epi{padding:64px 26px 56px}
       .team-grid{grid-template-columns:repeat(2,1fr)}
       .equip-grid{grid-template-columns:1fr}
       .equip-card,.equip-card:nth-child(odd){border-right:none;padding-right:0;margin-right:0;padding:24px 0}
@@ -210,42 +244,44 @@ export function HomePage() {
     </div>
   </section>
 
-  <!-- ============ HERO = PROLOGUE ============ -->
+  <!-- ============ HERO = PROLOGUE (책의 표지) ============ -->
   <section class="hero" id="ch-hero">
     <div class="wrap">
-      <div class="hero-top" data-reveal>
-        <span class="eyebrow">남양주 마석 · ${CLINIC.establishedLabel}</span>
-        <div class="hero-coords">37.6478°N 127.3105°E<br>ISOL DENTAL CLINIC · EST. ${CLINIC.established}</div>
-      </div>
+      <div class="hero-kicker" data-reveal><span>남양주 마석 · <b>EST. ${CLINIC.established}</b> · 우리 가족 치과 주치의</span></div>
       <h1 class="hero-display">
         <span data-line data-line-d="1"><span>기분 좋게</span></span>
-        <span class="l2" data-line data-line-d="2"><span><span class="accent">진료를 마칠</span> 때까지</span></span>
+        <span data-line data-line-d="2"><span><span class="accent">진료를 마칠</span> 때까지</span></span>
       </h1>
-      <div class="hero-bigword" aria-hidden="true"><span class="t-stroke">ISOL</span> <em>DENTAL</em></div>
-      <div class="hero-body">
-        <div class="hero-stage">
-          <div class="hero-lead">
-            <p class="hero-sub" data-words>
-              치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며, 충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
-            </p>
-            <div class="hero-cta" data-reveal data-reveal-d="3">
-              <a href="/reservation" class="btn btn-primary"><i class="fas fa-calendar-check"></i> 예약 문의하기</a>
-              <a href="/treatments" class="btn btn-ghost">진료 안내 보기 <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="hero-meta" data-reveal data-reveal-d="4">
-              <div class="hm"><b><span data-count="10" data-suffix="년째">0</span></b><span>한자리에서 함께</span></div>
-              <div class="hm"><b><span data-count="5" data-suffix="인">0</span></b><span>상주 의료진</span></div>
-              <div class="hm"><b>전 연령</b><span>아이부터 어르신까지</span></div>
-            </div>
-          </div>
-          <div class="hero-figure" data-reveal data-reveal-d="2">
-            <div class="hero-img" data-parallax="16">
-              <img src="/static/img/clinic-reception.webp" alt="이솔치과의원 내부 전경" loading="eager">
-              <div class="tag"><span class="dot"></span><span><b>진료 안내</b><br><span>진료시간은 전화로 확인해 주세요</span></span></div>
-            </div>
-            <div class="hero-badge" aria-hidden="true"><span><b>3대</b>FAMILY<br>CARE</span></div>
-          </div>
+      <p class="hero-sub" data-words>
+        치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며, 충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
+      </p>
+      <div class="hero-cta" data-reveal data-reveal-d="3">
+        <a href="/reservation" class="btn btn-accent"><i class="fas fa-calendar-check"></i> 예약 문의하기</a>
+        <a href="/treatments" class="btn btn-ghost">진료 안내 보기 <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="hero-arch" data-reveal data-reveal-d="2">
+        <div class="hero-flank fl-l">
+          <div class="fm"><b><span data-count="10" data-suffix="년째">0</span></b><span>한자리에서 함께</span></div>
+          <div class="fm"><b><span data-count="5" data-suffix="인">0</span></b><span>상주 의료진</span></div>
         </div>
+        <div class="arch-frame" data-parallax="10">
+          <img src="/static/img/clinic-reception.webp" alt="이솔치과의원 내부 전경" loading="eager">
+          <div class="tag"><span class="dot"></span><span><b>진료 안내</b> <span>· 진료시간은 전화로 확인해 주세요</span></span></div>
+        </div>
+        <div class="hero-flank fl-r">
+          <div class="fm"><b>3대</b><span>가족이 함께 다니는</span></div>
+          <div class="fm"><b>전 연령</b><span>아이부터 어르신까지</span></div>
+        </div>
+        <div class="hero-badge" aria-hidden="true"><span><b>3대</b>FAMILY<br>CARE</span></div>
+      </div>
+      <div class="hero-meta-m" data-reveal data-reveal-d="4">
+        <div class="hm"><b>10년째</b><span>한자리에서</span></div>
+        <div class="hm"><b>5인</b><span>상주 의료진</span></div>
+        <div class="hm"><b>전 연령</b><span>온 가족 진료</span></div>
+      </div>
+      <div class="hero-scroll" aria-hidden="true" data-reveal data-reveal-d="5">
+        <span>Prologue · Scroll</span>
+        <div class="sline"></div>
       </div>
     </div>
   </section>
@@ -276,7 +312,7 @@ export function HomePage() {
       <div data-reveal>
         <span class="chapter-lbl"><span class="ch-no">첫 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Our Story</span></span>
         <p class="intro-quote" data-line><span>치과를 떠올릴 때 <em>가장 먼저</em><br>생각나는 곳이고 싶습니다.</span></p>
-        <p data-scrub>이솔치과의원은 남양주 마석에서 한자리를 지키며, 지역 주민과 따뜻하게 함께해 온 동네 치과입니다. 화려한 것보다 정직한 진료, 빠른 것보다 충분히 설명드리는 진료를 더 중요하게 생각합니다.</p>
+        <p data-scrub class="dropcap">이솔치과의원은 남양주 마석에서 한자리를 지키며, 지역 주민과 따뜻하게 함께해 온 동네 치과입니다. 화려한 것보다 정직한 진료, 빠른 것보다 충분히 설명드리는 진료를 더 중요하게 생각합니다.</p>
         <p data-scrub>실제로 이솔에는 할머니의 틀니와 잇몸 치료에서 시작해, 아버지의 임플란트, 아이의 충치 치료와 정기검진까지 — 한 가족이 3대에 걸쳐 함께 다니는 시간이 쌓여 있습니다. 가족마다 필요한 치료는 다르지만, 한곳에서 같은 기록과 같은 치료 방향 안에서 관리받을 수 있다는 것. 그것이 우리가 ‘가족 주치의’라는 말을 쓰는 이유입니다.</p>
         <div class="intro-sign">
           이솔치과의원 대표원장 ${CLINIC.business.owner}
@@ -467,14 +503,15 @@ export function HomePage() {
   <!-- ============ CTA = EPILOGUE ============ -->
   <section class="sec" id="ch-end" style="padding-top:54px">
     <div class="wrap">
-      <div class="cta-box" data-reveal>
-        <span class="mono-lbl">마지막 페이지 · 예약 문의</span>
-        <h2>편안한 진료,<br><em>지금</em> 시작하세요</h2>
-        <p>궁금한 점은 전화로 편하게 물어보세요. 온라인 예약 문의도 가능합니다.</p>
+      <div class="epi" data-reveal>
+        <span class="epi-fin">Epilogue · 그리고, 당신의 이야기</span>
+        <h2>이 이야기의 다음 장은<br><em>당신의 미소</em>입니다</h2>
+        <p class="epi-copy">궁금한 점은 전화로 편하게 물어보세요. 온라인 예약 문의도 가능합니다. 기분 좋게 진료를 마치실 때까지, 처음부터 끝까지 함께하겠습니다.</p>
         <div class="cta-actions">
           <a href="tel:${CLINIC.tel}" class="btn btn-accent"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
           <a href="/reservation" class="btn btn-line">온라인 예약 문의</a>
         </div>
+        <div class="epi-sign">이솔치과의원 — <b>"${CLINIC.slogan}"</b></div>
       </div>
     </div>
   </section>
