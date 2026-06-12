@@ -211,6 +211,37 @@ section{position:relative}
 [data-words] .w > span{display:inline-block;transform:translateY(110%);transition:transform .95s var(--ease)}
 [data-words].words-in .w > span{transform:translateY(0)}
 
+/* ── FABLE: 스크럽 텍스트 (스크롤하면 문장이 '읽히듯' 차오름) ── */
+[data-scrub] .sw{color:var(--ink-faint);transition:color .35s var(--ease-soft)}
+[data-scrub] .sw.on{color:var(--ink)}
+.why [data-scrub] .sw,.cta-box [data-scrub] .sw{color:var(--inv-faint)}
+.why [data-scrub] .sw.on,.cta-box [data-scrub] .sw.on{color:var(--inv)}
+
+/* ── FABLE: 챕터 라벨 (서사 구조) ── */
+.chapter-lbl{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.chapter-lbl .ch-no{font-family:var(--serif);font-weight:700;font-size:1.05rem;color:var(--gold);letter-spacing:.02em;white-space:nowrap}
+.chapter-lbl .ch-line{flex:none;width:42px;height:1.5px;background:var(--gold-grad)}
+.chapter-lbl .ch-name{font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+.why .chapter-lbl .ch-name{color:var(--inv-faint)}
+
+/* ── FABLE: 브릿지 (챕터 사이 서사 연결 문장) ── */
+.bridge{text-align:center;padding:84px 24px 10px;position:relative}
+.bridge::before{content:'';display:block;width:1.5px;height:56px;margin:0 auto 30px;background:linear-gradient(to bottom,transparent,var(--gold));transform:scaleY(0);transform-origin:top;transition:transform 1.1s var(--ease) .1s}
+.bridge.in::before{transform:scaleY(1)}
+.bridge p{font-family:var(--serif);font-weight:700;font-size:clamp(1.25rem,2.6vw,1.8rem);color:var(--navy);letter-spacing:-.03em;line-height:1.5;margin:0;word-break:keep-all}
+.bridge p em{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.bridge .bridge-pg{display:block;margin-top:14px;font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint)}
+
+/* ── FABLE: 스토리 레일 (좌측 고정 챕터 내비) ── */
+.story-rail{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:600;display:flex;flex-direction:column;gap:4px}
+.story-rail a{display:flex;align-items:center;gap:10px;padding:5px 0;color:var(--ink-faint);transition:color .3s}
+.story-rail .sr-dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:1.5px solid transparent;transition:all .35s var(--ease);flex:none}
+.story-rail .sr-lbl{font-family:var(--mono);font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateX(-6px);transition:all .35s var(--ease);white-space:nowrap;background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:3px 9px;border-radius:6px;border:1px solid var(--line-soft)}
+.story-rail a:hover .sr-lbl{opacity:1;transform:translateX(0)}
+.story-rail a.active{color:var(--gold)}
+.story-rail a.active .sr-dot{background:var(--gold);box-shadow:0 0 0 4px rgba(166,119,47,.16);transform:scale(1.25)}
+@media(max-width:1180px){.story-rail{display:none}}
+
 /* ── 반응형 ── */
 @media(max-width:980px){
   .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
@@ -368,6 +399,62 @@ const INTERACTION_JS = `
     }, {threshold:.4});
     wordEls.forEach(function(el){ io4.observe(el); });
   } else { wordEls.forEach(function(el){ el.classList.add('words-in'); }); }
+
+  // FABLE: 스크럽 텍스트 (스크롤 진행도에 따라 단어가 '읽히듯' 차오름)
+  var scrubEls = document.querySelectorAll('[data-scrub]');
+  scrubEls.forEach(function(el){
+    if(el.getAttribute('data-scrub-split') === '1') return;
+    el.setAttribute('data-scrub-split','1');
+    var parts = el.textContent.split(/(\\s+)/);
+    el.textContent = '';
+    parts.forEach(function(p){
+      if(/^\\s+$/.test(p)){ el.appendChild(document.createTextNode(' ')); return; }
+      if(!p) return;
+      var s = document.createElement('span'); s.className='sw'; s.textContent = p;
+      el.appendChild(s);
+    });
+  });
+  if(RM){
+    scrubEls.forEach(function(el){ el.querySelectorAll('.sw').forEach(function(s){ s.classList.add('on'); }); });
+  } else if(scrubEls.length){
+    var scrubTick = false;
+    function scrubUpdate(){
+      scrubTick = false;
+      var vh = window.innerHeight;
+      scrubEls.forEach(function(el){
+        var r = el.getBoundingClientRect();
+        if(r.top > vh || r.bottom < 0) return;
+        var p = (vh*0.82 - r.top) / (vh*0.52);
+        p = Math.max(0, Math.min(1, p));
+        var ws = el.querySelectorAll('.sw');
+        var n = Math.round(ws.length * p);
+        ws.forEach(function(s,i){ s.classList.toggle('on', i < n); });
+      });
+    }
+    window.addEventListener('scroll', function(){
+      if(!scrubTick){ scrubTick = true; requestAnimationFrame(scrubUpdate); }
+    }, {passive:true});
+    scrubUpdate();
+  }
+
+  // FABLE: 스토리 레일 (현재 읽고 있는 챕터 표시)
+  var rail = document.querySelector('.story-rail');
+  if(rail && 'IntersectionObserver' in window){
+    var links = rail.querySelectorAll('a');
+    var map = {};
+    links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+    var ioR = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove('active'); });
+          var a = map[e.target.id]; if(a) a.classList.add('active');
+        }
+      });
+    }, {rootMargin:'-38% 0px -54% 0px'});
+    Object.keys(map).forEach(function(id){
+      var sec = document.getElementById(id); if(sec) ioR.observe(sec);
+    });
+  }
 
   // 스크롤 속도 반응형 마퀴 (스크롤 시 잠깐 가속 — 에디토리얼 리듬)
   if(!RM){
@@ -532,6 +619,17 @@ export function Layout(meta: SeoMeta, body: any) {
   <div class="cursor-ring" aria-hidden="true"></div>
   <div class="cursor-dot" aria-hidden="true"></div>
   <div class="scroll-prog" aria-hidden="true"></div>
+  ${meta.path === '/' ? raw(`
+  <nav class="story-rail" aria-label="페이지 챕터">
+    <a href="#ch-hero" class="active"><span class="sr-dot"></span><span class="sr-lbl">Prologue</span></a>
+    <a href="#ch-story"><span class="sr-dot"></span><span class="sr-lbl">Ch.1 우리 이야기</span></a>
+    <a href="#ch-core"><span class="sr-dot"></span><span class="sr-lbl">Ch.2 세 가지</span></a>
+    <a href="#ch-why"><span class="sr-dot"></span><span class="sr-lbl">Ch.3 이유</span></a>
+    <a href="#ch-all"><span class="sr-dot"></span><span class="sr-lbl">Ch.4 온 가족</span></a>
+    <a href="#ch-equip"><span class="sr-dot"></span><span class="sr-lbl">Ch.5 장비</span></a>
+    <a href="#ch-team"><span class="sr-dot"></span><span class="sr-lbl">Ch.6 의료진</span></a>
+    <a href="#ch-end"><span class="sr-dot"></span><span class="sr-lbl">Epilogue</span></a>
+  </nav>`) : ''}
   ${header()}
   <main>${body}</main>
   ${footer()}

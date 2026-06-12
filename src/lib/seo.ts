@@ -35,11 +35,7 @@ export function dentistSchema() {
     geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
     medicalSpecialty: 'Dentistry',
     priceRange: '₩₩',
-    openingHoursSpecification: [
-      { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Thursday', 'Friday'], opens: '09:30', closes: '18:30' },
-      { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Wednesday', opens: '09:30', closes: '13:00' },
-      { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Saturday', opens: '09:30', closes: '13:30' },
-    ],
+    
   };
 }
 

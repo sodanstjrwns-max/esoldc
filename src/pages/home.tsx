@@ -205,13 +205,13 @@ export function HomePage() {
   <section class="relocate">
     <div class="wrap relocate-inner">
       <span class="rl-tag">NEW</span>
-      <p>이솔치과의원이 <b>${CLINIC.addressShort}</b>로 새롭게 자리를 옮겼습니다. 더 넓고 쾌적한 공간에서 맞이하겠습니다.</p>
+      <p>이솔치과의원이 <b>${CLINIC.addressShort}</b> 새 공간으로 이전, <b>6월 22일부터 진료를 시작합니다</b>. 더 넓고 쾌적한 공간에서 맞이하겠습니다.</p>
       <a href="/directions">오시는 길 <i class="fas fa-arrow-right"></i></a>
     </div>
   </section>
 
-  <!-- ============ HERO (에디토리얼 매거진) ============ -->
-  <section class="hero">
+  <!-- ============ HERO = PROLOGUE ============ -->
+  <section class="hero" id="ch-hero">
     <div class="wrap">
       <div class="hero-top" data-reveal>
         <span class="eyebrow">남양주 마석 · ${CLINIC.establishedLabel}</span>
@@ -241,7 +241,7 @@ export function HomePage() {
           <div class="hero-figure" data-reveal data-reveal-d="2">
             <div class="hero-img" data-parallax="16">
               <img src="/static/img/clinic-reception.webp" alt="이솔치과의원 내부 전경" loading="eager">
-              <div class="tag"><span class="dot"></span><span><b>진료 중</b><br><span>평일 09:30 – 18:30 · 토요일 진료</span></span></div>
+              <div class="tag"><span class="dot"></span><span><b>진료 안내</b><br><span>진료시간은 전화로 확인해 주세요</span></span></div>
             </div>
             <div class="hero-badge" aria-hidden="true"><span><b>3대</b>FAMILY<br>CARE</span></div>
           </div>
@@ -264,14 +264,20 @@ export function HomePage() {
     </div>
   </div>
 
-  <!-- ============ 소개 ============ -->
-  <section class="sec intro">
+  <!-- ============ BRIDGE → Ch.1 ============ -->
+  <div class="bridge" data-reveal>
+    <p>모든 이야기에는 시작이 있습니다.<br>우리의 이야기는 <em>마석의 한 자리</em>에서 시작됩니다.</p>
+    <span class="bridge-pg">Chapter 1 — Our Story</span>
+  </div>
+
+  <!-- ============ 소개 = CHAPTER 1 ============ -->
+  <section class="sec intro" id="ch-story">
     <div class="wrap intro-grid">
       <div data-reveal>
-        <span class="mono-lbl"><span class="num">/01</span> 우리 이야기</span>
+        <span class="chapter-lbl"><span class="ch-no">첫 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Our Story</span></span>
         <p class="intro-quote" data-line><span>치과를 떠올릴 때 <em>가장 먼저</em><br>생각나는 곳이고 싶습니다.</span></p>
-        <p>이솔치과의원은 남양주 마석에서 한자리를 지키며, 지역 주민과 따뜻하게 함께해 온 동네 치과입니다. 화려한 것보다 정직한 진료, 빠른 것보다 충분히 설명드리는 진료를 더 중요하게 생각합니다.</p>
-        <p>아이의 첫 치과부터 어르신의 임플란트까지, 온 가족이 마음 편히 찾을 수 있는 곳. 진료가 끝나는 순간 “오길 잘했다”는 기분이 드시도록, 작은 부분까지 살피겠습니다.</p>
+        <p data-scrub>이솔치과의원은 남양주 마석에서 한자리를 지키며, 지역 주민과 따뜻하게 함께해 온 동네 치과입니다. 화려한 것보다 정직한 진료, 빠른 것보다 충분히 설명드리는 진료를 더 중요하게 생각합니다.</p>
+        <p data-scrub>아이의 첫 치과부터 어르신의 임플란트까지, 온 가족이 마음 편히 찾을 수 있는 곳. 진료가 끝나는 순간 “오길 잘했다”는 기분이 드시도록, 작은 부분까지 살피겠습니다.</p>
         <div class="intro-sign">
           이솔치과의원 대표원장 ${CLINIC.business.owner}
           <span>“${CLINIC.slogan}”</span>
@@ -283,13 +289,19 @@ export function HomePage() {
     </div>
   </section>
 
-  <!-- ============ 핵심 진료 ============ -->
-  <section class="sec">
+  <!-- ============ BRIDGE → Ch.2 ============ -->
+  <div class="bridge" data-reveal>
+    <p>그래서 우리는 욕심내지 않기로 했습니다.<br>잘하는 것에 <em>더 깊이</em> 집중하기로요.</p>
+    <span class="bridge-pg">Chapter 2 — Core Treatments</span>
+  </div>
+
+  <!-- ============ 핵심 진료 = CHAPTER 2 ============ -->
+  <section class="sec" id="ch-core">
     <span class="kicker-v">CORE TREATMENTS</span>
     <div class="wrap folio">
       <span class="folio-num" aria-hidden="true">02</span>
       <div class="sec-head" data-reveal>
-        <span class="mono-lbl"><span class="num">/02</span> 핵심 진료</span>
+        <span class="chapter-lbl"><span class="ch-no">두 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Core Treatments</span></span>
         <h2 data-line><span>가장 <em>집중하는</em> 세 가지</span></h2>
         <p>임플란트·치아교정·소아치과를 중심으로, 각 분야 전문의가 책임지고 진료합니다.</p>
       </div>
@@ -308,20 +320,26 @@ export function HomePage() {
     </div>
   </section>
 
-  <!-- ============ 강점 ============ -->
-  <section class="sec why">
+  <!-- ============ BRIDGE → Ch.3 ============ -->
+  <div class="bridge" data-reveal>
+    <p>잘하는 것보다 더 중요한 게 있습니다.<br><em>왜 이곳이어야 하는지</em>에 대한 답입니다.</p>
+    <span class="bridge-pg">Chapter 3 — Why ISOL</span>
+  </div>
+
+  <!-- ============ 강점 = CHAPTER 3 ============ -->
+  <section class="sec why" id="ch-why">
     <span class="kicker-v">WHY ISOL</span>
     <div class="wrap folio">
       <span class="folio-num" aria-hidden="true">03</span>
       <div class="sec-head" data-reveal>
-        <span class="mono-lbl"><span class="num">/03</span> 왜 이솔치과일까요</span>
+        <span class="chapter-lbl"><span class="ch-no">세 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Why ISOL</span></span>
         <h2 data-line><span>오래 다녀도 <em>편안한</em> 이유</span></h2>
       </div>
       <div class="why-grid">
         <div class="why-card" data-reveal data-reveal-d="1">
           <div class="wn">01</div>
-          <h3>여유로운 체어타임</h3>
-          <p>쫓기듯 진료하지 않습니다. 충분히 듣고, 충분히 설명드린 뒤 진료를 시작합니다.</p>
+          <h3>짧고 편안한 체어타임</h3>
+          <p>숙련된 진료로 체어에 앉아 있는 시간은 짧게, 환자분이 말씀하시는 포인트는 놓치지 않게 진료합니다.</p>
         </div>
         <div class="why-card" data-reveal data-reveal-d="2">
           <div class="wn">02</div>
@@ -350,13 +368,13 @@ export function HomePage() {
     </div>
   </div>
 
-  <!-- ============ 전체 진료 ============ -->
-  <section class="sec">
+  <!-- ============ 전체 진료 = CHAPTER 4 ============ -->
+  <section class="sec" id="ch-all">
     <span class="kicker-v">ALL CARE</span>
     <div class="wrap folio">
       <span class="folio-num" aria-hidden="true">04</span>
       <div class="sec-head" data-reveal>
-        <span class="mono-lbl"><span class="num">/04</span> 전체 진료 안내</span>
+        <span class="chapter-lbl"><span class="ch-no">네 번째 이야기</span><span class="ch-line"></span><span class="ch-name">All Care</span></span>
         <h2 data-line><span>한곳에서 받는 <em>온 가족</em> 진료</span></h2>
         <p>핵심 진료 외에도 일상적인 구강 건강 관리를 폭넓게 돌봅니다.</p>
       </div>
@@ -370,13 +388,13 @@ export function HomePage() {
     </div>
   </section>
 
-  <!-- ============ 보유 장비 ============ -->
-  <section class="sec equip">
+  <!-- ============ 보유 장비 = CHAPTER 5 ============ -->
+  <section class="sec equip" id="ch-equip">
     <span class="kicker-v">DIAGNOSIS</span>
     <div class="wrap folio">
       <span class="folio-num" aria-hidden="true">05</span>
       <div class="sec-head" data-reveal>
-        <span class="mono-lbl"><span class="num">/05</span> 진단 · 장비</span>
+        <span class="chapter-lbl"><span class="ch-no">다섯 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Diagnosis</span></span>
         <h2 data-line><span>3대가 함께 <em>믿고 맡기는</em> 이유</span></h2>
         <p>${CLINIC.subSlogan}. 정밀한 진단 장비로 보이지 않는 부분까지 꼼꼼히 살핍니다.</p>
       </div>
@@ -395,13 +413,19 @@ export function HomePage() {
     </div>
   </section>
 
-  <!-- ============ 의료진 ============ -->
-  <section class="sec intro">
+  <!-- ============ BRIDGE → Ch.6 ============ -->
+  <div class="bridge" data-reveal>
+    <p>결국 이 이야기를 이어가는 건<br>장비도, 공간도 아닌 <em>사람</em>입니다.</p>
+    <span class="bridge-pg">Chapter 6 — Specialists</span>
+  </div>
+
+  <!-- ============ 의료진 = CHAPTER 6 ============ -->
+  <section class="sec intro" id="ch-team">
     <span class="kicker-v">SPECIALISTS</span>
     <div class="wrap folio">
       <span class="folio-num" aria-hidden="true">06</span>
       <div class="sec-head" data-reveal>
-        <span class="mono-lbl"><span class="num">/06</span> 의료진 소개</span>
+        <span class="chapter-lbl"><span class="ch-no">여섯 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Specialists</span></span>
         <h2 data-line><span>각 분야 <em>전문의</em>가 상주합니다</span></h2>
         <p>분야별 전문의가 함께하여, 한곳에서 전 연령의 진료를 책임집니다.</p>
       </div>
@@ -434,11 +458,17 @@ export function HomePage() {
     </div>
   </section>
 
-  <!-- ============ CTA ============ -->
-  <section class="sec" style="padding-top:0">
+  <!-- ============ BRIDGE → EPILOGUE ============ -->
+  <div class="bridge" data-reveal>
+    <p>이제, 다음 이야기의 주인공은<br><em>당신</em>입니다.</p>
+    <span class="bridge-pg">Epilogue — Your Turn</span>
+  </div>
+
+  <!-- ============ CTA = EPILOGUE ============ -->
+  <section class="sec" id="ch-end" style="padding-top:54px">
     <div class="wrap">
       <div class="cta-box" data-reveal>
-        <span class="mono-lbl">예약 문의</span>
+        <span class="mono-lbl">마지막 페이지 · 예약 문의</span>
         <h2>편안한 진료,<br><em>지금</em> 시작하세요</h2>
         <p>궁금한 점은 전화로 편하게 물어보세요. 온라인 예약 문의도 가능합니다.</p>
         <div class="cta-actions">
