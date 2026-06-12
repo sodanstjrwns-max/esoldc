@@ -1,6 +1,17 @@
 import { html, raw } from 'hono/html';
 import { CLINIC, CORE_TREATMENTS, TREATMENTS, DOCTORS, NEARBY_AREAS } from '../data/clinic';
 
+// ── VMG: 챕터 사이 오너먼트 (책의 장 구분 장식 — 양쪽 곡선이 펜으로 그려지고 중앙 다이아몬드가 피어남) ──
+const BRIDGE_ORN = `
+<svg class="vmg bridge-orn" viewBox="0 0 132 60" fill="none" aria-hidden="true">
+  <path class="vp" pathLength="1" d="M4 40 C 30 40, 40 22, 60 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path class="vp vp2" pathLength="1" d="M72 22 C 92 22, 102 40, 128 40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path class="vfill" d="M66 12 L70.5 21 L66 30 L61.5 21 Z" fill="currentColor"/>
+</svg>`;
+
+// ── VMG: 4점 반짝이 스파크 ──
+const SPARK = (cls: string) => `<svg class="${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0 L14.4 9.6 L24 12 L14.4 14.4 L12 24 L9.6 14.4 L0 12 L9.6 9.6 Z"/></svg>`;
+
 export function HomePage() {
   return html`
   <style>
@@ -16,6 +27,17 @@ export function HomePage() {
     /* 표지 제목 — 거대 세리프 센터 */
     .hero-display{font-family:var(--serif);font-weight:700;line-height:1.04;letter-spacing:-.052em;word-spacing:-.04em;color:var(--navy);font-size:clamp(3rem,8.6vw,7.8rem);margin:0}
     .hero-display .accent{font-style:italic;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;padding-right:.06em}
+    /* VMG: 악센트 아래 손글씨 스워시 (펜으로 귿uad7f 그은 밑줄) */
+    .accent-wrap{position:relative;display:inline-block}
+    .accent-swash{position:absolute;left:2%;bottom:-.14em;width:96%;height:.24em;color:var(--gold-2);overflow:visible;pointer-events:none}
+    /* VMG: 히어로 반짝이 스파크 (떠다니는 금별) */
+    .hero-spark{position:absolute;color:var(--gold-2);pointer-events:none;z-index:3;filter:drop-shadow(0 2px 8px rgba(201,154,82,.45));animation:sparkfloat 5.5s var(--ease-soft) infinite}
+    .hero-spark.sp1{width:22px;top:-12px;left:9%;animation-delay:0s}
+    .hero-spark.sp2{width:14px;top:36px;left:16%;animation-delay:1.6s;opacity:.8}
+    .hero-spark.sp3{width:17px;top:-2px;right:18%;animation-delay:.9s;opacity:.9}
+    @keyframes sparkfloat{0%,100%{transform:translateY(0) rotate(0) scale(1)}50%{transform:translateY(-12px) rotate(22deg) scale(1.14)}}
+    @media(prefers-reduced-motion:reduce){.hero-spark{animation:none}}
+    @media(max-width:880px){.hero-spark{display:none}}
     .hero-sub{font-size:1.16rem;color:var(--ink-soft);line-height:1.9;max-width:520px;margin:30px auto 34px;word-break:keep-all}
     .hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:54px}
     /* 표지의 그림 — 아치(성당 창) 이미지 */
@@ -162,6 +184,9 @@ export function HomePage() {
     .equip-card p{font-size:.9rem;color:var(--ink-soft);line-height:1.62;margin:0;word-break:keep-all}
     .equip-note{margin-top:38px;font-size:.92rem;color:var(--ink-faint);display:flex;align-items:center;gap:9px}
     .equip-note i{color:var(--gold)}
+    /* VMG: 장비 섹션 치아 라인 드로잉 (배경 장식 — 스크롤 진입 시 펜으로 그려짐) */
+    .equip-tooth{position:absolute;right:-30px;top:60px;width:min(320px,30vw);color:var(--gold);opacity:.34;pointer-events:none;z-index:0}
+    @media(max-width:880px){.equip-tooth{display:none}}
 
     /* ====================== 의료진 ====================== */
     .team-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
@@ -195,6 +220,8 @@ export function HomePage() {
     .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
     .epi .epi-sign{margin-top:46px;padding-top:30px;border-top:1px solid rgba(250,245,236,.14);font-family:var(--serif);font-size:1rem;color:var(--inv-faint);position:relative}
     .epi .epi-sign b{color:var(--gold-2);font-weight:700}
+    /* VMG: 에필로그 플러리시 (닫는 장식 — 펜 드로잉) */
+    .epi-orn{display:block;width:150px;height:54px;margin:30px auto 0;color:var(--gold-2);position:relative;opacity:.95}
 
     @media(max-width:880px){
       .hero{padding:44px 0 0}
@@ -250,7 +277,10 @@ export function HomePage() {
       <div class="hero-kicker" data-reveal><span>남양주 마석 · <b>EST. ${CLINIC.established}</b> · 우리 가족 치과 주치의</span></div>
       <h1 class="hero-display">
         <span data-line data-line-d="1"><span>기분 좋게</span></span>
-        <span data-line data-line-d="2"><span><span class="accent">진료를 마칠</span> 때까지</span></span>
+        <span data-line data-line-d="2"><span><span class="accent-wrap"><span class="accent">진료를 마칠</span>${raw(`
+          <svg class="vmg accent-swash" viewBox="0 0 300 26" fill="none" preserveAspectRatio="none" aria-hidden="true">
+            <path class="vp vp2" pathLength="1" d="M6 16 C 70 24, 150 4, 230 12 C 258 15, 280 13, 294 10" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+          </svg>`)}</span> 때까지</span></span>
       </h1>
       <p class="hero-sub" data-words>
         치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며, 충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
@@ -273,6 +303,9 @@ export function HomePage() {
           <div class="fm"><b>전 연령</b><span>아이부터 어르신까지</span></div>
         </div>
         <div class="hero-badge" aria-hidden="true"><span><b>3대</b>FAMILY<br>CARE</span></div>
+        ${raw(SPARK('hero-spark sp1'))}
+        ${raw(SPARK('hero-spark sp2'))}
+        ${raw(SPARK('hero-spark sp3'))}
       </div>
       <div class="hero-meta-m" data-reveal data-reveal-d="4">
         <div class="hm"><b>10년째</b><span>한자리에서</span></div>
@@ -302,6 +335,7 @@ export function HomePage() {
 
   <!-- ============ BRIDGE → Ch.1 ============ -->
   <div class="bridge" data-reveal>
+    ${raw(BRIDGE_ORN)}
     <p>모든 이야기에는 시작이 있습니다.<br>우리의 이야기는 <em>마석의 한 자리</em>에서 시작됩니다.</p>
     <span class="bridge-pg">Chapter 1 — Our Story</span>
   </div>
@@ -327,6 +361,7 @@ export function HomePage() {
 
   <!-- ============ BRIDGE → Ch.2 ============ -->
   <div class="bridge" data-reveal>
+    ${raw(BRIDGE_ORN)}
     <p>그래서 우리는 욕심내지 않기로 했습니다.<br>잘하는 것에 <em>더 깊이</em> 집중하기로요.</p>
     <span class="bridge-pg">Chapter 2 — Core Treatments</span>
   </div>
@@ -358,6 +393,7 @@ export function HomePage() {
 
   <!-- ============ BRIDGE → Ch.3 ============ -->
   <div class="bridge" data-reveal>
+    ${raw(BRIDGE_ORN)}
     <p>잘하는 것보다 더 중요한 게 있습니다.<br><em>왜 이곳이어야 하는지</em>에 대한 답입니다.</p>
     <span class="bridge-pg">Chapter 3 — Why ISOL</span>
   </div>
@@ -429,6 +465,11 @@ export function HomePage() {
     <span class="kicker-v">DIAGNOSIS</span>
     <div class="wrap folio">
       <span class="folio-num" aria-hidden="true">05</span>
+      <svg class="vmg equip-tooth" viewBox="0 0 120 150" fill="none" aria-hidden="true">
+        <path class="vp" pathLength="1" d="M60 14 C 36 14, 24 30, 26 52 C 28 74, 38 80, 40 114 C 41.5 134, 50 136, 53 116 C 55.5 100, 58 96, 60 96 C 62 96, 64.5 100, 67 116 C 70 136, 78.5 134, 80 114 C 82 80, 92 74, 94 52 C 96 30, 84 14, 60 14 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path class="vp vp2" pathLength="1" d="M40 34 C 46 26, 56 24, 62 26" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+        <path class="vfill" d="M97 8 L99.6 16.4 L108 19 L99.6 21.6 L97 30 L94.4 21.6 L86 19 L94.4 16.4 Z" fill="currentColor"/>
+      </svg>
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">다섯 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Diagnosis</span></span>
         <h2 data-line><span>3대가 함께 <em>믿고 맡기는</em> 이유</span></h2>
@@ -451,6 +492,7 @@ export function HomePage() {
 
   <!-- ============ BRIDGE → Ch.6 ============ -->
   <div class="bridge" data-reveal>
+    ${raw(BRIDGE_ORN)}
     <p>결국 이 이야기를 이어가는 건<br>장비도, 공간도 아닌 <em>사람</em>입니다.</p>
     <span class="bridge-pg">Chapter 6 — Specialists</span>
   </div>
@@ -496,6 +538,7 @@ export function HomePage() {
 
   <!-- ============ BRIDGE → EPILOGUE ============ -->
   <div class="bridge" data-reveal>
+    ${raw(BRIDGE_ORN)}
     <p>이제, 다음 이야기의 주인공은<br><em>당신</em>입니다.</p>
     <span class="bridge-pg">Epilogue — Your Turn</span>
   </div>
@@ -512,6 +555,13 @@ export function HomePage() {
           <a href="/reservation" class="btn btn-line">온라인 예약 문의</a>
         </div>
         <div class="epi-sign">이솔치과의원 — <b>"${CLINIC.slogan}"</b></div>
+        <svg class="vmg epi-orn" viewBox="0 0 150 54" fill="none" aria-hidden="true">
+          <path class="vp" pathLength="1" d="M8 30 C 36 30, 48 16, 68 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path class="vp vp2" pathLength="1" d="M82 16 C 102 16, 114 30, 142 30" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path class="vfill" d="M75 8 L78.5 16 L75 24 L71.5 16 Z" fill="currentColor"/>
+          <circle class="vfill" cx="22" cy="42" r="1.6" fill="currentColor"/>
+          <circle class="vfill" cx="128" cy="42" r="1.6" fill="currentColor"/>
+        </svg>
       </div>
     </div>
   </section>

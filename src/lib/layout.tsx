@@ -181,7 +181,7 @@ section{position:relative}
 .marquee-track{display:inline-flex;align-items:center;gap:0;animation:marquee 38s linear infinite;will-change:transform}
 .marquee:hover .marquee-track{animation-play-state:paused}
 .marquee-item{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.4rem);font-weight:700;color:var(--navy);letter-spacing:-.02em;padding:0 26px;display:inline-flex;align-items:center;gap:26px}
-.marquee-item::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--gold);flex:none}
+.marquee-item::after{content:'';width:12px;height:12px;background:var(--gold);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);flex:none}
 .marquee.invert{background:var(--navy);border-color:transparent}
 .marquee.invert .marquee-item{color:var(--inv)}
 .marquee.invert .marquee-item::after{background:var(--gold-2)}
@@ -226,8 +226,7 @@ section{position:relative}
 
 /* ── FABLE: 브릿지 (챕터 사이 서사 연결 문장) ── */
 .bridge{text-align:center;padding:84px 24px 10px;position:relative}
-.bridge::before{content:'';display:block;width:1.5px;height:56px;margin:0 auto 30px;background:linear-gradient(to bottom,transparent,var(--gold));transform:scaleY(0);transform-origin:top;transition:transform 1.1s var(--ease) .1s}
-.bridge.in::before{transform:scaleY(1)}
+.bridge-orn{display:block;width:132px;height:60px;margin:0 auto 24px;color:var(--gold)}
 .bridge p{font-family:var(--serif);font-weight:700;font-size:clamp(1.25rem,2.6vw,1.8rem);color:var(--navy);letter-spacing:-.03em;line-height:1.5;margin:0;word-break:keep-all}
 .bridge p em{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 .bridge .bridge-pg{display:block;margin-top:14px;font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint)}
@@ -235,9 +234,22 @@ section{position:relative}
 /* ── FABLE v7: 드롭캡 (책의 첫 문장) ── */
 .dropcap::first-letter{font-family:var(--serif);font-weight:700;font-size:3.3em;float:left;line-height:.82;padding:8px 14px 0 0;color:var(--gold);letter-spacing:0}
 
+/* ── v7.5 VMG: 벡터 모션 그래픽 — SVG 라인 드로잉 엔진 ── */
+/* 모든 path/circle/line에 pathLength="1"을 주면, 뷰포트 진입(.drawn) 시 펜으로 그리듯 드로잉 */
+.vmg{overflow:visible}
+.vmg .vp{stroke-dasharray:1;stroke-dashoffset:1}
+.vmg.drawn .vp{stroke-dashoffset:0;transition:stroke-dashoffset 1.4s var(--ease) .1s}
+.vmg.drawn .vp.vp2{transition-delay:.55s}
+.vmg.drawn .vp.vp3{transition-delay:.95s}
+.vmg .vfill{opacity:0;transform:scale(.3);transform-origin:center;transform-box:fill-box;transition:opacity .5s var(--ease) 1.05s,transform .7s var(--ease) 1.05s}
+.vmg.drawn .vfill{opacity:1;transform:scale(1)}
+@media(prefers-reduced-motion:reduce){.vmg .vp{stroke-dashoffset:0!important}.vmg .vfill{opacity:1!important;transform:none!important}}
+
 /* ── FABLE: 스토리 레일 (좌측 고정 챕터 내비) ── */
 .story-rail{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:600;display:flex;flex-direction:column;gap:4px}
-.story-rail a{display:flex;align-items:center;gap:10px;padding:5px 0;color:var(--ink-faint);transition:color .3s}
+.story-rail .sr-track{position:absolute;left:4.25px;top:12px;bottom:12px;width:1.5px;background:var(--line-soft);z-index:0;border-radius:2px;overflow:hidden}
+.story-rail .sr-track i{position:absolute;top:0;left:0;width:100%;height:0;background:linear-gradient(to bottom,var(--gold-2),var(--gold));display:block;transition:height .25s linear}
+.story-rail a{display:flex;align-items:center;gap:10px;padding:5px 0;color:var(--ink-faint);transition:color .3s;position:relative;z-index:1}
 .story-rail .sr-dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:1.5px solid transparent;transition:all .35s var(--ease);flex:none}
 .story-rail .sr-lbl{font-family:var(--mono);font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateX(-6px);transition:all .35s var(--ease);white-space:nowrap;background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:3px 9px;border-radius:6px;border:1px solid var(--line-soft)}
 .story-rail a:hover .sr-lbl{opacity:1;transform:translateX(0)}
@@ -273,14 +285,14 @@ const INTERACTION_JS = `
 (function(){
   var RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // 스크롤 진행바
+  // 스크롤 진행바 + 스토리 레일 진행선
   var prog = document.querySelector('.scroll-prog');
+  var railFill = document.querySelector('.story-rail .sr-track i');
   function onScroll(){
-    if(prog){
-      var h = document.documentElement;
-      var sc = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
-      prog.style.width = (sc*100) + '%';
-    }
+    var h = document.documentElement;
+    var sc = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
+    if(prog){ prog.style.width = (sc*100) + '%'; }
+    if(railFill){ railFill.style.height = (sc*100) + '%'; }
     var hdr = document.querySelector('.site-header');
     if(hdr){ hdr.classList.toggle('scrolled', window.scrollY > 8); }
   }
@@ -295,6 +307,16 @@ const INTERACTION_JS = `
     }, {threshold:.12, rootMargin:'0px 0px -8% 0px'});
     reveals.forEach(function(el){ io.observe(el); });
   } else { reveals.forEach(function(el){ el.classList.add('in'); }); }
+
+  // VMG: SVG 라인 드로잉 (뷰포트 진입 시 .drawn → stroke-dashoffset 애니메이션)
+  var vmgs = document.querySelectorAll('.vmg');
+  if(RM){ vmgs.forEach(function(el){ el.classList.add('drawn'); }); }
+  else if('IntersectionObserver' in window){
+    var ioVm = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('drawn'); ioVm.unobserve(e.target); } });
+    }, {threshold:.35});
+    vmgs.forEach(function(el){ ioVm.observe(el); });
+  } else { vmgs.forEach(function(el){ el.classList.add('drawn'); }); }
 
   // 카운트업
   function animateCount(el){
@@ -624,6 +646,7 @@ export function Layout(meta: SeoMeta, body: any) {
   <div class="scroll-prog" aria-hidden="true"></div>
   ${meta.path === '/' ? raw(`
   <nav class="story-rail" aria-label="페이지 챕터">
+    <span class="sr-track" aria-hidden="true"><i></i></span>
     <a href="#ch-hero" class="active"><span class="sr-dot"></span><span class="sr-lbl">Prologue</span></a>
     <a href="#ch-story"><span class="sr-dot"></span><span class="sr-lbl">Ch.1 우리 이야기</span></a>
     <a href="#ch-core"><span class="sr-dot"></span><span class="sr-lbl">Ch.2 세 가지</span></a>
