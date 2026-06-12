@@ -277,7 +277,7 @@ export function HomePage() {
         <span class="chapter-lbl"><span class="ch-no">첫 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Our Story</span></span>
         <p class="intro-quote" data-line><span>치과를 떠올릴 때 <em>가장 먼저</em><br>생각나는 곳이고 싶습니다.</span></p>
         <p data-scrub>이솔치과의원은 남양주 마석에서 한자리를 지키며, 지역 주민과 따뜻하게 함께해 온 동네 치과입니다. 화려한 것보다 정직한 진료, 빠른 것보다 충분히 설명드리는 진료를 더 중요하게 생각합니다.</p>
-        <p data-scrub>아이의 첫 치과부터 어르신의 임플란트까지, 온 가족이 마음 편히 찾을 수 있는 곳. 진료가 끝나는 순간 “오길 잘했다”는 기분이 드시도록, 작은 부분까지 살피겠습니다.</p>
+        <p data-scrub>실제로 이솔에는 할머니의 틀니와 잇몸 치료에서 시작해, 아버지의 임플란트, 아이의 충치 치료와 정기검진까지 — 한 가족이 3대에 걸쳐 함께 다니는 시간이 쌓여 있습니다. 가족마다 필요한 치료는 다르지만, 한곳에서 같은 기록과 같은 치료 방향 안에서 관리받을 수 있다는 것. 그것이 우리가 ‘가족 주치의’라는 말을 쓰는 이유입니다.</p>
         <div class="intro-sign">
           이솔치과의원 대표원장 ${CLINIC.business.owner}
           <span>“${CLINIC.slogan}”</span>
@@ -343,8 +343,8 @@ export function HomePage() {
         </div>
         <div class="why-card" data-reveal data-reveal-d="2">
           <div class="wn">02</div>
-          <h3>친절이 기본인 곳</h3>
-          <p>처음 오신 분도, 오래 다니신 분도 편안하게. 작은 질문도 언제든 환영합니다.</p>
+          <h3>필요한 치료만, 정직하게</h3>
+          <p>비용이 걱정이신 분께는 비용에 맞는 계획을, 통증이 두려우신 분께는 통증을 줄이는 방향으로. 하지 않아도 되는 치료를 먼저 권하지 않습니다.</p>
         </div>
         <div class="why-card" data-reveal data-reveal-d="3">
           <div class="wn">03</div>
@@ -427,7 +427,7 @@ export function HomePage() {
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">여섯 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Specialists</span></span>
         <h2 data-line><span>각 분야 <em>전문의</em>가 상주합니다</span></h2>
-        <p>분야별 전문의가 함께하여, 한곳에서 전 연령의 진료를 책임집니다.</p>
+        <p>대표원장이 진단의 중심을 잡고, 케이스에 따라 교정·소아·보철·통합 각 분야 전문의가 이어받는 분과별 협진. 다섯 명의 원장이 한 명의 환자를 함께 봅니다.</p>
       </div>
       <div class="team-grid">
         ${raw(DOCTORS.map((d, i) => `

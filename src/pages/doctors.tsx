@@ -106,7 +106,7 @@ export function DoctorDetailPage(d: Doctor) {
 
           ${treats.length ? html`
           <div class="dd-block">
-            <h3>${d.name}이(가) 담당하는 진료</h3>
+            <h3>${d.name} ${d.role} 담당 진료</h3>
             <div class="dd-treat">
               ${raw(treats.map(t => `<a href="/treatments/${t.slug}"><i class="fas ${t.icon}" style="margin-right:6px"></i>${t.name}</a>`).join(''))}
             </div>
