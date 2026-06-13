@@ -18,6 +18,8 @@ import {
   CasesListPage, CaseDetailPage, BlogListPage, BlogDetailPage,
   NoticesListPage, NoticeDetailPage,
 } from './pages/content';
+import { GlossaryListPage, GlossaryDetailPage } from './pages/glossary';
+import { GLOSSARY, GLOSSARY_SORTED } from './data/glossary';
 import { authApi } from './routes/auth';
 import { admin } from './routes/admin';
 import { adminContent } from './routes/admin-content';
@@ -287,6 +289,48 @@ app.get('/notices/:id', async (c) => {
 });
 
 // ============================================================================
+// 치과 백과사전
+// ============================================================================
+app.get('/glossary', (c) => {
+  return c.html(Layout({
+    title: `치과 백과사전 — 치과 용어 ${GLOSSARY.length}선 정리 | ${CLINIC.name}`,
+    description: `임플란트·교정·소아치과 등 치과 용어 ${GLOSSARY.length}개를 알기 쉽게 정리한 ${CLINIC.name} 치과 백과사전. 검색·카테고리·초성으로 찾아보세요.`,
+    path: '/glossary',
+    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }])],
+  }, GlossaryListPage()));
+});
+
+app.get('/glossary/:term', (c) => {
+  let raw = c.req.param('term');
+  try { raw = decodeURIComponent(raw); } catch {}
+  const term = GLOSSARY.find(t => t.term === raw);
+  if (!term) return c.notFound();
+  // 관련 용어: 공유 rel 우선 → 같은 카테고리 보충, 최대 12개
+  const byRel = GLOSSARY_SORTED.filter(t => t.term !== term.term && t.rel.some(r => term.rel.includes(r)));
+  const byCat = GLOSSARY_SORTED.filter(t => t.term !== term.term && t.cat === term.cat && !byRel.includes(t));
+  const related = [...byRel, ...byCat].slice(0, 12);
+  // 관련 진료 인링크
+  const relTreatments = term.rel
+    .map(slug => TREATMENTS.find(t => t.slug === slug))
+    .filter((t): t is NonNullable<typeof t> => !!t)
+    .map(t => ({ slug: t.slug, name: t.name, short: t.short }));
+  return c.html(Layout({
+    title: `${term.term} 뜻·설명 | 치과 백과사전 - ${CLINIC.name}`,
+    description: `${term.term}이란? ${term.def.slice(0, 110)}`,
+    path: `/glossary/${encodeURIComponent(term.term)}`,
+    type: 'article',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org', '@type': 'DefinedTerm',
+        name: term.term, description: term.def,
+        inDefinedTermSet: { '@type': 'DefinedTermSet', name: `${CLINIC.name} 치과 백과사전`, url: `${SITE_URL}/glossary` },
+      },
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }, { name: term.term, path: `/glossary/${encodeURIComponent(term.term)}` }]),
+    ],
+  }, GlossaryDetailPage(term, related, relTreatments)));
+});
+
+// ============================================================================
 // 회원가입 / 로그인
 // ============================================================================
 app.get('/signup', async (c) => {
@@ -431,6 +475,8 @@ app.get('/sitemap.xml', async (c) => {
     { loc: '/cases', pri: '0.7' },
     { loc: '/blog', pri: '0.8' },
     { loc: '/notices', pri: '0.6' },
+    { loc: '/glossary', pri: '0.8' },
+    ...GLOSSARY_SORTED.map(t => ({ loc: `/glossary/${encodeURIComponent(t.term)}`, pri: '0.5' })),
     ...TREATMENTS.map(t => ({ loc: `/treatments/${t.slug}`, pri: t.isCore ? '0.9' : '0.7' })),
     ...DOCTORS.map(d => ({ loc: `/doctors/${d.slug}`, pri: '0.7' })),
   ];

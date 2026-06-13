@@ -126,6 +126,10 @@ section{position:relative}
 .mega a .mi{width:46px;height:46px;border-radius:14px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;flex:none;font-size:1.15rem}
 .mega a strong{display:block;font-size:1rem;font-weight:700;color:var(--navy)}.mega a span{font-size:.82rem;color:var(--ink-soft);line-height:1.4}
 .nav-cta{display:flex;align-items:center;gap:14px}
+.nav-auth .na-link{font-size:.9rem;font-weight:600;color:var(--ink-soft);padding:8px 4px;transition:color .2s}
+.nav-auth .na-link:hover{color:var(--gold-3)}
+.nav-auth .na-name{font-size:.86rem;font-weight:700;color:var(--navy)}
+.nav-auth .na-out{font-size:.78rem;color:var(--ink-soft);cursor:pointer;margin-left:8px;text-decoration:underline;text-underline-offset:3px}
 .nav-tel{font-weight:700;color:var(--navy);font-size:1rem;white-space:nowrap}
 .nav-tel i{color:var(--gold)}
 .burger{display:none;background:none;border:none;font-size:1.5rem;color:var(--navy);cursor:pointer;padding:6px}
@@ -264,7 +268,7 @@ section{position:relative}
 }
 @media(max-width:760px){
   body{font-size:16px}
-  .nav-links,.nav-tel{display:none}.burger{display:block}
+  .nav-links,.nav-tel,.nav-auth{display:none}.burger{display:block}
   .nav-cta .btn{display:none}
   .nav{height:66px}
   .footer-grid{grid-template-columns:1fr;gap:28px}
@@ -284,6 +288,17 @@ section{position:relative}
 const INTERACTION_JS = `
 (function(){
   var RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 로그인 상태 표시
+  fetch('/api/auth/me').then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||!j.ok)return;
+    var na=document.getElementById('navAuth');
+    if(na)na.innerHTML='<span class="na-name">'+(j.name||'회원')+'님</span><span class="na-out" id="naOut">로그아웃</span>';
+    var mm=document.getElementById('mmAuth');
+    if(mm){mm.textContent=(j.name||'회원')+'님 · 로그아웃';mm.href='/logout';}
+    var no=document.getElementById('naOut');
+    if(no)no.addEventListener('click',function(){fetch('/api/auth/logout',{method:'POST'}).then(function(){location.reload();});});
+  }).catch(function(){});
 
   // 스크롤 진행바 + 스토리 레일 진행선
   var prog = document.querySelector('.scroll-prog');
@@ -503,6 +518,17 @@ const INTERACTION_JS = `
 })();
 `;
 
+function contentMenu() {
+  return html`
+    <div class="mega" style="min-width:420px">
+      <a href="/cases"><span class="mi"><i class="fas fa-images"></i></span><span><strong>비포&애프터</strong><span>실제 치료 사례 전후 비교</span></span></a>
+      <a href="/blog"><span class="mi"><i class="fas fa-feather-alt"></i></span><span><strong>블로그</strong><span>원장들이 쓰는 건강 이야기</span></span></a>
+      <a href="/notices"><span class="mi"><i class="fas fa-bullhorn"></i></span><span><strong>공지사항</strong><span>진료 일정·병원 소식</span></span></a>
+      <a href="/faq"><span class="mi"><i class="fas fa-circle-question"></i></span><span><strong>자주묻는질문</strong><span>진료별 궁금증 모음</span></span></a>
+      <a href="/glossary"><span class="mi"><i class="fas fa-book-open"></i></span><span><strong>치과 백과사전</strong><span>치과 용어 500선 알기 쉽게</span></span></a>
+    </div>`;
+}
+
 function megaMenu() {
   return html`
     <div class="mega">
@@ -523,12 +549,13 @@ function header() {
         <li><a href="/mission">병원소개</a></li>
         <li><a href="/doctors">의료진</a></li>
         <li><a href="/treatments">진료안내</a>${megaMenu()}</li>
-        <li><a href="/cases">비포&애프터</a></li>
+        <li><a href="/cases">콘텐츠</a>${contentMenu()}</li>
         <li><a href="/faq">자주묻는질문</a></li>
         <li><a href="/directions">오시는길</a></li>
       </ul>
       <div class="nav-cta">
         <a href="tel:${CLINIC.tel}" class="nav-tel"><i class="fas fa-phone" style="font-size:.85em"></i> ${CLINIC.tel}</a>
+        <span class="nav-auth" id="navAuth"><a href="/login" class="na-link">로그인</a></span>
         <a href="/reservation" class="btn btn-primary">예약 문의</a>
         <button class="burger" aria-label="메뉴 열기"><i class="fas fa-bars"></i></button>
       </div>
@@ -541,9 +568,13 @@ function header() {
     <a href="/treatments">진료안내</a>
     ${raw(CORE_TREATMENTS.map(t => `<a href="/treatments/${t.slug}" style="font-size:1.05rem;padding-left:16px;color:var(--inv-soft)">· ${t.name}</a>`).join(''))}
     <a href="/cases">비포&애프터</a>
+    <a href="/blog" style="font-size:1.05rem;padding-left:16px;color:var(--inv-soft)">· 블로그</a>
+    <a href="/notices" style="font-size:1.05rem;padding-left:16px;color:var(--inv-soft)">· 공지사항</a>
+    <a href="/glossary" style="font-size:1.05rem;padding-left:16px;color:var(--inv-soft)">· 치과 백과사전</a>
     <a href="/faq">자주묻는질문</a>
     <a href="/directions">오시는길</a>
     <a href="/reservation">예약 문의</a>
+    <a href="/login" id="mmAuth" style="font-size:1.02rem;color:var(--inv-soft)">로그인 / 회원가입</a>
     <a href="tel:${CLINIC.tel}" style="color:var(--gold-2)"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
   </div>`;
 }
@@ -573,7 +604,10 @@ function footer() {
           <a href="/mission">병원소개</a>
           <a href="/doctors">의료진</a>
           <a href="/cases">비포&애프터</a>
+          <a href="/blog">블로그</a>
+          <a href="/notices">공지사항</a>
           <a href="/faq">자주묻는질문</a>
+          <a href="/glossary">치과 백과사전</a>
           <a href="/pricing">비용안내</a>
         </div>
         <div>
@@ -591,6 +625,9 @@ function footer() {
       </div>
       <div class="footer-bottom">
         <span>© ${new Date().getFullYear()} ${CLINIC.name}. All rights reserved.</span>
+        <span class="footer-sns" aria-label="병원 SNS">
+          <!-- SNS URL 확정 시 교체: 네이버플레이스 / 카카오채널 / 인스타그램 -->
+        </span>
         <span>개인정보처리방침 · 이용약관</span>
       </div>
     </div>
