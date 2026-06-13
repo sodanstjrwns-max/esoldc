@@ -11,18 +11,34 @@ import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
 import { DoctorsListPage, DoctorDetailPage } from './pages/doctors';
 import {
   MissionPage, DirectionsPage, FaqPage, PricingPage,
-  ReservationPage, CasesPage, AreaPage, NotFoundPage,
+  ReservationPage, AreaPage, NotFoundPage,
 } from './pages/misc';
+import { SignupPage, LoginPage } from './pages/auth';
+import {
+  CasesListPage, CaseDetailPage, BlogListPage, BlogDetailPage,
+  NoticesListPage, NoticeDetailPage,
+} from './pages/content';
+import { authApi } from './routes/auth';
+import { admin } from './routes/admin';
+import { adminContent } from './routes/admin-content';
+import { getSession } from './lib/auth';
+import { searchRegions } from './data/regions';
 
 type Bindings = {
   R2?: R2Bucket;
   DB?: D1Database;
   RESEND_API_KEY?: string;
   NOTIFICATION_EMAIL?: string;
+  ADMIN_PASSWORD?: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
 app.use('/api/*', cors());
+
+// 서브 라우터 마운트
+app.route('/api/auth', authApi);
+app.route('/admin', admin);
+app.route('/admin', adminContent);
 
 // ============================================================================
 // 메인
@@ -146,13 +162,184 @@ app.get('/reservation', (c) => {
   }, ReservationPage()));
 });
 
-app.get('/cases', (c) => {
+app.get('/cases', async (c) => {
+  const s = await getSession(c);
+  let cases: any[] = [];
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT id, title, age_group, gender, category, region, doctor_slug, duration, img_pano_before, img_oral_before, views FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 200').all();
+      cases = results as any[];
+    } catch {}
+  }
   return c.html(Layout({
-    title: `비포 & 애프터 | ${CLINIC.name}`,
-    description: `${CLINIC.name} 진료 사례 안내. 진료 사례는 의료법에 따라 내원 상담 시 직접 안내해 드립니다.`,
+    title: `비포 & 애프터 치료사례 | ${CLINIC.name}`,
+    description: `${CLINIC.name} 실제 치료 사례 모음. 파노라마·구내포토 전후 비교. 치료 후 사진은 회원 로그인 시 열람 가능합니다.`,
     path: '/cases',
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비포&애프터', path: '/cases' }])],
-  }, CasesPage()));
+  }, CasesListPage(cases, !!s)));
+});
+
+app.get('/cases/:id', async (c) => {
+  const db = c.env.DB;
+  if (!db) return c.notFound();
+  const id = c.req.param('id');
+  if (!/^\d+$/.test(id)) return c.notFound();
+  const x = await db.prepare('SELECT * FROM cases WHERE id = ? AND published = 1').bind(id).first<any>();
+  if (!x) return c.notFound();
+  await db.prepare('UPDATE cases SET views = views + 1 WHERE id = ?').bind(id).run();
+  const s = await getSession(c);
+  const { results: related } = await db.prepare(
+    'SELECT id, title, category, img_pano_before, img_oral_before FROM cases WHERE published = 1 AND id != ? AND (category = ? OR doctor_slug = ?) ORDER BY id DESC LIMIT 4')
+    .bind(id, x.category, x.doctor_slug).all();
+  return c.html(Layout({
+    title: `${x.title} | 치료사례 - ${CLINIC.name}`,
+    description: `${x.age_group} ${x.gender} 환자 ${x.title}. ${(x.description || '').slice(0, 100)}`,
+    path: `/cases/${id}`,
+    type: 'article',
+    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비포&애프터', path: '/cases' }, { name: x.title, path: `/cases/${id}` }])],
+  }, CaseDetailPage(x, !!s, related as any[])));
+});
+
+// ============================================================================
+// 블로그
+// ============================================================================
+app.get('/blog', async (c) => {
+  let posts: any[] = [];
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT slug, title, excerpt, thumbnail, author_slug, views, created_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 200').all();
+      posts = results as any[];
+    } catch {}
+  }
+  return c.html(Layout({
+    title: `치과 건강 블로그 | ${CLINIC.name}`,
+    description: `${CLINIC.name} 원장들이 직접 쓰는 구강 건강 정보와 병원 이야기. 임플란트·교정·소아치과 상식.`,
+    path: '/blog',
+    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '블로그', path: '/blog' }])],
+  }, BlogListPage(posts)));
+});
+
+app.get('/blog/:slug', async (c) => {
+  const db = c.env.DB;
+  if (!db) return c.notFound();
+  const slug = c.req.param('slug');
+  const p = await db.prepare('SELECT * FROM posts WHERE slug = ? AND published = 1').bind(slug).first<any>();
+  if (!p) return c.notFound();
+  await db.prepare('UPDATE posts SET views = views + 1 WHERE id = ?').bind(p.id).run();
+  const { results: related } = await db.prepare(
+    'SELECT slug, title FROM posts WHERE published = 1 AND id != ? ORDER BY id DESC LIMIT 5').bind(p.id).all();
+  return c.html(Layout({
+    title: `${p.title} | ${CLINIC.name} 블로그`,
+    description: p.excerpt || `${CLINIC.name} 블로그 - ${p.title}`,
+    path: `/blog/${slug}`,
+    type: 'article',
+    ogImage: p.thumbnail ? `${SITE_URL}/api/img/${p.thumbnail}` : undefined,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org', '@type': 'BlogPosting',
+        headline: p.title, description: p.excerpt || '',
+        datePublished: p.created_at, dateModified: p.updated_at,
+        author: { '@type': 'Person', name: (DOCTORS.find(d => d.slug === p.author_slug)?.name || CLINIC.name) },
+        publisher: { '@type': 'Organization', name: CLINIC.name },
+        mainEntityOfPage: `${SITE_URL}/blog/${slug}`,
+      },
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '블로그', path: '/blog' }, { name: p.title, path: `/blog/${slug}` }]),
+    ],
+  }, BlogDetailPage(p, related as any[])));
+});
+
+// ============================================================================
+// 공지사항
+// ============================================================================
+app.get('/notices', async (c) => {
+  let notices: any[] = [];
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT id, title, image, is_pinned, views, created_at FROM notices WHERE published = 1 ORDER BY is_pinned DESC, id DESC LIMIT 200').all();
+      notices = results as any[];
+    } catch {}
+  }
+  return c.html(Layout({
+    title: `공지사항 | ${CLINIC.name}`,
+    description: `${CLINIC.name} 공지사항. 진료 일정 변경, 병원 소식을 안내해 드립니다.`,
+    path: '/notices',
+    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notices' }])],
+  }, NoticesListPage(notices)));
+});
+
+app.get('/notices/:id', async (c) => {
+  const db = c.env.DB;
+  if (!db) return c.notFound();
+  const id = c.req.param('id');
+  if (!/^\d+$/.test(id)) return c.notFound();
+  const n = await db.prepare('SELECT * FROM notices WHERE id = ? AND published = 1').bind(id).first<any>();
+  if (!n) return c.notFound();
+  await db.prepare('UPDATE notices SET views = views + 1 WHERE id = ?').bind(id).run();
+  return c.html(Layout({
+    title: `${n.title} | 공지사항 - ${CLINIC.name}`,
+    description: `${CLINIC.name} 공지 - ${n.title}`,
+    path: `/notices/${id}`,
+    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notices' }, { name: n.title, path: `/notices/${id}` }])],
+  }, NoticeDetailPage(n)));
+});
+
+// ============================================================================
+// 회원가입 / 로그인
+// ============================================================================
+app.get('/signup', async (c) => {
+  const s = await getSession(c);
+  if (s) return c.redirect('/');
+  return c.html(Layout({
+    title: `회원가입 | ${CLINIC.name}`,
+    description: `${CLINIC.name} 회원가입. 가입 시 치료 사례(비포&애프터)를 모두 열람하실 수 있습니다.`,
+    path: '/signup',
+    noindex: true,
+  }, SignupPage()));
+});
+
+app.get('/login', async (c) => {
+  const s = await getSession(c);
+  if (s) return c.redirect('/');
+  const next = c.req.query('next') || '';
+  const safeNext = /^\/[a-zA-Z0-9\/_-]*$/.test(next) ? next : '';
+  return c.html(Layout({
+    title: `로그인 | ${CLINIC.name}`,
+    description: `${CLINIC.name} 회원 로그인`,
+    path: '/login',
+    noindex: true,
+  }, LoginPage(safeNext)));
+});
+
+app.get('/logout', async (c) => {
+  const { destroySession } = await import('./lib/auth');
+  await destroySession(c);
+  return c.redirect('/');
+});
+
+// ============================================================================
+// 공개 API — 이미지 서빙(R2) / 지역 자동완성
+// ============================================================================
+app.get('/api/img/*', async (c) => {
+  const r2 = c.env.R2;
+  if (!r2) return c.notFound();
+  const key = c.req.path.replace(/^\/api\/img\//, '');
+  if (!key.startsWith('uploads/')) return c.notFound();
+  const obj = await r2.get(key);
+  if (!obj) return c.notFound();
+  return new Response(obj.body, {
+    headers: {
+      'Content-Type': obj.httpMetadata?.contentType || 'image/jpeg',
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    },
+  });
+});
+
+app.get('/api/regions', (c) => {
+  const q = c.req.query('q') || '';
+  return c.json({ results: searchRegions(q, 8) });
 });
 
 // ============================================================================
@@ -190,6 +377,14 @@ app.post('/api/reservation', async (c) => {
     }
     const record = { ...body, createdAt: new Date().toISOString(), id: crypto.randomUUID() };
 
+    // D1 저장 (바인딩 있을 때만)
+    if (c.env.DB) {
+      try {
+        await c.env.DB.prepare('INSERT INTO reservations (name, phone, treatment, datetime, message) VALUES (?,?,?,?,?)')
+          .bind(record.name, record.phone, record.treatment || null, record.datetime || null, record.message || null).run();
+      } catch {}
+    }
+
     // R2 저장 (바인딩 있을 때만)
     if (c.env.R2) {
       await c.env.R2.put(`reservations/${record.id}.json`, JSON.stringify(record), {
@@ -222,7 +417,7 @@ app.post('/api/reservation', async (c) => {
 // ============================================================================
 // SEO: sitemap.xml / robots.txt / llms.txt
 // ============================================================================
-app.get('/sitemap.xml', (c) => {
+app.get('/sitemap.xml', async (c) => {
   const now = new Date().toISOString().split('T')[0];
   const urls: { loc: string; pri: string }[] = [
     { loc: '/', pri: '1.0' },
@@ -233,10 +428,23 @@ app.get('/sitemap.xml', (c) => {
     { loc: '/faq', pri: '0.7' },
     { loc: '/pricing', pri: '0.6' },
     { loc: '/reservation', pri: '0.7' },
-    { loc: '/cases', pri: '0.6' },
+    { loc: '/cases', pri: '0.7' },
+    { loc: '/blog', pri: '0.8' },
+    { loc: '/notices', pri: '0.6' },
     ...TREATMENTS.map(t => ({ loc: `/treatments/${t.slug}`, pri: t.isCore ? '0.9' : '0.7' })),
     ...DOCTORS.map(d => ({ loc: `/doctors/${d.slug}`, pri: '0.7' })),
   ];
+  // 동적 콘텐츠 (DB 있을 때)
+  if (c.env.DB) {
+    try {
+      const [posts, cases] = await Promise.all([
+        c.env.DB.prepare('SELECT slug FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 500').all(),
+        c.env.DB.prepare('SELECT id FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 500').all(),
+      ]);
+      for (const p of posts.results as any[]) urls.push({ loc: `/blog/${p.slug}`, pri: '0.7' });
+      for (const x of cases.results as any[]) urls.push({ loc: `/cases/${x.id}`, pri: '0.6' });
+    } catch {}
+  }
   // 지역 SEO: 인근지역 × 핵심진료
   for (const a of NEARBY_AREAS) {
     for (const t of CORE_TREATMENTS) {
