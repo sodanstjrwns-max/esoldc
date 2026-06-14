@@ -8,6 +8,7 @@ export interface GTerm {
   def: string;
   cat: string;
   rel: string[];
+  longDef?: string; // 심층 설명(약 1000자) — 핵심 200개 용어에 추가
 }
 
 const g = (term: string, def: string, cat: string, rel: string[] = []): GTerm => ({ term, def, cat, rel });
@@ -589,6 +590,13 @@ const MORE_TERMS2: GTerm[] = [
 ];
 
 GLOSSARY.push(...MORE_TERMS2);
+
+// 심층 설명(longDef) 병합 — 핵심 용어에 약 1000자 설명 부착
+import { LONG_DEFS } from './glossary-long';
+for (const t of GLOSSARY) {
+  const ld = LONG_DEFS[t.term];
+  if (ld) t.longDef = ld;
+}
 
 // 가나다 정렬된 전체 목록
 export const GLOSSARY_SORTED = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term, 'ko'));

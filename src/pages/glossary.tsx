@@ -121,6 +121,7 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
   ${raw(PAGE_HERO(`<a href="/glossary" style="color:rgba(250,248,244,.45)">치과 백과사전</a> / 용어`, esc(term.term), esc(term.cat)))}
   <style>${raw(GLOSSARY_CSS)}
     .gd-def{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:var(--radius-lg);padding:34px 38px;font-size:1.12rem;line-height:1.9;margin-bottom:40px}
+    .gd-long{font-size:1.04rem;line-height:2;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:30px 34px;letter-spacing:-.01em}
     .gd-sub{font-size:1.25rem;margin:40px 0 18px;display:flex;align-items:center;gap:10px}
     .gd-sub i{color:var(--gold);font-size:.85em}
     .gd-treat{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
@@ -135,6 +136,10 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
   <section class="section">
     <div class="wrap" style="max-width:880px">
       <div class="gd-def">${esc(term.def)}</div>
+
+      ${term.longDef ? raw(`
+      <h2 class="gd-sub"><i class="fas fa-circle-info"></i>자세히 알아보기</h2>
+      <div class="gd-long">${esc(term.longDef)}</div>`) : ''}
 
       ${relTreatments.length ? raw(`
       <h2 class="gd-sub"><i class="fas fa-stethoscope"></i>관련 진료 보기</h2>

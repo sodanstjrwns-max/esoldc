@@ -314,6 +314,7 @@ app.get('/glossary/:term', (c) => {
     .map(slug => TREATMENTS.find(t => t.slug === slug))
     .filter((t): t is NonNullable<typeof t> => !!t)
     .map(t => ({ slug: t.slug, name: t.name, short: t.short }));
+  const fullDesc = term.longDef || term.def;
   return c.html(Layout({
     title: `${term.term} 뜻·설명 | 치과 백과사전 - ${CLINIC.name}`,
     description: `${term.term}이란? ${term.def.slice(0, 110)}`,
@@ -322,7 +323,7 @@ app.get('/glossary/:term', (c) => {
     jsonLd: [
       {
         '@context': 'https://schema.org', '@type': 'DefinedTerm',
-        name: term.term, description: term.def,
+        name: term.term, description: fullDesc,
         inDefinedTermSet: { '@type': 'DefinedTermSet', name: `${CLINIC.name} 치과 백과사전`, url: `${SITE_URL}/glossary` },
       },
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }, { name: term.term, path: `/glossary/${encodeURIComponent(term.term)}` }]),
