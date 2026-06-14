@@ -43,7 +43,7 @@ export const CLINIC = {
 
   // --- SNS / 채널 (6/3 시트) ---
   sns: {
-    homepage: 'https://isoldent.com',
+    homepage: 'https://isoldc.kr',
     instagram: 'https://www.instagram.com/isoldent_',   // 공지사항 알림용 · 활성화 예정
     blog: 'https://blog.naver.com/frogstar0315',
     youtube: 'https://www.youtube.com/@이솔치과',        // 휴면 — 재정비 예정

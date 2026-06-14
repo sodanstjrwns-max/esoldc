@@ -1,6 +1,6 @@
 import { CLINIC, DOCTORS, TREATMENTS, type Treatment } from '../data/clinic';
 
-export const SITE_URL = 'https://isoldent.com'; // 실 도메인 (6/3 시트)
+export const SITE_URL = 'https://isoldc.kr'; // 실 도메인 (가비아 구매, Cloudflare 연결)
 
 export interface SeoMeta {
   title: string;

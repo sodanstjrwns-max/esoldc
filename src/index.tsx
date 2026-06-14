@@ -442,7 +442,7 @@ app.post('/api/reservation', async (c) => {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${c.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'noreply@isoldent.com',
+          from: 'noreply@isoldc.kr',
           to: c.env.NOTIFICATION_EMAIL,
           subject: `[이솔치과] 새 예약 문의 - ${record.name}`,
           html: `<h3>새 예약 문의</h3><ul>
