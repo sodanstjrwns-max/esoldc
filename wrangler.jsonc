@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "webapp",
+  "name": "isoldent",
   "compatibility_date": "2025-05-01",
   "pages_build_output_dir": "./dist",
   "compatibility_flags": [
@@ -9,14 +9,14 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "webapp-production",
-      "database_id": "local-placeholder"
+      "database_name": "isoldent-production",
+      "database_id": "eb299741-a014-419c-9d03-809adeaaaf1f"
     }
   ],
   "r2_buckets": [
     {
       "binding": "R2",
-      "bucket_name": "webapp-bucket"
+      "bucket_name": "isoldent-bucket"
     }
   ]
 }
