@@ -100,9 +100,9 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
     <div class="ba-block reveal">
       <h3 class="ba-title">${label}</h3>
       <div class="ba-pair">
-        ${before ? `<figure><img src="/api/img/${before}" alt="${label} 치료 전"><figcaption>BEFORE</figcaption></figure>` : ''}
+        ${before ? `<figure><img src="/api/img/${before}" alt="${label} 치료 전" loading="lazy" decoding="async"><figcaption>BEFORE</figcaption></figure>` : ''}
         ${after ? (loggedIn
-          ? `<figure><img src="/api/img/${after}" alt="${label} 치료 후"><figcaption>AFTER</figcaption></figure>`
+          ? `<figure><img src="/api/img/${after}" alt="${label} 치료 후" loading="lazy" decoding="async"><figcaption>AFTER</figcaption></figure>`
           : `<figure class="ba-locked"><div class="ba-lock-box"><i class="fas fa-lock"></i><strong>치료 후 사진</strong><p>회원 로그인 시 열람 가능합니다</p><a href="/login?next=/cases/${x.id}" class="btn btn-accent" style="padding:10px 22px;font-size:.9rem">로그인하고 보기</a></div><figcaption>AFTER 🔒</figcaption></figure>`) : ''}
       </div>
     </div>`;
@@ -335,7 +335,7 @@ export function NoticeDetailPage(n: any) {
       <span><i class="fas fa-calendar" style="color:var(--gold)"></i> ${(n.created_at || '').slice(0, 10)}</span>
       <span><i class="fas fa-eye" style="color:var(--gold)"></i> 조회 ${n.views}</span>
     </div>
-    ${n.image ? raw(`<div class="nd-img reveal"><img src="/api/img/${n.image}" alt="${esc(n.title)}"></div>`) : ''}
+    ${n.image ? raw(`<div class="nd-img reveal"><img src="/api/img/${n.image}" alt="${esc(n.title)}" loading="lazy" decoding="async"></div>`) : ''}
     <div class="nd-body reveal">${raw(n.content_html || '')}</div>
     <div style="margin-top:36px"><a href="/notices" class="btn btn-ghost"><i class="fas fa-list"></i> 목록으로</a></div>
   </div></section>`;

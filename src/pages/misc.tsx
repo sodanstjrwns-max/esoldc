@@ -290,7 +290,7 @@ export function AreaPage(area: { slug: string; name: string; full: string }, t: 
       <p>이솔치과의원은 ${area.full} 인근에서 ${t.name}을(를) 비롯한 다양한 진료를 제공하고 있습니다. 정밀 진단을 바탕으로 환자분의 상태에 맞는 진료 계획을 세우며, 충분한 상담을 통해 진행합니다.</p>
       <h2>${t.name} 담당 의료진</h2>
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:16px">
-        ${raw(docs.map(d => `<a href="/doctors/${d.slug}" style="display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);padding:12px 18px 12px 12px;border-radius:var(--radius)"><img src="${d.photo}" style="width:54px;height:54px;border-radius:10px;object-fit:cover" alt="${d.name}"><div><div style="font-weight:800">${d.name}</div><div style="font-size:.85rem;color:var(--ink-soft)">${d.specialty}</div></div></a>`).join(''))}
+        ${raw(docs.map(d => `<a href="/doctors/${d.slug}" style="display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);padding:12px 18px 12px 12px;border-radius:var(--radius)"><img src="${d.photo}" style="width:54px;height:54px;border-radius:10px;object-fit:cover" alt="${d.name}" loading="lazy" decoding="async"><div><div style="font-weight:800">${d.name}</div><div style="font-size:.85rem;color:var(--ink-soft)">${d.specialty}</div></div></a>`).join(''))}
       </div>
       <div style="text-align:center;margin-top:48px;background:var(--gold);color:#fff;border-radius:var(--radius-lg);padding:48px">
         <h3 style="font-size:1.5rem;margin-bottom:10px">${area.name}에서 가까운 이솔치과의원</h3>

@@ -71,6 +71,9 @@ const DESIGN_TOKENS = `
 *{box-sizing:border-box}
 /* 기울임(italic) 전역 제거 — em/i/cite/address 등 기본 italic 무력화 (Font Awesome 아이콘 .fa* 는 제외) */
 em,i,cite,address,dfn,var,blockquote{font-style:normal}
+/* 접근성: 본문 바로가기 (키보드 포커스 시에만 노출) */
+.skip-link{position:absolute;left:-9999px;top:0;z-index:9999;background:var(--navy);color:#fff;padding:12px 20px;border-radius:0 0 10px 0;font-weight:700;text-decoration:none}
+.skip-link:focus{left:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
   margin:0;font-family:var(--display);color:var(--ink);
@@ -644,9 +647,16 @@ function footer() {
 // ============================================================================
 // 메인 레이아웃 래퍼
 // ============================================================================
+// HTML 속성 이스케이프 — title/description에 따옴표·앰퍼샌드가 들어가도 안전
+function escAttr(s: string): string {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 export function Layout(meta: SeoMeta, body: any) {
   const canonical = `${SITE_URL}${meta.path}`;
   const ogImage = meta.ogImage || `${SITE_URL}/static/img/og.png`;
+  const t = escAttr(meta.title);
+  const d = escAttr(meta.description);
   const jsonLdBlocks = (meta.jsonLd || []).map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join('');
 
   return html`<!DOCTYPE html>
@@ -657,18 +667,24 @@ export function Layout(meta: SeoMeta, body: any) {
   <title>${meta.title}</title>
   <meta name="description" content="${meta.description}">
   <link rel="canonical" href="${canonical}">
-  ${meta.noindex ? raw('<meta name="robots" content="noindex,nofollow">') : raw('<meta name="robots" content="index,follow,max-image-preview:large">')}
+  ${meta.noindex ? raw('<meta name="robots" content="noindex,nofollow">') : raw('<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">')}
   <meta property="og:type" content="${meta.type || 'website'}">
   <meta property="og:site_name" content="${CLINIC.name}">
   <meta property="og:title" content="${meta.title}">
   <meta property="og:description" content="${meta.description}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:image" content="${ogImage}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:locale" content="ko_KR">
-  <meta name="twitter:card" content="summary_large_image">
+  ${raw(`<meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${t}">
+  <meta name="twitter:description" content="${d}">
+  <meta name="twitter:image" content="${ogImage}">`)}
   <meta name="theme-color" content="#5A463A">
   <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
-  <link rel="apple-touch-icon" href="/static/img/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32.png">
+  <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -679,6 +695,7 @@ export function Layout(meta: SeoMeta, body: any) {
   ${raw(jsonLdBlocks)}
 </head>
 <body>
+  <a href="#main-content" class="skip-link">본문 바로가기</a>
   <div class="grain" aria-hidden="true"></div>
   <div class="cursor-ring" aria-hidden="true"></div>
   <div class="cursor-dot" aria-hidden="true"></div>
@@ -696,7 +713,7 @@ export function Layout(meta: SeoMeta, body: any) {
     <a href="#ch-end"><span class="sr-dot"></span><span class="sr-lbl">Epilogue</span></a>
   </nav>`) : ''}
   ${header()}
-  <main>${body}</main>
+  <main id="main-content">${body}</main>
   ${footer()}
   <script>${raw(INTERACTION_JS)}</script>
 </body>

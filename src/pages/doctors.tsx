@@ -85,7 +85,7 @@ export function DoctorDetailPage(d: Doctor) {
     <div class="wrap">
       <div class="dd-wrap">
         <div class="dd-photo reveal">
-          <img src="${d.photo}" alt="${CLINIC.name} ${d.role} ${d.name}">
+          <img src="${d.photo}" alt="${CLINIC.name} ${d.role} ${d.name}" loading="lazy" decoding="async">
           <div class="pcta">
             <a href="/reservation" class="btn btn-primary"><i class="fas fa-calendar-check"></i> 진료 예약 문의</a>
             <a href="tel:${CLINIC.tel}" class="btn btn-ghost"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>

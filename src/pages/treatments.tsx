@@ -141,7 +141,7 @@ export function TreatmentDetailPage(t: Treatment) {
         <div class="t-doc-row">
           ${raw(docs.map(d => `
             <a href="/doctors/${d.slug}" class="t-doc">
-              <img src="${d.photo}" alt="${d.name} ${d.role}">
+              <img src="${d.photo}" alt="${d.name} ${d.role}" loading="lazy" decoding="async">
               <div><div class="tn">${d.name}</div><div class="tr">${d.role} · ${d.specialty}</div></div>
             </a>`).join(''))}
         </div>
