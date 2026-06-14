@@ -26,7 +26,7 @@ export function HomePage() {
     .hero-kicker b{color:var(--gold);font-weight:600}
     /* 표지 제목 — 거대 세리프 센터 */
     .hero-display{font-family:var(--serif);font-weight:700;line-height:1.04;letter-spacing:-.052em;word-spacing:-.04em;color:var(--navy);font-size:clamp(3rem,8.6vw,7.8rem);margin:0}
-    .hero-display .accent{font-style:italic;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;padding-right:.06em}
+    .hero-display .accent{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;padding-right:.06em}
     /* VMG: 악센트 아래 손글씨 스워시 (펜으로 귿uad7f 그은 밑줄) */
     .accent-wrap{position:relative;display:inline-block}
     .accent-swash{position:absolute;left:2%;bottom:-.14em;width:96%;height:.24em;color:var(--gold-2);overflow:visible;pointer-events:none}
@@ -215,7 +215,7 @@ export function HomePage() {
     .epi-fin::before,.epi-fin::after{content:'';width:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.6))}
     .epi-fin::after{background:linear-gradient(90deg,rgba(201,154,82,.6),transparent)}
     .epi h2{font-family:var(--serif);font-weight:700;color:var(--inv);font-size:clamp(2.3rem,5vw,4.2rem);margin-bottom:22px;position:relative;line-height:1.12;letter-spacing:-.045em}
-    .epi h2 em{font-style:italic;background:linear-gradient(110deg,#EDD49B,#C99A52);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+    .epi h2 em{font-style:normal;background:linear-gradient(110deg,#EDD49B,#C99A52);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     .epi .epi-copy{color:var(--inv-soft);font-size:1.14rem;margin:0 auto 40px;max-width:560px;position:relative;line-height:1.9;word-break:keep-all}
     .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
     .epi .epi-sign{margin-top:46px;padding-top:30px;border-top:1px solid rgba(250,245,236,.14);font-family:var(--serif);font-size:1rem;color:var(--inv-faint);position:relative}

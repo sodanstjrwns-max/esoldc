@@ -69,6 +69,8 @@ const DESIGN_TOKENS = `
 .cursor-ring.hover{width:64px;height:64px;border-color:var(--navy);opacity:.9;background:rgba(185,138,78,.08)}
 @media(hover:none),(max-width:900px){.cursor-dot,.cursor-ring{display:none!important}}
 *{box-sizing:border-box}
+/* 기울임(italic) 전역 제거 — em/i/cite/address 등 기본 italic 무력화 (Font Awesome 아이콘 .fa* 는 제외) */
+em,i,cite,address,dfn,var,blockquote{font-style:normal}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
   margin:0;font-family:var(--display);color:var(--ink);
