@@ -91,7 +91,8 @@
 - **빌드**: Vite + @hono/vite-build (Cloudflare Pages)
 - **프론트**: Vanilla JS + Pretendard (CDN) + Font Awesome
 - **플랫폼**: Cloudflare Pages/Workers
-- **상태**: ✅ 로컬 동작 확인 (전 라우트 200 / 404 / 예약 API / 콘솔 에러 0) / ⏳ 프로덕션 미배포
+- **상태**: ✅ **프로덕션 배포 완료** (https://isoldent.pages.dev) — D1·R2 실바인딩, 회원가입 API D1 쓰기 검증 완료, 전 라우트 200, 콘솔 에러 0
+- **배포 정보**: Cloudflare Pages 프로젝트 `isoldent` / D1 `isoldent-production` (id: eb299741…) / R2 `isoldent-bucket` / 시크릿 `ADMIN_PASSWORD` 설정됨
 - **Last Updated**: 2026-06-02 (v5 Warm Futurism — 신청서 무드(따뜻·친근·중장년) × 2026 세이지/테라코타 트렌드, 콘텐츠·데이터·SEO 보존)
 
 ## 치과 백과사전 (2026-06-13 추가)
