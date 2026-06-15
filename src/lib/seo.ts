@@ -1,4 +1,4 @@
-import { CLINIC, DOCTORS, TREATMENTS, CORE_TREATMENTS, NEARBY_AREAS, type Treatment } from '../data/clinic';
+import { CLINIC, DOCTORS, TREATMENTS, CORE_TREATMENTS, NEARBY_AREAS, type Treatment, type NearbyArea } from '../data/clinic';
 
 export const SITE_URL = 'https://isoldc.kr'; // 실 도메인 (가비아 구매, Cloudflare 연결)
 
@@ -138,15 +138,54 @@ export function localBusinessSchema() {
     name: CLINIC.name,
     image: `${SITE_URL}/static/img/og.png`,
     telephone: CLINIC.tel,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: CLINIC.addressShort,
-      addressLocality: '남양주시',
-      addressRegion: '경기도',
-      addressCountry: 'KR',
-    },
+    address: postalAddress(),
     geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
     url: SITE_URL,
+  };
+}
+
+/**
+ * 🗺️ 지역 페이지 전용 강력 스키마.
+ * Dentist(@id 글로벌 연결) + 해당 지역 areaServed + 제공 서비스(Service) +
+ * speakable 영역으로, "OO지역 + 진료" 로컬 검색에 강하게 대응.
+ */
+export function areaServiceSchema(area: NearbyArea, t: Treatment) {
+  const path = `/area/${area.slug}-${t.slug}`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${SITE_URL}${path}#service`,
+    name: `${area.name} ${t.name}`,
+    serviceType: t.name,
+    url: `${SITE_URL}${path}`,
+    description: `${area.full} 인근에서 이용하실 수 있는 ${t.name} 진료 안내`,
+    provider: { '@id': CLINIC_ID },
+    areaServed: { '@type': 'City', name: area.full, address: { '@type': 'PostalAddress', addressLocality: area.full, addressRegion: '경기도', addressCountry: 'KR' } },
+    availableChannel: {
+      '@type': 'ServiceChannel',
+      servicePhone: { '@type': 'ContactPoint', telephone: CLINIC.tel, contactType: '진료 예약/문의', areaServed: 'KR', availableLanguage: 'Korean' },
+      serviceUrl: `${SITE_URL}${path}`,
+    },
+  };
+}
+
+/**
+ * 지역 페이지용 MedicalWebPage(speakable) — 위치/접근 핵심을 음성·답변 인용 타깃으로.
+ */
+export function areaWebPageSchema(area: NearbyArea, t: Treatment) {
+  const path = `/area/${area.slug}-${t.slug}`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalWebPage',
+    name: `${area.name} ${t.name} | ${CLINIC.name}`,
+    description: `${area.full} ${t.name} 치과 안내. ${area.access}`,
+    url: `${SITE_URL}${path}`,
+    inLanguage: 'ko-KR',
+    isPartOf: { '@id': WEBSITE_ID },
+    about: { '@id': CLINIC_ID },
+    publisher: { '@id': ORG_ID },
+    lastReviewed: new Date().toISOString().split('T')[0],
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.aeo-summary'] },
   };
 }
 

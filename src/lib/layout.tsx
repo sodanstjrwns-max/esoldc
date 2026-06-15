@@ -625,6 +625,7 @@ function footer() {
           <h4>찾아오시는 길</h4>
           <a href="/directions">${CLINIC.addressShort}</a>
           <a href="tel:${CLINIC.tel}">${CLINIC.tel}</a>
+          <a href="/area">지역별 진료 안내</a>
           <a href="/directions">진료시간 안내</a>
           <a href="/reservation">예약 문의</a>
           <a href="/sitemap.xml">사이트맵</a>

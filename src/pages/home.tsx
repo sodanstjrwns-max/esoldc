@@ -533,6 +533,9 @@ export function HomePage() {
       <div class="geo-chips" data-reveal>
         ${raw(NEARBY_AREAS.map(a => `<a href="/area/${a.slug}-implant">${a.name} 임플란트</a>`).join(''))}
       </div>
+      <div data-reveal style="text-align:center;margin-top:26px">
+        <a href="/area" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--gold-3);border-bottom:2px solid var(--gold-soft);padding-bottom:4px">지역별 진료 안내 전체 보기 <i class="fas fa-arrow-right" style="font-size:.85em"></i></a>
+      </div>
     </div>
   </section>
 

@@ -4,14 +4,14 @@ import { CLINIC, TREATMENTS, DOCTORS, NEARBY_AREAS, CORE_TREATMENTS, getTreatmen
 import { Layout } from './lib/layout';
 import {
   SITE_URL, personSchema, medicalProcedureSchema, medicalWebPageSchema,
-  faqSchema, breadcrumbSchema,
+  faqSchema, breadcrumbSchema, areaServiceSchema, areaWebPageSchema,
 } from './lib/seo';
 import { HomePage } from './pages/home';
 import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
 import { DoctorsListPage, DoctorDetailPage } from './pages/doctors';
 import {
   MissionPage, DirectionsPage, FaqPage, PricingPage,
-  ReservationPage, AreaPage, NotFoundPage,
+  ReservationPage, AreaPage, AreaHubPage, areaFaqs, NotFoundPage,
 } from './pages/misc';
 import { SignupPage, LoginPage } from './pages/auth';
 import {
@@ -397,8 +397,32 @@ app.get('/api/regions', (c) => {
 });
 
 // ============================================================================
-// 지역 SEO: /area/[지역]-[진료]
+// 지역 SEO: /area (허브) + /area/[지역]-[진료] (상세)
 // ============================================================================
+// 지역 허브 — 8개 지역 × 핵심진료 매트릭스 (내부링크 집약)
+app.get('/area', (c) => {
+  return c.html(Layout({
+    title: `지역별 진료 안내 | ${CLINIC.name} - 남양주 화도·마석 치과`,
+    description: `${CLINIC.region} ${CLINIC.district} 마석에 위치한 ${CLINIC.name}. 마석·화도·남양주·와부·진건·오남·수동·가평 인근에서 임플란트·치아교정·소아치과 등 진료를 안내합니다.`,
+    path: '/area',
+    jsonLd: [
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '지역 안내', path: '/area' }]),
+      {
+        '@context': 'https://schema.org', '@type': 'ItemList',
+        name: `${CLINIC.name} 지역별 진료 안내`,
+        itemListElement: NEARBY_AREAS.flatMap((a, ai) =>
+          CORE_TREATMENTS.map((t, ti) => ({
+            '@type': 'ListItem',
+            position: ai * CORE_TREATMENTS.length + ti + 1,
+            name: `${a.name} ${t.name}`,
+            url: `${SITE_URL}/area/${a.slug}-${t.slug}`,
+          }))
+        ),
+      },
+    ],
+  }, AreaHubPage()));
+});
+
 app.get('/area/:combo', (c) => {
   const combo = c.req.param('combo'); // e.g. "maseok-implant"
   const lastDash = combo.lastIndexOf('-');
@@ -409,13 +433,19 @@ app.get('/area/:combo', (c) => {
   const t = getTreatment(treatSlug);
   if (!area || !t) return c.notFound();
   return c.html(Layout({
-    title: `${area.name} ${t.name} | ${CLINIC.name} - ${area.full}`,
-    description: `${area.full} ${t.name} 치과를 찾으신다면 ${CLINIC.name}. ${CLINIC.addressShort}, 각 분야 전문의 상주(임플란트 제외). ${t.name} 진료 안내.`,
+    title: `${area.name} ${t.name} | ${CLINIC.name} (${area.full})`,
+    description: `${area.full}에서 ${t.name} 치과를 찾으신다면 ${CLINIC.name}. ${CLINIC.addressShort}, 각 분야 전문의 상주(임플란트 제외). ${area.access} ${t.name} 진료 방법·비용은 내원 상담을 통해 안내됩니다.`,
     path: `/area/${combo}`,
     jsonLd: [
-      { '@context': 'https://schema.org', '@type': 'City', name: area.full },
+      areaServiceSchema(area, t),
+      areaWebPageSchema(area, t),
       medicalProcedureSchema(t),
-      breadcrumbSchema([{ name: '홈', path: '/' }, { name: `${area.name} ${t.name}`, path: `/area/${combo}` }]),
+      faqSchema(areaFaqs(area, t)),
+      breadcrumbSchema([
+        { name: '홈', path: '/' },
+        { name: '지역 안내', path: '/area' },
+        { name: `${area.name} ${t.name}`, path: `/area/${combo}` },
+      ]),
     ],
   }, AreaPage(area, t)));
 });
@@ -545,9 +575,11 @@ app.get('/sitemap-glossary.xml', (c) => {
 
 // 지역 SEO
 app.get('/sitemap-areas.xml', (c) => {
-  const urls: SUrl[] = [];
+  const urls: SUrl[] = [
+    { loc: '/area', pri: '0.8', freq: 'monthly' },
+  ];
   for (const a of NEARBY_AREAS) for (const t of CORE_TREATMENTS) {
-    urls.push({ loc: `/area/${a.slug}-${t.slug}`, pri: '0.6', freq: 'monthly' });
+    urls.push({ loc: `/area/${a.slug}-${t.slug}`, pri: '0.7', freq: 'monthly' });
   }
   return xmlResp(c, buildUrlset(urls, NOW()));
 });

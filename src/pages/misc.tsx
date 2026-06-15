@@ -1,5 +1,5 @@
 import { html, raw } from 'hono/html';
-import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatment, type Treatment } from '../data/clinic';
+import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatment, type Treatment, type NearbyArea } from '../data/clinic';
 
 const PAGE_HERO = (crumb: string, title: string, sub: string) => `
 <section style="background:var(--navy);color:var(--inv);padding:104px 0 80px;position:relative;overflow:hidden">
@@ -270,36 +270,202 @@ export function CasesPage() {
 }
 
 // ============ 지역 SEO 페이지 ============
-export function AreaPage(area: { slug: string; name: string; full: string }, t: Treatment) {
-  const docs = t.doctors.map(s => DOCTORS.find(d => d.slug === s)).filter(Boolean) as typeof DOCTORS;
+// 지역 페이지용 FAQ 자동 생성 (의료광고법 준수 — 단정/보장 배제)
+export function areaFaqs(area: NearbyArea, t: Treatment) {
+  return [
+    {
+      q: `${area.name}에서 이솔치과의원까지 어떻게 가나요?`,
+      a: `${area.access} 자세한 길 안내는 오시는 길 페이지를 참고하시거나 ${CLINIC.tel}로 문의해 주세요.`,
+    },
+    {
+      q: `${area.name} 주민도 ${t.name} 진료가 가능한가요?`,
+      a: `네, 이솔치과의원은 ${CLINIC.address}에 위치하여 ${area.full}을(를) 포함한 인근 지역 주민분들이 방문하실 수 있습니다. ${t.name} 진료 방법과 비용은 개인 상태에 따라 차이가 있으며, 내원 상담을 통해 결정됩니다.`,
+    },
+    {
+      q: `${area.name} 근처에 주차가 가능한 치과인가요?`,
+      a: `주차 및 진료 시간 등 방문 관련 안내는 ${CLINIC.tel}로 전화 주시면 친절히 안내해 드립니다.`,
+    },
+  ];
+}
+
+// ============ 지역 허브 페이지 (/area) ============
+export function AreaHubPage() {
   return html`
-  ${raw(PAGE_HERO(`${area.name} ${t.name}`, `${area.name} ${t.name}`, `${area.full} 인근, 이솔치과의원의 ${t.name} 진료를 안내합니다.`))}
+  ${raw(PAGE_HERO('지역 안내', '지역별 진료 안내', `${CLINIC.region} ${CLINIC.district} 마석에서, 인근 지역 주민분들을 위한 진료를 안내합니다.`))}
   <style>
-    .area-body{max-width:800px;margin:0 auto}
-    .area-body h2{font-size:1.5rem;color:var(--navy);margin:36px 0 14px;padding-left:16px;position:relative}
+    .hub-body{max-width:1080px;margin:0 auto}
+    .hub-intro{background:var(--gold-soft);border-radius:var(--radius-lg);padding:28px 32px;margin-bottom:40px;font-size:1.08rem;color:var(--ink);line-height:1.8}
+    .hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px}
+    .hub-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+    .hub-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+    .hub-card h2{font-size:1.3rem;color:var(--navy);margin-bottom:6px;font-family:var(--serif);display:flex;align-items:center;gap:8px}
+    .hub-card h2 i{color:var(--gold);font-size:.85em}
+    .hub-card .hc-full{font-size:.82rem;color:var(--ink-faint);margin-bottom:10px}
+    .hub-card .hc-intro{font-size:.92rem;color:var(--ink-soft);line-height:1.7;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .hub-card .hc-links{display:flex;flex-wrap:wrap;gap:8px}
+    .hub-card .hc-links a{font-size:.85rem;padding:8px 14px;border-radius:99px;background:var(--bg-soft);border:1px solid var(--line);color:var(--navy);font-weight:600;transition:.25s}
+    .hub-card .hc-links a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+  </style>
+  <section class="section">
+    <div class="wrap hub-body">
+      <div class="hub-intro reveal">
+        <strong>${CLINIC.name}</strong>은(는) ${CLINIC.address}에 위치하여, 마석을 중심으로 화도읍과 남양주시 인근 지역 주민분들이 방문하실 수 있는 동네 치과입니다. 임플란트를 제외한 각 분야 전문의가 상주하며, 지역별 진료 안내를 아래에서 확인하실 수 있습니다.
+      </div>
+      <div class="hub-grid">
+        ${raw(NEARBY_AREAS.map(a => `
+          <article class="hub-card reveal">
+            <h2><i class="fas fa-location-dot"></i>${a.name}</h2>
+            <div class="hc-full">${a.full}</div>
+            <p class="hc-intro">${a.intro}</p>
+            <div class="hc-links">
+              ${CORE_TREATMENTS.map(t => `<a href="/area/${a.slug}-${t.slug}">${a.name} ${t.name}</a>`).join('')}
+            </div>
+          </article>`).join(''))}
+      </div>
+
+      <div style="text-align:center;margin-top:52px;background:var(--navy);color:#fff;border-radius:var(--radius-lg);padding:48px">
+        <h3 style="font-size:1.5rem;margin-bottom:10px;color:#fff;font-family:var(--serif)">어느 지역에서 오시든 편하게 문의해 주세요</h3>
+        <p style="color:rgba(255,255,255,.82);margin-bottom:24px">진료 방법과 비용은 개인 상태에 따라 차이가 있으며, 내원 상담을 통해 안내해 드립니다.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="tel:${CLINIC.tel}" class="btn btn-gold"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
+          <a href="/directions" class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,.6)"><i class="fas fa-diamond-turn-right"></i> 오시는 길</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  `;
+}
+
+export function AreaPage(area: NearbyArea, t: Treatment) {
+  const docs = t.doctors.map(s => DOCTORS.find(d => d.slug === s)).filter(Boolean) as typeof DOCTORS;
+  const faqs = areaFaqs(area, t);
+  // 같은 지역의 다른 핵심 진료 (교차 링크)
+  const otherTreats = CORE_TREATMENTS.filter(x => x.slug !== t.slug);
+  // 같은 진료의 다른 지역 (교차 링크)
+  const otherAreas = NEARBY_AREAS.filter(a => a.slug !== area.slug);
+  const naverMap = `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`;
+  const kakaoMap = `https://map.kakao.com/?q=${encodeURIComponent(CLINIC.address)}`;
+  const introAnswer = t.intro.replace(/^[^?]*\?/, '').trim();
+
+  return html`
+  ${raw(PAGE_HERO(`<a href="/area" style="color:rgba(250,248,244,.45)">지역 안내</a> / ${area.name} ${t.name}`, `${area.name} ${t.name}`, `${area.full} 인근에서 ${t.name} 치과를 찾으신다면, 이솔치과의원의 ${area.name} ${t.name} 안내를 확인해 보세요.`))}
+  <style>
+    .area-body{max-width:840px;margin:0 auto}
+    .area-body h2{font-size:1.5rem;color:var(--navy);margin:44px 0 16px;padding-left:16px;position:relative;font-family:var(--serif)}
     .area-body h2::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:5px;background:var(--gold);border-radius:3px}
     .area-body p{color:var(--ink-soft);line-height:1.85;font-size:1.05rem}
+    .area-aeo{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:26px 30px;margin-bottom:34px;box-shadow:var(--shadow-sm)}
+    .area-aeo .ah{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:700;font-size:1.06rem;color:var(--navy);margin-bottom:14px}
+    .area-aeo .ah i{color:var(--gold)}
+    .area-aeo ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+    .area-aeo li{display:flex;gap:11px;align-items:flex-start;font-size:1rem;line-height:1.7;color:var(--ink-soft)}
+    .area-aeo li::before{content:'';flex:none;width:8px;height:8px;margin-top:8px;border-radius:50%;background:var(--gold-grad)}
+    .area-aeo li strong{color:var(--navy)}
+    .area-info{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+    .area-info .ai-card{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+    .area-info .ai-card .ai-t{font-size:.82rem;color:var(--gold);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+    .area-info .ai-card .ai-d{font-size:.96rem;color:var(--ink);line-height:1.6}
+    .area-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .area-chips span{font-size:.82rem;background:var(--gold-soft);color:var(--gold-3);border-radius:99px;padding:5px 13px}
+    .area-map-btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+    .area-map-btns a{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:var(--radius);border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:700;font-size:.95rem;transition:.25s}
+    .area-map-btns a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .area-faq details{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px;background:#fff;overflow:hidden}
+    .area-faq summary{padding:18px 22px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--navy)}
+    .area-faq summary::-webkit-details-marker{display:none}
+    .area-faq summary i{color:var(--gold);transition:transform .3s}
+    .area-faq details[open] summary i{transform:rotate(45deg)}
+    .area-faq .afb{padding:0 22px 20px;color:var(--ink-soft);line-height:1.8}
+    .area-cross{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px}
+    .area-cross .acc{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px}
+    .area-cross h3{font-size:1.05rem;color:var(--navy);margin-bottom:14px;font-family:var(--serif)}
+    .area-cross .acl{display:flex;flex-wrap:wrap;gap:8px}
+    .area-cross .acl a{font-size:.88rem;padding:8px 15px;border-radius:99px;background:#fff;border:1px solid var(--line);color:var(--navy);transition:.25s}
+    .area-cross .acl a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .area-docrow{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px}
+    .area-docrow a{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);padding:12px 18px 12px 12px;border-radius:var(--radius);transition:.25s}
+    .area-docrow a:hover{border-color:var(--gold);box-shadow:var(--shadow-sm)}
+    .area-docrow img{width:54px;height:54px;border-radius:10px;object-fit:cover}
+    @media(max-width:680px){.area-info,.area-cross{grid-template-columns:1fr}}
   </style>
   <section class="section">
     <div class="wrap area-body">
-      <div class="reveal" style="background:var(--gold-soft);border-radius:var(--radius);padding:24px 28px;margin-bottom:32px">
-        <p style="font-size:1.1rem;color:var(--ink)"><strong>${area.full}에서 ${t.name} 치과를 찾고 계신가요?</strong> 이솔치과의원은 ${CLINIC.address}에 위치하여, ${area.name} 지역에서 가깝게 방문하실 수 있는 동네 치과입니다. 각 분야 전문의가 상주합니다(임플란트 제외).</p>
+
+      <!-- AEO 핵심 요약 (speakable) -->
+      <div class="area-aeo aeo-summary reveal">
+        <div class="ah"><i class="fas fa-location-dot"></i>${area.name} ${t.name} 핵심 안내</div>
+        <ul>
+          <li><strong>위치</strong> 이솔치과의원 · ${CLINIC.address} (${CLINIC.region} ${CLINIC.district})</li>
+          <li><strong>${area.name} 접근</strong> ${area.access}</li>
+          <li><strong>대중교통</strong> ${area.transit}</li>
+          <li><strong>진료</strong> ${t.name}을(를) 포함한 다양한 진료 · 각 분야 전문의 상주(임플란트 제외)</li>
+          <li><strong>문의</strong> ${CLINIC.tel} · 진료 방법과 비용은 개인 상태에 따라 차이가 있으며 내원 상담을 통해 결정됩니다.</li>
+        </ul>
       </div>
+
+      <h2>${area.full}에서 ${t.name} 치과를 찾으신다면</h2>
+      <p>${area.intro} 이솔치과의원은 ${CLINIC.address}에 위치하여, ${area.name} 지역에서 가깝게 방문하실 수 있는 동네 치과입니다. 임플란트를 제외한 각 진료 분야의 전문의가 상주하며, 충분한 상담을 통해 환자분의 상태에 맞는 진료를 안내해 드립니다.</p>
+
+      <div class="area-info">
+        <div class="ai-card">
+          <div class="ai-t"><i class="fas fa-route"></i> ${area.name}에서 오시는 길</div>
+          <div class="ai-d">${area.access}</div>
+        </div>
+        <div class="ai-card">
+          <div class="ai-t"><i class="fas fa-train-subway"></i> 대중교통</div>
+          <div class="ai-d">${area.transit}</div>
+        </div>
+      </div>
+      <div class="area-chips">
+        ${raw(area.landmarks.map(l => `<span>${l}</span>`).join(''))}
+      </div>
+      <div class="area-map-btns">
+        <a href="${naverMap}" target="_blank" rel="noopener"><i class="fas fa-map-location-dot"></i> 네이버지도 길찾기</a>
+        <a href="${kakaoMap}" target="_blank" rel="noopener"><i class="fas fa-map-pin"></i> 카카오맵 길찾기</a>
+        <a href="/directions"><i class="fas fa-diamond-turn-right"></i> 오시는 길 자세히</a>
+      </div>
+
       <h2>${area.name} 주민을 위한 ${t.name} 진료</h2>
-      <p>${t.intro.replace(/^[^?]*\?/, '').trim()}</p>
-      <p>이솔치과의원은 ${area.full} 인근에서 ${t.name}을(를) 비롯한 다양한 진료를 제공하고 있습니다. 정밀 진단을 바탕으로 환자분의 상태에 맞는 진료 계획을 세우며, 충분한 상담을 통해 진행합니다.</p>
+      <p>${introAnswer}</p>
+      <p>이솔치과의원은 ${area.full} 인근에서 ${t.name}을(를) 비롯한 다양한 진료를 제공합니다. 정밀 진단 장비를 바탕으로 환자분의 상태를 확인하고, 충분한 상담을 거쳐 진료 계획을 세웁니다. ${t.name}에 대한 자세한 내용은 <a href="/treatments/${t.slug}" style="color:var(--gold);font-weight:600">${t.name} 진료 안내</a>에서 확인하실 수 있습니다.</p>
+
+      ${docs.length ? html`
       <h2>${t.name} 담당 의료진</h2>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:16px">
-        ${raw(docs.map(d => `<a href="/doctors/${d.slug}" style="display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);padding:12px 18px 12px 12px;border-radius:var(--radius)"><img src="${d.photo}" style="width:54px;height:54px;border-radius:10px;object-fit:cover" alt="${d.name}" loading="lazy" decoding="async"><div><div style="font-weight:800">${d.name}</div><div style="font-size:.85rem;color:var(--ink-soft)">${d.specialty}</div></div></a>`).join(''))}
+      <div class="area-docrow">
+        ${raw(docs.map(d => `<a href="/doctors/${d.slug}"><img src="${d.photo}" alt="${d.name} ${d.role}" loading="lazy" decoding="async"><div><div style="font-weight:800;color:var(--navy)">${d.name}</div><div style="font-size:.85rem;color:var(--ink-soft)">${d.role} · ${d.specialty}</div></div></a>`).join(''))}
+      </div>` : ''}
+
+      <h2>${area.name} ${t.name} 자주 묻는 질문</h2>
+      <div class="area-faq">
+        ${raw(faqs.map(f => `<details><summary>${f.q}<i class="fas fa-plus"></i></summary><div class="afb">${f.a}</div></details>`).join(''))}
       </div>
+
+      <h2>다른 진료·지역도 살펴보세요</h2>
+      <div class="area-cross">
+        <div class="acc">
+          <h3><i class="fas fa-tooth" style="color:var(--gold);margin-right:6px"></i>${area.name}의 다른 진료</h3>
+          <div class="acl">
+            ${raw(otherTreats.map(x => `<a href="/area/${area.slug}-${x.slug}">${area.name} ${x.name}</a>`).join(''))}
+          </div>
+        </div>
+        <div class="acc">
+          <h3><i class="fas fa-location-dot" style="color:var(--gold);margin-right:6px"></i>${t.name} 다른 지역</h3>
+          <div class="acl">
+            ${raw(otherAreas.slice(0, 7).map(a => `<a href="/area/${a.slug}-${t.slug}">${a.name} ${t.name}</a>`).join(''))}
+          </div>
+        </div>
+      </div>
+
       <div style="text-align:center;margin-top:48px;background:var(--gold);color:#fff;border-radius:var(--radius-lg);padding:48px">
-        <h3 style="font-size:1.5rem;margin-bottom:10px">${area.name}에서 가까운 이솔치과의원</h3>
+        <h3 style="font-size:1.5rem;margin-bottom:10px;color:#fff">${area.name}에서 가까운 이솔치과의원</h3>
         <p style="color:rgba(255,255,255,.85);margin-bottom:24px">${t.name} 상담을 원하시면 편하게 문의해 주세요.</p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
           <a href="tel:${CLINIC.tel}" class="btn btn-gold"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
           <a href="/treatments/${t.slug}" class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,.6)">${t.name} 자세히 보기</a>
         </div>
       </div>
+
+      <p style="margin-top:32px;font-size:.78rem;color:var(--ink-soft);line-height:1.7">※ 본 안내는 일반적인 정보 제공을 목적으로 하며, 진료 방법과 결과는 개인의 상태에 따라 차이가 있을 수 있습니다. 정확한 진단은 이솔치과의원 내원 상담을 통해 받아보시기 바랍니다.</p>
     </div>
   </section>
   `;
