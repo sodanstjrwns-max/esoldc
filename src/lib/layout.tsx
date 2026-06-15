@@ -676,6 +676,8 @@ export function Layout(meta: SeoMeta, body: any) {
   <title>${meta.title}</title>
   <meta name="description" content="${meta.description}">
   <link rel="canonical" href="${canonical}">
+  <link rel="alternate" hreflang="ko-KR" href="${canonical}">
+  <link rel="alternate" hreflang="x-default" href="${canonical}">
   ${meta.noindex ? raw('<meta name="robots" content="noindex,nofollow">') : raw('<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">')}
   <meta property="og:type" content="${meta.type || 'website'}">
   <meta property="og:site_name" content="${CLINIC.name}">

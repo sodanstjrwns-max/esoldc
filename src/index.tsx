@@ -5,6 +5,7 @@ import { Layout } from './lib/layout';
 import {
   SITE_URL, personSchema, medicalProcedureSchema, medicalWebPageSchema,
   faqSchema, breadcrumbSchema, areaServiceSchema, areaWebPageSchema,
+  itemListSchema, definedTermSetSchema,
 } from './lib/seo';
 import { HomePage } from './pages/home';
 import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
@@ -76,6 +77,7 @@ app.get('/doctors', (c) => {
     path: '/doctors',
     jsonLd: [
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '의료진', path: '/doctors' }]),
+      itemListSchema({ name: `${CLINIC.name} 의료진`, items: DOCTORS.map(d => ({ name: `${d.name} ${d.role}`, path: `/doctors/${d.slug}` })) }),
       ...DOCTORS.map(personSchema),
     ],
   }, DoctorsListPage()));
@@ -104,7 +106,10 @@ app.get('/treatments', (c) => {
     title: `진료안내 | ${CLINIC.name} - 남양주 마석 치과`,
     description: `${CLINIC.name}의 진료안내. 임플란트·치아교정·소아치과를 중심으로 보철·잇몸치료·일반진료까지 전 연령 통합 진료를 제공합니다.`,
     path: '/treatments',
-    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }])],
+    jsonLd: [
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }]),
+      itemListSchema({ name: `${CLINIC.name} 진료안내`, items: TREATMENTS.map(t => ({ name: t.name, path: `/treatments/${t.slug}` })) }),
+    ],
   }, TreatmentsListPage()));
 });
 
@@ -303,7 +308,10 @@ app.get('/glossary', (c) => {
     title: `치과 백과사전 — 치과 용어 ${GLOSSARY.length}선 정리 | ${CLINIC.name}`,
     description: `임플란트·교정·소아치과 등 치과 용어 ${GLOSSARY.length}개를 알기 쉽게 정리한 ${CLINIC.name} 치과 백과사전. 검색·카테고리·초성으로 찾아보세요.`,
     path: '/glossary',
-    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }])],
+    jsonLd: [
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }]),
+      definedTermSetSchema({ count: GLOSSARY.length, longCount: GLOSSARY_SORTED.filter(t => t.longDef).length }),
+    ],
   }, GlossaryListPage()));
 });
 

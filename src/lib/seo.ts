@@ -261,6 +261,43 @@ export function medicalWebPageSchema(opts: { name: string; description: string; 
   };
 }
 
+/**
+ * ItemList — 목록 페이지(진료/의료진)에서 "이 페이지엔 N개 항목 목록이 있다"를 명시.
+ * 구글 캐러셀·리치결과 후보.
+ */
+export function itemListSchema(opts: { name: string; items: { name: string; path: string }[] }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: opts.name,
+    numberOfItems: opts.items.length,
+    itemListElement: opts.items.map((it, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: it.name,
+      url: `${SITE_URL}${it.path}`,
+    })),
+  };
+}
+
+/**
+ * DefinedTermSet — 용어사전 전체를 하나의 "용어집"으로 명시.
+ * AEO: AI가 "이 사이트엔 N개 치과 용어 사전이 있다"를 이해.
+ */
+export function definedTermSetSchema(opts: { count: number; longCount: number }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTermSet',
+    '@id': `${SITE_URL}/glossary#termset`,
+    name: `${CLINIC.name} 치과 백과사전`,
+    description: `치과 진료에서 자주 쓰이는 용어 ${opts.count}개를 쉬운 말로 풀어 설명하는 용어집입니다. 이 중 ${opts.longCount}개 핵심 용어는 심층 설명을 제공합니다.`,
+    url: `${SITE_URL}/glossary`,
+    inLanguage: 'ko-KR',
+    publisher: { '@id': ORG_ID },
+    isPartOf: { '@id': WEBSITE_ID },
+  };
+}
+
 export function breadcrumbSchema(items: { name: string; path: string }[]) {
   return {
     '@context': 'https://schema.org',
