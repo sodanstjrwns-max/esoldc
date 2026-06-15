@@ -135,7 +135,7 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
   </style>
   <section class="section">
     <div class="wrap" style="max-width:880px">
-      <div class="gd-def">${esc(term.def)}</div>
+      <div class="gd-def aeo-summary"><strong>${esc(term.term)}</strong>(이)란? ${esc(term.def)}</div>
 
       ${term.longDef ? raw(`
       <h2 class="gd-sub"><i class="fas fa-circle-info"></i>자세히 알아보기</h2>

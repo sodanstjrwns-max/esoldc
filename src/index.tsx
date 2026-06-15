@@ -3,8 +3,8 @@ import { cors } from 'hono/cors';
 import { CLINIC, TREATMENTS, DOCTORS, NEARBY_AREAS, CORE_TREATMENTS, getTreatment, getDoctor } from './data/clinic';
 import { Layout } from './lib/layout';
 import {
-  SITE_URL, dentistSchema, localBusinessSchema, personSchema,
-  medicalProcedureSchema, faqSchema, breadcrumbSchema,
+  SITE_URL, personSchema, medicalProcedureSchema, medicalWebPageSchema,
+  faqSchema, breadcrumbSchema,
 } from './lib/seo';
 import { HomePage } from './pages/home';
 import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
@@ -50,7 +50,7 @@ app.get('/', (c) => {
     title: `${CLINIC.name} | 남양주 마석 임플란트·교정·소아치과`,
     description: `남양주 마석 ${CLINIC.name}. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과. 임플란트·치아교정·소아치과 전 연령 통합 진료. 기분 좋게 진료를 마칠 때까지.`,
     path: '/',
-    jsonLd: [dentistSchema(), localBusinessSchema()],
+    jsonLd: [],
   }, HomePage()));
 });
 
@@ -111,6 +111,12 @@ app.get('/treatments', (c) => {
 app.get('/treatments/:slug', (c) => {
   const t = getTreatment(c.req.param('slug'));
   if (!t) return c.notFound();
+  // 양방향 인링크: 이 진료(slug)를 rel에 포함하는 용어 → 심층(longDef) 우선, 최대 12개
+  const relTerms = GLOSSARY_SORTED
+    .filter(g => g.rel.includes(t.slug))
+    .sort((a, b) => (b.longDef ? 1 : 0) - (a.longDef ? 1 : 0))
+    .slice(0, 12)
+    .map(g => ({ term: g.term }));
   return c.html(Layout({
     title: t.metaTitle,
     description: t.metaDesc,
@@ -118,10 +124,11 @@ app.get('/treatments/:slug', (c) => {
     type: 'article',
     jsonLd: [
       medicalProcedureSchema(t),
+      medicalWebPageSchema({ name: t.metaTitle, description: t.metaDesc, path: `/treatments/${t.slug}`, about: t.name }),
       faqSchema(t.faqs),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }, { name: t.name, path: `/treatments/${t.slug}` }]),
     ],
-  }, TreatmentDetailPage(t)));
+  }, TreatmentDetailPage(t, relTerms)));
 });
 
 // ============================================================================
@@ -323,9 +330,11 @@ app.get('/glossary/:term', (c) => {
     jsonLd: [
       {
         '@context': 'https://schema.org', '@type': 'DefinedTerm',
+        '@id': `${SITE_URL}/glossary/${encodeURIComponent(term.term)}#term`,
         name: term.term, description: fullDesc,
         inDefinedTermSet: { '@type': 'DefinedTermSet', name: `${CLINIC.name} 치과 백과사전`, url: `${SITE_URL}/glossary` },
       },
+      medicalWebPageSchema({ name: `${term.term} 뜻·설명`, description: term.def, path: `/glossary/${encodeURIComponent(term.term)}`, about: term.term }),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }, { name: term.term, path: `/glossary/${encodeURIComponent(term.term)}` }]),
     ],
   }, GlossaryDetailPage(term, related, relTreatments)));
@@ -462,99 +471,275 @@ app.post('/api/reservation', async (c) => {
 // ============================================================================
 // SEO: sitemap.xml / robots.txt / llms.txt
 // ============================================================================
-app.get('/sitemap.xml', async (c) => {
-  const now = new Date().toISOString().split('T')[0];
-  const urls: { loc: string; pri: string }[] = [
-    { loc: '/', pri: '1.0' },
-    { loc: '/mission', pri: '0.8' },
-    { loc: '/doctors', pri: '0.8' },
-    { loc: '/treatments', pri: '0.9' },
-    { loc: '/directions', pri: '0.7' },
-    { loc: '/faq', pri: '0.7' },
-    { loc: '/pricing', pri: '0.6' },
-    { loc: '/reservation', pri: '0.7' },
-    { loc: '/cases', pri: '0.7' },
-    { loc: '/blog', pri: '0.8' },
-    { loc: '/notices', pri: '0.6' },
-    { loc: '/glossary', pri: '0.8' },
-    ...GLOSSARY_SORTED.map(t => ({ loc: `/glossary/${encodeURIComponent(t.term)}`, pri: '0.5' })),
-    ...TREATMENTS.map(t => ({ loc: `/treatments/${t.slug}`, pri: t.isCore ? '0.9' : '0.7' })),
-    ...DOCTORS.map(d => ({ loc: `/doctors/${d.slug}`, pri: '0.7' })),
+// XML 이스케이프 (loc/caption 안전)
+const xmlEsc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+const NOW = () => new Date().toISOString().split('T')[0];
+type SUrl = { loc: string; pri: string; freq?: string; img?: { url: string; cap: string }[] };
+function buildUrlset(urls: SUrl[], now: string): string {
+  const hasImg = urls.some(u => u.img?.length);
+  const ns = hasImg
+    ? `xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"`
+    : `xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"`;
+  const body = urls.map(u => {
+    const imgs = (u.img || []).map(im =>
+      `\n    <image:image><image:loc>${xmlEsc(SITE_URL + im.url)}</image:loc><image:caption>${xmlEsc(im.cap)}</image:caption></image:image>`
+    ).join('');
+    return `  <url><loc>${xmlEsc(SITE_URL + u.loc)}</loc><lastmod>${now}</lastmod>${u.freq ? `<changefreq>${u.freq}</changefreq>` : ''}<priority>${u.pri}</priority>${imgs}</url>`;
+  }).join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset ${ns}>\n${body}\n</urlset>`;
+}
+const xmlResp = (c: any, xml: string) => c.text(xml, 200, { 'Content-Type': 'application/xml; charset=UTF-8', 'Cache-Control': 'public, max-age=3600' });
+
+// 🗺️ Sitemap Index (사이트맵 색인)
+app.get('/sitemap.xml', (c) => {
+  const now = NOW();
+  const maps = ['pages', 'treatments', 'doctors', 'glossary', 'areas', 'content'];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${maps.map(m => `  <sitemap><loc>${SITE_URL}/sitemap-${m}.xml</loc><lastmod>${now}</lastmod></sitemap>`).join('\n')}
+</sitemapindex>`;
+  return xmlResp(c, xml);
+});
+
+// 메인/안내 페이지
+app.get('/sitemap-pages.xml', (c) => {
+  const urls: SUrl[] = [
+    { loc: '/', pri: '1.0', freq: 'weekly', img: [{ url: '/static/img/og.png', cap: `${CLINIC.name} — ${CLINIC.slogan}` }] },
+    { loc: '/mission', pri: '0.8', freq: 'monthly' },
+    { loc: '/directions', pri: '0.7', freq: 'monthly' },
+    { loc: '/faq', pri: '0.7', freq: 'monthly' },
+    { loc: '/pricing', pri: '0.6', freq: 'monthly' },
+    { loc: '/reservation', pri: '0.7', freq: 'monthly' },
+    { loc: '/glossary', pri: '0.8', freq: 'weekly' },
   ];
-  // 동적 콘텐츠 (DB 있을 때)
+  return xmlResp(c, buildUrlset(urls, NOW()));
+});
+
+// 진료
+app.get('/sitemap-treatments.xml', (c) => {
+  const urls: SUrl[] = [
+    { loc: '/treatments', pri: '0.9', freq: 'monthly' },
+    ...TREATMENTS.map(t => ({ loc: `/treatments/${t.slug}`, pri: t.isCore ? '0.9' : '0.7', freq: 'monthly' })),
+  ];
+  return xmlResp(c, buildUrlset(urls, NOW()));
+});
+
+// 의료진
+app.get('/sitemap-doctors.xml', (c) => {
+  const urls: SUrl[] = [
+    { loc: '/doctors', pri: '0.8', freq: 'monthly' },
+    ...DOCTORS.map(d => ({ loc: `/doctors/${d.slug}`, pri: '0.7', freq: 'monthly', img: [{ url: d.photo, cap: `${d.name} ${d.role}` }] })),
+  ];
+  return xmlResp(c, buildUrlset(urls, NOW()));
+});
+
+// 용어사전 (200개 longDef는 우선순위 ↑)
+app.get('/sitemap-glossary.xml', (c) => {
+  const urls: SUrl[] = GLOSSARY_SORTED.map(t => ({
+    loc: `/glossary/${encodeURIComponent(t.term)}`,
+    pri: t.longDef ? '0.6' : '0.4',
+    freq: 'yearly',
+  }));
+  return xmlResp(c, buildUrlset(urls, NOW()));
+});
+
+// 지역 SEO
+app.get('/sitemap-areas.xml', (c) => {
+  const urls: SUrl[] = [];
+  for (const a of NEARBY_AREAS) for (const t of CORE_TREATMENTS) {
+    urls.push({ loc: `/area/${a.slug}-${t.slug}`, pri: '0.6', freq: 'monthly' });
+  }
+  return xmlResp(c, buildUrlset(urls, NOW()));
+});
+
+// 동적 콘텐츠 (블로그/케이스/공지 — DB 있을 때)
+app.get('/sitemap-content.xml', async (c) => {
+  const urls: SUrl[] = [
+    { loc: '/cases', pri: '0.7', freq: 'weekly' },
+    { loc: '/blog', pri: '0.8', freq: 'weekly' },
+    { loc: '/notices', pri: '0.6', freq: 'weekly' },
+  ];
   if (c.env.DB) {
     try {
-      const [posts, cases] = await Promise.all([
-        c.env.DB.prepare('SELECT slug FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 500').all(),
-        c.env.DB.prepare('SELECT id FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 500').all(),
+      const [posts, cases, notices] = await Promise.all([
+        c.env.DB.prepare('SELECT slug FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
+        c.env.DB.prepare('SELECT id FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
+        c.env.DB.prepare('SELECT id FROM notices ORDER BY id DESC LIMIT 500').all().catch(() => ({ results: [] })),
       ]);
-      for (const p of posts.results as any[]) urls.push({ loc: `/blog/${p.slug}`, pri: '0.7' });
-      for (const x of cases.results as any[]) urls.push({ loc: `/cases/${x.id}`, pri: '0.6' });
+      for (const p of posts.results as any[]) urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', freq: 'monthly' });
+      for (const x of cases.results as any[]) urls.push({ loc: `/cases/${x.id}`, pri: '0.6', freq: 'monthly' });
+      for (const n of (notices as any).results as any[]) urls.push({ loc: `/notices/${n.id}`, pri: '0.5', freq: 'monthly' });
     } catch {}
   }
-  // 지역 SEO: 인근지역 × 핵심진료
-  for (const a of NEARBY_AREAS) {
-    for (const t of CORE_TREATMENTS) {
-      urls.push({ loc: `/area/${a.slug}-${t.slug}`, pri: '0.6' });
-    }
-  }
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(u => `  <url><loc>${SITE_URL}${u.loc}</loc><lastmod>${now}</lastmod><priority>${u.pri}</priority></url>`).join('\n')}
-</urlset>`;
-  return c.text(xml, 200, { 'Content-Type': 'application/xml' });
+  return xmlResp(c, buildUrlset(urls, NOW()));
 });
 
 app.get('/robots.txt', (c) => {
-  return c.text(`User-agent: *
+  return c.text(`# ${CLINIC.name} — robots.txt
+User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /signup
+Disallow: /api/
 
+# AI 크롤러 명시 허용 (AEO — 생성형 검색/답변 인용 허용)
 User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
 Allow: /
 User-agent: ChatGPT-User
 Allow: /
 User-agent: ClaudeBot
 Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: anthropic-ai
+Allow: /
 User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
 Allow: /
 User-agent: Google-Extended
 Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: Bytespider
+Allow: /
+User-agent: CCBot
+Allow: /
 
-Sitemap: ${SITE_URL}/sitemap.xml`, 200, { 'Content-Type': 'text/plain' });
+# 사이트맵 & AI 가이드 파일
+Sitemap: ${SITE_URL}/sitemap.xml
+# LLM 가이드: ${SITE_URL}/llms.txt , ${SITE_URL}/llms-full.txt`, 200, { 'Content-Type': 'text/plain; charset=UTF-8' });
 });
 
 app.get('/llms.txt', (c) => {
+  const longTerms = GLOSSARY_SORTED.filter(t => t.longDef);
   return c.text(`# ${CLINIC.name} (${CLINIC.nameEn})
 
-> 남양주 마석에 위치한 동네 치과의원(2017년 개원, 10년째 한자리). 임플란트를 제외한 각 분야 전문의가 상주하며, 소아부터 노인까지 3대가 함께 다니는 가족 치과를 지향합니다. "기분 좋게 진료를 마칠 때까지"를 진료 철학으로 합니다.
+> 경기 남양주시 화도읍 마석에 위치한 지역 치과의원(${CLINIC.establishedLabel}). 임플란트(대표원장 담당)를 제외한 교정·소아·보철·통합 각 분야 전문의가 상주하며, 소아부터 노년층까지 가족 단위로 다닐 수 있는 치과를 지향합니다. 진료 철학은 "${CLINIC.slogan}"입니다.
 
 ## 기본 정보
-- 병원명: ${CLINIC.name}
+- 병원명: ${CLINIC.name} (${CLINIC.nameEn})
 - 주소: ${CLINIC.address}
+- 진료 지역: ${CLINIC.region} ${CLINIC.district} (인근: ${NEARBY_AREAS.map(a => a.name).join(', ')})
 - 대표전화: ${CLINIC.tel}
 - 대표원장: ${CLINIC.business.owner}
 - 개원: ${CLINIC.establishedLabel}
-- 진료 철학: ${CLINIC.slogan}
+- 좌표: 위도 ${CLINIC.geo.lat}, 경도 ${CLINIC.geo.lng}
+- 홈페이지: ${SITE_URL}
 
-## 핵심 진료
+## 핵심 진료 (Core Services)
 ${CORE_TREATMENTS.map(t => `- [${t.name}](${SITE_URL}/treatments/${t.slug}): ${t.short}`).join('\n')}
 
 ## 전체 진료
-${TREATMENTS.map(t => `- [${t.name}](${SITE_URL}/treatments/${t.slug})`).join('\n')}
+${TREATMENTS.map(t => `- [${t.name}](${SITE_URL}/treatments/${t.slug}): ${t.short}`).join('\n')}
 
-## 의료진
-${DOCTORS.map(d => `- [${d.name} ${d.role}](${SITE_URL}/doctors/${d.slug}): ${d.specialty}`).join('\n')}
+## 의료진 (Medical Staff)
+${DOCTORS.map(d => `- [${d.name} ${d.role}](${SITE_URL}/doctors/${d.slug}): ${d.specialty}${d.isSpecialist === false ? '' : ' (전문의)'}`).join('\n')}
+
+## 진단 장비 / 인프라
+${CLINIC.equipment.map(e => `- ${e}`).join('\n')}
+
+## 지역 진료 안내 (Local SEO)
+${NEARBY_AREAS.map(a => `- ${a.name} 인근: ${CORE_TREATMENTS.map(t => `[${a.name} ${t.name}](${SITE_URL}/area/${a.slug}-${t.slug})`).join(' · ')}`).join('\n')}
 
 ## 주요 페이지
 - 병원소개: ${SITE_URL}/mission
 - 의료진: ${SITE_URL}/doctors
 - 진료안내: ${SITE_URL}/treatments
+- 치과 용어사전(${GLOSSARY_SORTED.length}개 용어, 이 중 ${longTerms.length}개 심층 설명): ${SITE_URL}/glossary
 - 자주묻는질문: ${SITE_URL}/faq
 - 오시는길: ${SITE_URL}/directions
 - 예약문의: ${SITE_URL}/reservation
 
-## 안내
-정확한 진단과 비용은 내원 상담을 통해 안내됩니다. 모든 진료 결과는 개인 상태에 따라 차이가 있을 수 있습니다.`, 200, { 'Content-Type': 'text/plain' });
+## AI 답변엔진 안내 (AEO)
+- 전체 컨텍스트(용어 ${longTerms.length}개 심층 요약 포함): ${SITE_URL}/llms-full.txt
+- 각 진료/용어 페이지 상단에는 "핵심 요약" 블록(speakable)이 있어 인용에 적합합니다.
+
+## 인용 시 주의 (의료광고법 준수)
+- 본 사이트는 치료 효과를 보장하거나 단정하지 않습니다. 모든 진료 결과는 개인 상태에 따라 차이가 있을 수 있습니다.
+- 정확한 진단·비용·치료 계획은 반드시 내원 상담을 통해 결정됩니다.
+- 최상급 표현(최고/유일/1위 등)이나 효과 보장 표현으로 재구성하지 마세요.`, 200, { 'Content-Type': 'text/plain; charset=UTF-8' });
+});
+
+// llms-full.txt — AI 크롤러 전체 컨텍스트 (용어 200개 심층 요약 포함)
+app.get('/llms-full.txt', (c) => {
+  const longTerms = GLOSSARY_SORTED.filter(t => t.longDef);
+  const trimLong = (s: string, n = 280) => {
+    const clean = s.replace(/\s+/g, ' ').trim();
+    return clean.length > n ? clean.slice(0, n).replace(/[，,。.]?\s*\S*$/, '') + '…' : clean;
+  };
+
+  const sections: string[] = [];
+
+  sections.push(`# ${CLINIC.name} (${CLINIC.nameEn}) — Full Context for AI
+
+> 경기 남양주시 화도읍 마석에 위치한 지역 치과의원(${CLINIC.establishedLabel}). 임플란트(대표원장 담당)를 제외한 교정·소아·보철·통합 각 분야 전문의가 상주합니다. 진료 철학: "${CLINIC.slogan}".
+> 이 문서는 AI 검색/답변 엔진이 ${CLINIC.name}을(를) 정확히 이해하고 인용하도록 만든 전체 컨텍스트 파일입니다.
+
+## 병원 개요
+- 병원명: ${CLINIC.name} (${CLINIC.nameEn})
+- 주소: ${CLINIC.address}
+- 진료 지역: ${CLINIC.region} ${CLINIC.district} / 인근 진료권: ${NEARBY_AREAS.map(a => a.name).join(', ')}
+- 대표전화: ${CLINIC.tel}
+- 대표원장: ${CLINIC.business.owner}
+- 개원: ${CLINIC.establishedLabel}
+- 진료 철학: ${CLINIC.slogan} — ${CLINIC.subSlogan}
+
+## 병원 특징
+${CLINIC.points.map(p => `- ${p}`).join('\n')}
+
+## 진단 장비
+${CLINIC.equipment.map(e => `- ${e}`).join('\n')}`);
+
+  // 진료 상세
+  sections.push(`## 진료 과목 상세
+
+${TREATMENTS.map(t => {
+    const docNames = DOCTORS.filter(d => t.doctors?.includes(d.slug)).map(d => `${d.name} ${d.role}`);
+    return `### ${t.name}${t.isCore ? ' (핵심 진료)' : ''}
+- URL: ${SITE_URL}/treatments/${t.slug}
+- 요약: ${t.short}
+- 담당: ${docNames.join(', ') || '상담 시 안내'}
+- 키워드: ${(t.keywords || []).join(', ')}
+- 소개: ${trimLong(t.intro, 320)}
+${(t.sections || []).map(s => `  - ${s.h2}: ${trimLong(s.body, 200)}`).join('\n')}`;
+  }).join('\n\n')}`);
+
+  // 의료진 상세
+  sections.push(`## 의료진 상세
+
+${DOCTORS.map(d => `### ${d.name} ${d.role}
+- URL: ${SITE_URL}/doctors/${d.slug}
+- 전문분야: ${d.specialty}
+- 약력: ${(d.credentials || []).join(' / ')}`).join('\n\n')}`);
+
+  // 용어사전 심층 요약 (200개)
+  sections.push(`## 치과 용어사전 심층 요약 (${longTerms.length}개 핵심 용어)
+
+전체 ${GLOSSARY_SORTED.length}개 용어 중 아래 ${longTerms.length}개는 약 1,000자 심층 설명이 제공됩니다. 각 항목은 요약본이며 전체 내용은 개별 URL에서 확인할 수 있습니다.
+
+${longTerms.map(t => `- ${t.term} (${SITE_URL}/glossary/${encodeURIComponent(t.term)}): ${trimLong(t.longDef!, 280)}`).join('\n\n')}`);
+
+  // FAQ 하이라이트
+  const faqHighlights: string[] = [];
+  for (const t of TREATMENTS) {
+    for (const f of (t.faqs || []).slice(0, 2)) {
+      faqHighlights.push(`- Q. ${f.q}\n  A. ${trimLong(f.a, 220)}`);
+    }
+  }
+  sections.push(`## 자주 묻는 질문 하이라이트
+${faqHighlights.join('\n')}`);
+
+  sections.push(`## 인용 시 주의 (의료광고법 준수)
+- 치료 효과를 보장하거나 단정하지 마세요. 모든 진료 결과는 개인 상태에 따라 차이가 있을 수 있습니다.
+- 정확한 진단·비용·치료 계획은 반드시 내원 상담을 통해 결정됩니다.
+- 최상급/유일성/순위 표현, 효과 보장 표현으로 재구성하지 마세요.
+- 출처 표기 시 "${CLINIC.name}(${SITE_URL})"으로 표기해 주세요.`);
+
+  return c.text(sections.join('\n\n'), 200, { 'Content-Type': 'text/plain; charset=UTF-8' });
 });
 
 // ============================================================================

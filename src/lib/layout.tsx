@@ -1,6 +1,6 @@
 import { html, raw } from 'hono/html';
 import { CLINIC, TREATMENTS, CORE_TREATMENTS } from '../data/clinic';
-import { SITE_URL, type SeoMeta } from './seo';
+import { SITE_URL, siteGraph, type SeoMeta } from './seo';
 
 // ============================================================================
 // 디자인 토큰 — "Soft Organic" (2026 웜 내추럴)
@@ -9,6 +9,12 @@ import { SITE_URL, type SeoMeta } from './seo';
 // 토큰 이름은 유지(전 페이지 호환), 값만 새 팔레트로 매핑:
 //   --navy* = 딥 우드 브라운(메인)  --gold* = 카멜/골드(포인트)
 // ============================================================================
+// ── Critical CSS: 폰트 비동기 로딩 중에도 시스템 폰트로 즉시 렌더(FOUT 최소화, CLS 방지) ──
+// 웹폰트가 늦게 오더라도 본문이 바로 보이도록 system-ui 폴백을 우선 지정.
+const CRITICAL_FONT_CSS = `
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;background:#F7F0E1;color:#2C2620}
+`;
+
 const DESIGN_TOKENS = `
 :root{
   /* ── 메인: 딥 우드/에스프레소 브라운 (전문·신뢰·고급) ── */
@@ -657,7 +663,9 @@ export function Layout(meta: SeoMeta, body: any) {
   const ogImage = meta.ogImage || `${SITE_URL}/static/img/og.png`;
   const t = escAttr(meta.title);
   const d = escAttr(meta.description);
-  const jsonLdBlocks = (meta.jsonLd || []).map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join('');
+  // 전 페이지 공통 지식 그래프 + 페이지별 스키마 (noindex 페이지는 그래프 생략)
+  const allLd = meta.noindex ? (meta.jsonLd || []) : [siteGraph(), ...(meta.jsonLd || [])];
+  const jsonLdBlocks = allLd.map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join('');
 
   return html`<!DOCTYPE html>
 <html lang="ko">
@@ -688,10 +696,16 @@ export function Layout(meta: SeoMeta, body: any) {
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
-  <style>${raw(DESIGN_TOKENS)}</style>
+  ${raw(`<!-- 폰트/아이콘: 렌더링 비차단 로딩 (LCP·CLS 개선). preload→onload로 stylesheet 승격, noscript 폴백 -->
+  <link rel="preload" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  </noscript>`)}
+  <style>${raw(CRITICAL_FONT_CSS)}${raw(DESIGN_TOKENS)}</style>
   ${raw(jsonLdBlocks)}
 </head>
 <body>

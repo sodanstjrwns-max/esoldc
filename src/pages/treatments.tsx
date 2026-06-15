@@ -12,8 +12,16 @@ const TREAT_CSS = `
 .t-hero h1{font-size:clamp(2.3rem,5.4vw,3.8rem);margin:14px 0 16px;line-height:1.25;color:var(--inv)}
 .t-hero .sub{color:var(--inv-soft);font-size:1.12rem;max-width:660px}
 .t-body{max-width:820px;margin:0 auto}
-.t-intro{font-size:1.16rem;line-height:1.85;color:var(--ink);background:var(--bg-soft);border-left:3px solid var(--gold);padding:26px 30px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:48px}
+.t-intro{font-size:1.16rem;line-height:1.85;color:var(--ink);background:var(--bg-soft);border-left:3px solid var(--gold);padding:26px 30px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:32px}
 .t-intro strong{color:var(--navy)}
+/* ── AEO 핵심 요약 (AI 답변 인용 타깃) ── */
+.aeo-summary{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px 30px;margin-bottom:48px;box-shadow:var(--shadow-sm)}
+.aeo-summary .aeo-h{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:700;font-size:1.08rem;color:var(--navy);margin-bottom:16px}
+.aeo-summary .aeo-h i{color:var(--gold)}
+.aeo-summary ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.aeo-summary li{display:flex;gap:12px;align-items:flex-start;font-size:1.02rem;line-height:1.7;color:var(--ink-soft)}
+.aeo-summary li::before{content:'';flex:none;width:8px;height:8px;margin-top:9px;border-radius:50%;background:var(--gold-grad)}
+.aeo-summary li strong{color:var(--navy);font-weight:700}
 .t-section{margin-bottom:46px}
 .t-section h2{font-size:1.5rem;color:var(--navy);margin-bottom:16px;position:relative;padding-left:18px;font-family:var(--serif)}
 .t-section h2::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:3px;background:var(--gold);border-radius:2px}
@@ -108,7 +116,8 @@ export function TreatmentsListPage() {
 }
 
 // --- 진료 상세 페이지 ---
-export function TreatmentDetailPage(t: Treatment) {
+// relTerms: 이 진료와 연결된 용어사전 용어(양방향 인링크). index.tsx에서 주입.
+export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] = []) {
   const docs = getDoctorsForTreatment(t.slug);
   const related = TREATMENTS.filter(x => x.slug !== t.slug).slice(0, 5);
   const areaLinks = t.isCore ? NEARBY_AREAS.slice(0, 5) : [];
@@ -126,7 +135,15 @@ export function TreatmentDetailPage(t: Treatment) {
 
   <section class="section">
     <div class="wrap t-body">
-      <div class="t-intro reveal">${raw(formatIntro(t.intro))}</div>
+      <div class="t-intro reveal aeo-summary-lead">${raw(formatIntro(t.intro))}</div>
+
+      <!-- AEO 핵심 요약 (AI 답변 인용 타깃 · speakable) -->
+      <div class="aeo-summary reveal">
+        <div class="aeo-h"><i class="fas fa-circle-check"></i>한눈에 보는 ${t.name} 핵심 요약</div>
+        <ul>
+          ${raw(aeoTakeaways(t, docs).map(p => `<li>${p}</li>`).join(''))}
+        </ul>
+      </div>
 
       ${raw(t.sections.map(s => `
         <div class="t-section reveal">
@@ -176,6 +193,16 @@ export function TreatmentDetailPage(t: Treatment) {
         </div>
       </div>
 
+      <!-- 관련 용어 (용어사전 ↔ 진료 양방향 인링크) -->
+      ${relTerms.length ? html`
+      <div class="t-related reveal">
+        <h3>${t.name} 관련 용어 알아보기</h3>
+        <div class="t-rel-chips">
+          ${raw(relTerms.map(g => `<a href="/glossary/${encodeURIComponent(g.term)}"><i class="fas fa-book-open" style="margin-right:6px;color:var(--gold)"></i>${g.term}</a>`).join(''))}
+        </div>
+        <p style="margin-top:14px;font-size:.85rem;color:var(--ink-soft)"><a href="/glossary" style="color:var(--gold);font-weight:600">치과 백과사전 전체 보기 <i class="fas fa-arrow-right" style="font-size:.8em"></i></a></p>
+      </div>` : ''}
+
       <div class="t-cta reveal">
         <h3>${t.name} 상담을 원하시나요?</h3>
         <p>정확한 진단과 상담은 내원하여 의료진과 상의하시기 바랍니다.</p>
@@ -187,6 +214,28 @@ export function TreatmentDetailPage(t: Treatment) {
     </div>
   </section>
   `;
+}
+
+// AEO 핵심 요약 자동 생성 — 진료 데이터에서 추출 (의료광고법 준수: 단정/보장 표현 배제)
+function aeoTakeaways(t: Treatment, docs: ReturnType<typeof getDoctorsForTreatment>): string[] {
+  const out: string[] = [];
+  // 1) 정의 (intro에서 핵심 답변부)
+  const qIdx = t.intro.indexOf('?');
+  const answer = qIdx > -1 ? t.intro.slice(qIdx + 1).trim() : t.intro;
+  out.push(`<strong>${t.name}란?</strong> ${answer.split('.')[0]}.`);
+  // 2) 담당 의료진 (전문의 여부 명시 — 법적 정확)
+  if (docs.length) {
+    const names = docs.map(d => `${d.name} ${d.role}`).join(', ');
+    out.push(`<strong>담당 의료진</strong> ${names}이(가) ${t.name} 진료를 담당합니다.`);
+  }
+  // 3) 주요 진료 항목 (섹션 H2 앞 3개)
+  const topics = t.sections.slice(0, 3).map(s => s.h2.replace(/[?]/g, '')).join(' · ');
+  if (topics) out.push(`<strong>주요 내용</strong> ${topics}`);
+  // 4) 위치/접근성
+  out.push(`<strong>진료 위치</strong> ${CLINIC.addressShort} (${CLINIC.region} ${CLINIC.district} 마석역 인근)`);
+  // 5) 안내 (필수 컴플라이언스)
+  out.push(`<strong>안내</strong> 정확한 진단과 비용, 치료 방법은 개인 상태에 따라 차이가 있으며 내원 상담을 통해 결정됩니다.`);
+  return out;
 }
 
 // intro 첫 문장(질문)을 bold 처리 (AEO)
