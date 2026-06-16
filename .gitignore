@@ -36,3 +36,4 @@ lerna-debug.log*
 shot.cjs
 shot-*.png
 tmp_img/
+shot.mjs
