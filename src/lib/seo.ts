@@ -242,6 +242,11 @@ export function personSchema(d: typeof DOCTORS[number]) {
 }
 
 export function medicalProcedureSchema(t: Treatment) {
+  // intro에서 질문부 제거한 핵심 설명 추출
+  const qIdx = t.intro.indexOf('?');
+  const performed = qIdx > -1 ? t.intro.slice(qIdx + 1).trim() : t.intro;
+  // 본문 섹션들을 진료 단계 신호로 활용 (howPerformed 보강)
+  const stepSummary = t.sections.map(s => s.h2.replace(/[?]/g, '')).join(' · ');
   return {
     '@context': 'https://schema.org',
     '@type': 'MedicalProcedure',
@@ -250,9 +255,38 @@ export function medicalProcedureSchema(t: Treatment) {
     description: t.metaDesc,
     url: `${SITE_URL}/treatments/${t.slug}`,
     procedureType: 'https://schema.org/TherapeuticProcedure',
-    relevantSpecialty: 'Dentistry',
-    howPerformed: t.intro,
+    relevantSpecialty: { '@type': 'MedicalSpecialty', name: 'Dentistry' },
+    bodyLocation: '구강',
+    howPerformed: `${performed} 주요 과정: ${stepSummary}.`,
+    preparation: '정밀 진단(파노라마·CT·구강스캐너 등)과 상담을 통해 환자분의 구강 상태를 확인한 뒤 진료 계획을 수립합니다.',
+    followup: '진료 이후 정기적인 점검과 관리를 통해 경과를 확인하며, 개인의 구강 상태에 따라 결과에는 차이가 있을 수 있습니다.',
+    status: 'https://schema.org/ActiveActionStatus',
     provider: { '@id': CLINIC_ID },
+  };
+}
+
+/**
+ * HowTo 스키마 — 진료 과정을 단계별(HowToStep)로 구조화.
+ * 본문 sections의 h2를 진료 단계로 활용해 검색엔진/AI에 "진료 흐름"을 명확히 전달.
+ * ⚠️ 의료광고법: 효과 보장·최상급 없이 "과정 안내"로만 기술.
+ */
+export function howToSchema(t: Treatment) {
+  const steps = t.sections.map((s, i) => ({
+    '@type': 'HowToStep',
+    position: i + 1,
+    name: s.h2.replace(/[?]/g, ''),
+    text: s.body.length > 320 ? s.body.slice(0, 317) + '…' : s.body,
+    url: `${SITE_URL}/treatments/${t.slug}#step-${i + 1}`,
+  }));
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    '@id': `${SITE_URL}/treatments/${t.slug}#howto`,
+    name: `${t.name} 진료는 어떻게 진행되나요?`,
+    description: `${CLINIC.name}의 ${t.name} 진료 과정 안내. 진료 방법과 결과는 개인의 구강 상태에 따라 차이가 있을 수 있으며, 정확한 내용은 상담을 통해 안내해 드립니다.`,
+    totalTime: 'P1D',
+    step: steps,
+    about: { '@id': `${SITE_URL}/treatments/${t.slug}#procedure` },
   };
 }
 

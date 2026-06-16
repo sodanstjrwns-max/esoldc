@@ -5,7 +5,7 @@ import { Layout } from './lib/layout';
 import {
   SITE_URL, personSchema, medicalProcedureSchema, medicalWebPageSchema,
   faqSchema, breadcrumbSchema, areaServiceSchema, areaWebPageSchema,
-  itemListSchema, definedTermSetSchema,
+  itemListSchema, definedTermSetSchema, howToSchema,
 } from './lib/seo';
 import { HomePage } from './pages/home';
 import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
@@ -130,6 +130,7 @@ app.get('/treatments/:slug', (c) => {
     type: 'article',
     jsonLd: [
       medicalProcedureSchema(t),
+      howToSchema(t),
       medicalWebPageSchema({ name: t.metaTitle, description: t.metaDesc, path: `/treatments/${t.slug}`, about: t.name }),
       faqSchema(t.faqs),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }, { name: t.name, path: `/treatments/${t.slug}` }]),

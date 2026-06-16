@@ -22,10 +22,24 @@ const TREAT_CSS = `
 .aeo-summary li{display:flex;gap:12px;align-items:flex-start;font-size:1.02rem;line-height:1.7;color:var(--ink-soft)}
 .aeo-summary li::before{content:'';flex:none;width:8px;height:8px;margin-top:9px;border-radius:50%;background:var(--gold-grad)}
 .aeo-summary li strong{color:var(--navy);font-weight:700}
-.t-section{margin-bottom:46px}
+.t-section{margin-bottom:46px;scroll-margin-top:90px}
 .t-section h2{font-size:1.5rem;color:var(--navy);margin-bottom:16px;position:relative;padding-left:18px;font-family:var(--serif)}
 .t-section h2::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:3px;background:var(--gold);border-radius:2px}
 .t-section p{color:var(--ink-soft);font-size:1.05rem;line-height:1.9}
+/* ── 진료 과정 한눈에 보기 (HowTo 타임라인 네비) ── */
+.t-toc{background:linear-gradient(180deg,#fff,var(--bg-soft));border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px 30px;margin-bottom:48px;box-shadow:var(--shadow-sm)}
+.t-toc .toc-h{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:700;font-size:1.08rem;color:var(--navy);margin-bottom:18px}
+.t-toc .toc-h i{color:var(--gold)}
+.t-toc ol{list-style:none;margin:0;padding:0;counter-reset:step;display:grid;gap:2px}
+.t-toc li{counter-increment:step;position:relative;padding:10px 10px 10px 46px;border-radius:var(--radius);transition:background .25s}
+.t-toc li::before{content:counter(step);position:absolute;left:8px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--gold-grad);color:#fff;font-size:.82rem;font-weight:700;display:grid;place-items:center}
+.t-toc li:not(:last-child)::after{content:'';position:absolute;left:21px;top:calc(50% + 17px);width:2px;height:calc(100% - 14px);background:var(--gold-soft)}
+.t-toc a{color:var(--ink);font-weight:600;font-size:.98rem;display:block}
+.t-toc li:hover{background:var(--bg-soft)}.t-toc li:hover a{color:var(--gold-3)}
+/* 섹션 번호 배지 */
+.t-section .sec-num{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--gold-soft);color:var(--gold-3);font-size:.85rem;font-weight:700;margin-right:12px;vertical-align:2px;font-family:var(--serif)}
+.t-section h2.numbered{padding-left:0}
+.t-section h2.numbered::before{display:none}
 .faq-list{margin-top:24px}
 .faq-item{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;transition:all .3s var(--ease);background:#fff}
 .faq-item[open]{border-color:var(--gold);box-shadow:var(--shadow-sm)}
@@ -145,9 +159,17 @@ export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] =
         </ul>
       </div>
 
-      ${raw(t.sections.map(s => `
-        <div class="t-section reveal">
-          <h2>${s.h2}</h2>
+      <!-- 진료 과정 한눈에 보기 (HowTo 타임라인 네비 · 본문 단계 앵커) -->
+      <nav class="t-toc reveal" aria-label="${t.name} 진료 과정 목차">
+        <div class="toc-h"><i class="fas fa-list-check"></i>${t.name} — 한눈에 보는 진료 안내</div>
+        <ol>
+          ${raw(t.sections.map((s, i) => `<li><a href="#step-${i + 1}">${s.h2.replace(/[?]/g, '')}</a></li>`).join(''))}
+        </ol>
+      </nav>
+
+      ${raw(t.sections.map((s, i) => `
+        <div class="t-section reveal" id="step-${i + 1}">
+          <h2 class="numbered"><span class="sec-num">${i + 1}</span>${s.h2}</h2>
           <p>${s.body}</p>
         </div>`).join(''))}
 
