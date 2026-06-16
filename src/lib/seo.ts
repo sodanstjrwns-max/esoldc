@@ -375,18 +375,30 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
   };
 }
 
-export function articleSchema(opts: { title: string; desc: string; path: string; author: string; published: string; modified: string; image?: string }) {
+export function articleSchema(opts: {
+  title: string; desc: string; path: string; author: string;
+  published: string; modified?: string; image?: string;
+  type?: 'BlogPosting' | 'MedicalWebPage' | 'Article';
+}) {
+  const url = `${SITE_URL}${opts.path}`;
+  const imgUrl = opts.image || `${SITE_URL}/static/img/og.png`;
   return {
     '@context': 'https://schema.org',
-    '@type': 'MedicalWebPage',
-    headline: opts.title,
+    '@type': opts.type || 'BlogPosting',
+    headline: opts.title.slice(0, 110),
+    name: opts.title,
     description: opts.desc,
-    url: `${SITE_URL}${opts.path}`,
-    image: opts.image || `${SITE_URL}/static/img/og.png`,
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    image: {
+      '@type': 'ImageObject',
+      url: imgUrl,
+      contentUrl: imgUrl,
+    },
     inLanguage: 'ko-KR',
     isPartOf: { '@id': WEBSITE_ID },
     datePublished: opts.published,
-    dateModified: opts.modified,
+    dateModified: opts.modified || opts.published,
     author: { '@type': 'Person', name: opts.author },
     publisher: { '@id': ORG_ID },
     speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.aeo-summary'] },

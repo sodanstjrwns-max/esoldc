@@ -6,6 +6,7 @@ import {
   SITE_URL, personSchema, medicalProcedureSchema, medicalWebPageSchema,
   faqSchema, breadcrumbSchema, areaServiceSchema, areaWebPageSchema,
   itemListSchema, definedTermSetSchema, howToSchema, localBusinessSchema,
+  articleSchema,
 } from './lib/seo';
 import { HomePage } from './pages/home';
 import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
@@ -231,7 +232,20 @@ app.get('/cases/:id', async (c) => {
     description: `${x.age_group} ${x.gender} 환자 ${x.title}. ${(x.description || '').slice(0, 100)}`,
     path: `/cases/${id}`,
     type: 'article',
-    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비포&애프터', path: '/cases' }, { name: x.title, path: `/cases/${id}` }])],
+    ogImage: x.img_pano_before ? `${SITE_URL}/api/img/${x.img_pano_before}` : (x.img_oral_before ? `${SITE_URL}/api/img/${x.img_oral_before}` : undefined),
+    jsonLd: [
+      articleSchema({
+        type: 'MedicalWebPage',
+        title: x.title,
+        desc: `${x.age_group} ${x.gender} 환자 ${x.title}. ${(x.description || '').slice(0, 120)}`.trim(),
+        path: `/cases/${id}`,
+        author: DOCTORS.find(d => d.slug === x.doctor_slug)?.name || CLINIC.name,
+        published: x.created_at,
+        modified: x.updated_at || x.created_at,
+        image: x.img_pano_before ? `${SITE_URL}/api/img/${x.img_pano_before}` : (x.img_oral_before ? `${SITE_URL}/api/img/${x.img_oral_before}` : undefined),
+      }),
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비포&애프터', path: '/cases' }, { name: x.title, path: `/cases/${id}` }]),
+    ],
   }, CaseDetailPage(x, !!s, related as any[])));
 });
 
@@ -271,14 +285,16 @@ app.get('/blog/:slug', async (c) => {
     type: 'article',
     ogImage: p.thumbnail ? `${SITE_URL}/api/img/${p.thumbnail}` : undefined,
     jsonLd: [
-      {
-        '@context': 'https://schema.org', '@type': 'BlogPosting',
-        headline: p.title, description: p.excerpt || '',
-        datePublished: p.created_at, dateModified: p.updated_at,
-        author: { '@type': 'Person', name: (DOCTORS.find(d => d.slug === p.author_slug)?.name || CLINIC.name) },
-        publisher: { '@type': 'Organization', name: CLINIC.name },
-        mainEntityOfPage: `${SITE_URL}/blog/${slug}`,
-      },
+      articleSchema({
+        type: 'BlogPosting',
+        title: p.title,
+        desc: p.excerpt || `${CLINIC.name} 블로그 - ${p.title}`,
+        path: `/blog/${slug}`,
+        author: DOCTORS.find(d => d.slug === p.author_slug)?.name || CLINIC.name,
+        published: p.created_at,
+        modified: p.updated_at || p.created_at,
+        image: p.thumbnail ? `${SITE_URL}/api/img/${p.thumbnail}` : undefined,
+      }),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '블로그', path: '/blog' }, { name: p.title, path: `/blog/${slug}` }]),
     ],
   }, BlogDetailPage(p, related as any[])));
@@ -316,7 +332,20 @@ app.get('/notices/:id', async (c) => {
     title: `${n.title} | 공지사항 - ${CLINIC.name}`,
     description: `${CLINIC.name} 공지 - ${n.title}`,
     path: `/notices/${id}`,
-    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notices' }, { name: n.title, path: `/notices/${id}` }])],
+    ogImage: n.image ? `${SITE_URL}/api/img/${n.image}` : undefined,
+    jsonLd: [
+      articleSchema({
+        type: 'Article',
+        title: n.title,
+        desc: `${CLINIC.name} 공지 - ${n.title}`,
+        path: `/notices/${id}`,
+        author: CLINIC.name,
+        published: n.created_at,
+        modified: n.updated_at || n.created_at,
+        image: n.image ? `${SITE_URL}/api/img/${n.image}` : undefined,
+      }),
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notices' }, { name: n.title, path: `/notices/${id}` }]),
+    ],
   }, NoticeDetailPage(n)));
 });
 
