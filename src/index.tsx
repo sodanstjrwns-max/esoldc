@@ -20,6 +20,7 @@ import {
   NoticesListPage, NoticeDetailPage,
 } from './pages/content';
 import { GlossaryListPage, GlossaryDetailPage } from './pages/glossary';
+import { SeoHealthPage } from './pages/seo-health';
 import { GLOSSARY, GLOSSARY_SORTED } from './data/glossary';
 import { authApi } from './routes/auth';
 import { admin } from './routes/admin';
@@ -313,6 +314,19 @@ app.get('/glossary', (c) => {
       definedTermSetSchema({ count: GLOSSARY.length, longCount: GLOSSARY_SORTED.filter(t => t.longDef).length }),
     ],
   }, GlossaryListPage()));
+});
+
+// SEO Health 대시보드 — 내부링크 커버리지 시각화
+app.get('/seo-health', (c) => {
+  return c.html(Layout({
+    title: `SEO Health · 내부링크 커버리지 | ${CLINIC.name}`,
+    description: `${CLINIC.name} 사이트의 내부 링크 그물(link mesh) 분석 대시보드. 페이지별 인바운드/아웃바운드 링크와 커버리지를 데이터 기반으로 시각화합니다.`,
+    path: '/seo-health',
+    noindex: true,
+    jsonLd: [
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: 'SEO Health', path: '/seo-health' }]),
+    ],
+  }, SeoHealthPage()));
 });
 
 app.get('/glossary/:term', (c) => {

@@ -92,8 +92,18 @@ export function siteGraph() {
         parentOrganization: { '@id': ORG_ID },
         address: postalAddress(),
         geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
-        hasMap: `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`,
+        hasMap: [
+          `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`,
+          `https://map.kakao.com/?q=${encodeURIComponent(CLINIC.address)}`,
+        ],
+        // 정직한 오픈예정 표시: 진료시간 미확정 → openingHours 대신 새 공간 오픈일만 명시
+        specialOpeningHoursSpecification: {
+          '@type': 'OpeningHoursSpecification',
+          validFrom: CLINIC.reopenDate,
+          description: CLINIC.hoursNote,
+        },
         medicalSpecialty: 'Dentistry',
+        knowsLanguage: 'ko-KR',
         priceRange: '₩₩',
         currenciesAccepted: 'KRW',
         paymentAccepted: '현금, 카드',
@@ -133,13 +143,33 @@ export function dentistSchema() {
 export function localBusinessSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    '@id': `${SITE_URL}/#localbusiness`,
+    '@type': ['Dentist', 'MedicalBusiness', 'LocalBusiness'],
+    '@id': CLINIC_ID,
     name: CLINIC.name,
+    alternateName: CLINIC.nameEn,
     image: `${SITE_URL}/static/img/og.png`,
+    logo: { '@id': `${SITE_URL}/#logo` },
     telephone: CLINIC.tel,
+    email: CLINIC.email,
     address: postalAddress(),
     geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
+    hasMap: [
+      `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`,
+      `https://map.kakao.com/?q=${encodeURIComponent(CLINIC.address)}`,
+    ],
+    specialOpeningHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      validFrom: CLINIC.reopenDate,
+      description: CLINIC.hoursNote,
+    },
+    medicalSpecialty: 'Dentistry',
+    knowsLanguage: 'ko-KR',
+    priceRange: '₩₩',
+    currenciesAccepted: 'KRW',
+    paymentAccepted: '현금, 카드',
+    areaServed: NEARBY_AREAS.map(a => ({ '@type': 'City', name: a.full })),
+    sameAs: clinicSameAs(),
+    foundingDate: String(CLINIC.established),
     url: SITE_URL,
   };
 }
