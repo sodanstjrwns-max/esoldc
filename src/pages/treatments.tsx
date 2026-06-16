@@ -190,8 +190,8 @@ export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] =
       <div class="t-section reveal">
         <h2>자주 묻는 질문</h2>
         <div class="faq-list">
-          ${raw(t.faqs.map(f => `
-            <details class="faq-item">
+          ${raw(t.faqs.map((f, i) => `
+            <details class="faq-item" id="q-${i + 1}">
               <summary>${f.q}<i class="fas fa-plus"></i></summary>
               <div class="fa-body">${f.a}</div>
             </details>`).join(''))}

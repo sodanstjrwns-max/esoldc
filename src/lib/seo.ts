@@ -227,7 +227,14 @@ export function personSchema(d: typeof DOCTORS[number]) {
     name: d.name,
     jobTitle: d.role,
     url: `${SITE_URL}/doctors/${d.slug}`,
-    image: `${SITE_URL}${d.photo}`,
+    image: {
+      '@type': 'ImageObject',
+      '@id': `${SITE_URL}/doctors/${d.slug}#photo`,
+      url: `${SITE_URL}${d.photo}`,
+      contentUrl: `${SITE_URL}${d.photo}`,
+      caption: `${d.name} ${d.role}`,
+      representativeOfPage: true,
+    },
     worksFor: { '@id': CLINIC_ID },
     affiliation: { '@id': CLINIC_ID },
     knowsAbout: d.specialty,
@@ -254,6 +261,13 @@ export function medicalProcedureSchema(t: Treatment) {
     name: t.name,
     description: t.metaDesc,
     url: `${SITE_URL}/treatments/${t.slug}`,
+    image: {
+      '@type': 'ImageObject',
+      '@id': `${SITE_URL}/treatments/${t.slug}#image`,
+      url: `${SITE_URL}/static/img/og.png`,
+      contentUrl: `${SITE_URL}/static/img/og.png`,
+      caption: `${CLINIC.name} ${t.name} 진료 안내`,
+    },
     procedureType: 'https://schema.org/TherapeuticProcedure',
     relevantSpecialty: { '@type': 'MedicalSpecialty', name: 'Dentistry' },
     bodyLocation: '구강',
@@ -290,14 +304,23 @@ export function howToSchema(t: Treatment) {
   };
 }
 
-export function faqSchema(faqs: { q: string; a: string }[]) {
+export function faqSchema(faqs: { q: string; a: string }[], path?: string) {
+  const base = path ? `${SITE_URL}${path}` : undefined;
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqs.map(f => ({
+    ...(base ? { '@id': `${base}#faq`, url: base, inLanguage: 'ko-KR' } : {}),
+    mainEntity: faqs.map((f, i) => ({
       '@type': 'Question',
+      ...(base ? { '@id': `${base}#q-${i + 1}` } : {}),
       name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
+      ...(base ? { url: `${base}#q-${i + 1}` } : {}),
+      answerCount: 1,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: f.a,
+        ...(base ? { url: `${base}#q-${i + 1}` } : {}),
+      },
     })),
   };
 }

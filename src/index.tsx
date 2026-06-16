@@ -133,7 +133,7 @@ app.get('/treatments/:slug', (c) => {
       medicalProcedureSchema(t),
       howToSchema(t),
       medicalWebPageSchema({ name: t.metaTitle, description: t.metaDesc, path: `/treatments/${t.slug}`, about: t.name }),
-      faqSchema(t.faqs),
+      faqSchema(t.faqs, `/treatments/${t.slug}`),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }, { name: t.name, path: `/treatments/${t.slug}` }]),
     ],
   }, TreatmentDetailPage(t, relTerms)));
@@ -167,7 +167,7 @@ app.get('/faq', (c) => {
     description: `${CLINIC.name} 자주 묻는 질문 ${allFaqs.length}개. 임플란트·교정·소아치과·보철·잇몸치료 등 진료별로 환자분들이 자주 궁금해하시는 내용을 모았습니다.`,
     path: '/faq',
     jsonLd: [
-      faqSchema(allFaqs),
+      faqSchema(allFaqs, '/faq'),
       medicalWebPageSchema({
         name: `${CLINIC.name} 자주 묻는 질문`,
         description: `진료별 자주 묻는 질문 ${allFaqs.length}개 모음. 정확한 내용은 상담을 통해 안내해 드립니다.`,
@@ -510,7 +510,7 @@ app.get('/area/:combo', (c) => {
       areaServiceSchema(area, t),
       areaWebPageSchema(area, t),
       medicalProcedureSchema(t),
-      faqSchema(areaFaqs(area, t)),
+      faqSchema(areaFaqs(area, t), `/area/${combo}`),
       breadcrumbSchema([
         { name: '홈', path: '/' },
         { name: '지역 안내', path: '/area' },

@@ -144,16 +144,16 @@ export function FaqPage() {
   </style>
   <section class="section">
     <div class="wrap" style="max-width:880px">
-      ${raw(TREATMENTS.map(t => `
+      ${raw((() => { let gi = 0; return TREATMENTS.map(t => `
         <div class="faq-cat reveal">
           <h2><i class="fas ${t.icon}"></i>${t.name}</h2>
-          ${t.faqs.map(f => `
-            <details class="faq-item">
+          ${t.faqs.map(f => { gi += 1; return `
+            <details class="faq-item" id="q-${gi}">
               <summary>${f.q}<i class="fas fa-plus"></i></summary>
               <div class="fb">${f.a}</div>
-            </details>`).join('')}
+            </details>`; }).join('')}
           <a href="/treatments/${t.slug}" style="display:inline-block;margin-top:8px;color:var(--gold);font-weight:700;font-size:.9rem">${t.name} 자세히 보기 <i class="fas fa-arrow-right"></i></a>
-        </div>`).join(''))}
+        </div>`).join(''); })())}
     </div>
   </section>
   `;
