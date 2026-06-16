@@ -5,7 +5,7 @@ import { Layout } from './lib/layout';
 import {
   SITE_URL, personSchema, medicalProcedureSchema, medicalWebPageSchema,
   faqSchema, breadcrumbSchema, areaServiceSchema, areaWebPageSchema,
-  itemListSchema, definedTermSetSchema, howToSchema,
+  itemListSchema, definedTermSetSchema, howToSchema, localBusinessSchema,
 } from './lib/seo';
 import { HomePage } from './pages/home';
 import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
@@ -144,19 +144,37 @@ app.get('/treatments/:slug', (c) => {
 app.get('/directions', (c) => {
   return c.html(Layout({
     title: `오시는 길 | ${CLINIC.name} - ${CLINIC.addressShort}`,
-    description: `${CLINIC.name} 오시는 길. ${CLINIC.address}. 대표전화 ${CLINIC.tel}. 경춘선 마석역 인근. 진료시간 안내.`,
+    description: `${CLINIC.name} 오시는 길. ${CLINIC.address}. 대표전화 ${CLINIC.tel}. 경춘선 마석역 인근. 주차 및 대중교통 안내.`,
     path: '/directions',
-    jsonLd: [localBusinessSchema(), breadcrumbSchema([{ name: '홈', path: '/' }, { name: '오시는길', path: '/directions' }])],
+    jsonLd: [
+      localBusinessSchema(),
+      medicalWebPageSchema({
+        name: `${CLINIC.name} 오시는 길`,
+        description: `${CLINIC.name}은 ${CLINIC.address}에 위치합니다. 경춘선 마석역 인근으로, 대중교통과 자가용 모두 방문하실 수 있습니다. 대표전화 ${CLINIC.tel}.`,
+        path: '/directions',
+        about: `${CLINIC.name} 위치·교통`,
+      }),
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '오시는길', path: '/directions' }]),
+    ],
   }, DirectionsPage()));
 });
 
 app.get('/faq', (c) => {
   const allFaqs = TREATMENTS.flatMap(t => t.faqs);
   return c.html(Layout({
-    title: `자주 묻는 질문 | ${CLINIC.name}`,
-    description: `${CLINIC.name} 자주 묻는 질문. 임플란트·교정·소아치과 등 진료별로 환자분들이 자주 궁금해하시는 내용을 모았습니다.`,
+    title: `자주 묻는 질문 ${allFaqs.length}선 | ${CLINIC.name}`,
+    description: `${CLINIC.name} 자주 묻는 질문 ${allFaqs.length}개. 임플란트·교정·소아치과·보철·잇몸치료 등 진료별로 환자분들이 자주 궁금해하시는 내용을 모았습니다.`,
     path: '/faq',
-    jsonLd: [faqSchema(allFaqs), breadcrumbSchema([{ name: '홈', path: '/' }, { name: '자주묻는질문', path: '/faq' }])],
+    jsonLd: [
+      faqSchema(allFaqs),
+      medicalWebPageSchema({
+        name: `${CLINIC.name} 자주 묻는 질문`,
+        description: `진료별 자주 묻는 질문 ${allFaqs.length}개 모음. 정확한 내용은 상담을 통해 안내해 드립니다.`,
+        path: '/faq',
+        about: '치과 진료 자주 묻는 질문',
+      }),
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '자주묻는질문', path: '/faq' }]),
+    ],
   }, FaqPage()));
 });
 
