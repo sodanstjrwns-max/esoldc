@@ -332,6 +332,8 @@ const INTERACTION_JS = `
       es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
     }, {threshold:.12, rootMargin:'0px 0px -8% 0px'});
     reveals.forEach(function(el){ io.observe(el); });
+    // 안전망: 어떤 이유로든 1.6초 내 .in이 안 붙으면 강제 표시 (콘텐츠 영구 비표시 방지)
+    setTimeout(function(){ reveals.forEach(function(el){ if(!el.classList.contains('in')) el.classList.add('in'); }); }, 1600);
   } else { reveals.forEach(function(el){ el.classList.add('in'); }); }
 
   // VMG: SVG 라인 드로잉 (뷰포트 진입 시 .drawn → stroke-dashoffset 애니메이션)
@@ -707,6 +709,14 @@ export function Layout(meta: SeoMeta, body: any) {
     <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <!-- JS 미실행(봇·접근성 도구·스크립트 차단) 시 스크롤 리빌 콘텐츠를 즉시 표시 (SEO·접근성 폴백) -->
+    <style>
+      [data-reveal],.reveal{opacity:1!important;transform:none!important}
+      [data-line] > *,[data-words] .w > span{transform:none!important}
+      [data-line]{overflow:visible!important}
+      .vmg .vp{stroke-dashoffset:0!important}.vmg .vfill{opacity:1!important;transform:none!important}
+      [data-scrub] .sw{color:var(--ink)!important}
+    </style>
   </noscript>`)}
   <style>${raw(CRITICAL_FONT_CSS)}${raw(DESIGN_TOKENS)}</style>
   ${raw(jsonLdBlocks)}

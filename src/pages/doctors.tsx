@@ -10,7 +10,9 @@ const DOC_CSS = `
 .d-hero .sub{color:var(--inv-soft);font-size:1.12rem;max-width:620px;margin-top:16px}
 .breadcrumb{font-size:.78rem;letter-spacing:.12em;color:var(--inv-faint);margin-bottom:22px}
 .breadcrumb a{color:var(--inv-faint)}.breadcrumb a:hover{color:var(--gold-2)}
-.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:26px}
+.doc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;justify-content:center}
+@media(max-width:980px){.doc-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.doc-grid{grid-template-columns:1fr}}
 .doc-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:all .4s var(--ease)}
 .doc-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
 .doc-card img{width:100%;aspect-ratio:4/5;object-fit:cover}
