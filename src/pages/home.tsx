@@ -163,15 +163,6 @@ export function HomePage() {
     .all-card strong{display:block;font-size:1.1rem;color:var(--navy);margin-bottom:2px}
     .all-card .desc{font-size:.9rem;color:var(--ink-soft)}
 
-    /* ====================== 이전 안내 바 ====================== */
-    .relocate{background:linear-gradient(100deg,var(--navy-2),var(--navy));color:var(--inv);border-bottom:1px solid rgba(201,154,82,.22)}
-    .relocate-inner{display:flex;align-items:center;gap:18px;padding:13px 0;flex-wrap:wrap}
-    .relocate .rl-tag{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--navy);background:var(--gold-2);padding:5px 11px;border-radius:7px;flex:none}
-    .relocate p{margin:0;font-size:.95rem;color:var(--inv-soft);line-height:1.5}
-    .relocate p b{color:var(--inv);font-weight:700}
-    .relocate a{margin-left:auto;font-family:var(--mono);font-size:.78rem;letter-spacing:.05em;color:var(--gold-2);font-weight:600;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transition:gap .3s var(--ease)}
-    .relocate a:hover{gap:11px}
-
     /* ====================== 보유 장비 ====================== */
     .equip{background:var(--bg-soft)}
     .equip-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--line)}
@@ -261,15 +252,6 @@ export function HomePage() {
       .equip-card,.equip-card:nth-child(odd){border-right:none;padding-right:0;margin-right:0;padding:24px 0}
     }
   </style>
-
-  <!-- ============ 이전 안내 ============ -->
-  <section class="relocate">
-    <div class="wrap relocate-inner">
-      <span class="rl-tag">NEW</span>
-      <p>이솔치과의원이 <b>${CLINIC.addressShort}</b> 새 공간으로 이전, <b>6월 22일부터 진료를 시작합니다</b>. 더 넓고 쾌적한 공간에서 맞이하겠습니다.</p>
-      <a href="/directions">오시는 길 <i class="fas fa-arrow-right"></i></a>
-    </div>
-  </section>
 
   <!-- ============ HERO = PROLOGUE (책의 표지) ============ -->
   <section class="hero" id="ch-hero">
