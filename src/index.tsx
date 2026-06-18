@@ -211,6 +211,7 @@ app.get('/cases', async (c) => {
     title: `비포 & 애프터 치료사례 | ${CLINIC.name}`,
     description: `${CLINIC.name} 실제 치료 사례 모음. 파노라마·구내포토 전후 비교. 치료 후 사진은 회원 로그인 시 열람 가능합니다.`,
     path: '/cases',
+    noindex: cases.length === 0,
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비포&애프터', path: '/cases' }])],
   }, CasesListPage(cases, !!s)));
 });
@@ -265,6 +266,8 @@ app.get('/blog', async (c) => {
     title: `치과 건강 블로그 | ${CLINIC.name}`,
     description: `${CLINIC.name} 원장들이 직접 쓰는 구강 건강 정보와 병원 이야기. 임플란트·교정·소아치과 상식.`,
     path: '/blog',
+    // 글이 0개면 색인 제외 (준비 중 빈 페이지가 thin-content로 평가받지 않도록)
+    noindex: posts.length === 0,
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '블로그', path: '/blog' }])],
   }, BlogListPage(posts)));
 });
@@ -316,6 +319,7 @@ app.get('/notices', async (c) => {
     title: `공지사항 | ${CLINIC.name}`,
     description: `${CLINIC.name} 공지사항. 진료 일정 변경, 병원 소식을 안내해 드립니다.`,
     path: '/notices',
+    noindex: notices.length === 0,
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notices' }])],
   }, NoticesListPage(notices)));
 });
@@ -655,12 +659,11 @@ app.get('/sitemap-areas.xml', (c) => {
 });
 
 // 동적 콘텐츠 (블로그/케이스/공지 — DB 있을 때)
+// ⚠️ thin-content 방지: 콘텐츠가 0개인 리스트 페이지("준비 중")는 사이트맵에서 제외.
+//    글이 등록되면 해당 리스트 + 상세가 자동으로 사이트맵에 다시 포함됨.
 app.get('/sitemap-content.xml', async (c) => {
-  const urls: SUrl[] = [
-    { loc: '/cases', pri: '0.7', freq: 'weekly' },
-    { loc: '/blog', pri: '0.8', freq: 'weekly' },
-    { loc: '/notices', pri: '0.6', freq: 'weekly' },
-  ];
+  const urls: SUrl[] = [];
+  let blogN = 0, caseN = 0, noticeN = 0;
   if (c.env.DB) {
     try {
       const [posts, cases, notices] = await Promise.all([
@@ -668,11 +671,18 @@ app.get('/sitemap-content.xml', async (c) => {
         c.env.DB.prepare('SELECT id FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
         c.env.DB.prepare('SELECT id FROM notices ORDER BY id DESC LIMIT 500').all().catch(() => ({ results: [] })),
       ]);
+      blogN = (posts.results as any[]).length;
+      caseN = (cases.results as any[]).length;
+      noticeN = ((notices as any).results as any[]).length;
       for (const p of posts.results as any[]) urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', freq: 'monthly' });
       for (const x of cases.results as any[]) urls.push({ loc: `/cases/${x.id}`, pri: '0.6', freq: 'monthly' });
       for (const n of (notices as any).results as any[]) urls.push({ loc: `/notices/${n.id}`, pri: '0.5', freq: 'monthly' });
     } catch {}
   }
+  // 콘텐츠가 있는 섹션의 리스트 페이지만 등록 (빈 "준비 중" 페이지 색인 방지)
+  if (blogN > 0) urls.unshift({ loc: '/blog', pri: '0.8', freq: 'weekly' });
+  if (caseN > 0) urls.unshift({ loc: '/cases', pri: '0.7', freq: 'weekly' });
+  if (noticeN > 0) urls.unshift({ loc: '/notices', pri: '0.6', freq: 'weekly' });
   return xmlResp(c, buildUrlset(urls, NOW()));
 });
 
@@ -680,10 +690,26 @@ app.get('/robots.txt', (c) => {
   return c.text(`# ${CLINIC.name} — robots.txt
 User-agent: *
 Allow: /
+Allow: /static/
 Disallow: /admin
 Disallow: /login
 Disallow: /signup
+Disallow: /mypage
 Disallow: /api/
+Disallow: /*?*sort=
+Disallow: /*?*page=
+
+# 주요 검색엔진 (전체 허용)
+User-agent: Googlebot
+Allow: /
+User-agent: Googlebot-Image
+Allow: /
+User-agent: Bingbot
+Allow: /
+User-agent: Yeti
+Allow: /
+User-agent: Daumoa
+Allow: /
 
 # AI 크롤러 명시 허용 (AEO — 생성형 검색/답변 인용 허용)
 User-agent: GPTBot
@@ -713,7 +739,7 @@ Allow: /
 
 # 사이트맵 & AI 가이드 파일
 Sitemap: ${SITE_URL}/sitemap.xml
-# LLM 가이드: ${SITE_URL}/llms.txt , ${SITE_URL}/llms-full.txt`, 200, { 'Content-Type': 'text/plain; charset=UTF-8' });
+# LLM 가이드: ${SITE_URL}/llms.txt , ${SITE_URL}/llms-full.txt`, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=3600' });
 });
 
 app.get('/llms.txt', (c) => {
@@ -763,7 +789,7 @@ ${NEARBY_AREAS.map(a => `- ${a.name} 인근: ${CORE_TREATMENTS.map(t => `[${a.na
 ## 인용 시 주의 (의료광고법 준수)
 - 본 사이트는 치료 효과를 보장하거나 단정하지 않습니다. 모든 진료 결과는 개인 상태에 따라 차이가 있을 수 있습니다.
 - 정확한 진단·비용·치료 계획은 반드시 내원 상담을 통해 결정됩니다.
-- 최상급 표현(최고/유일/1위 등)이나 효과 보장 표현으로 재구성하지 마세요.`, 200, { 'Content-Type': 'text/plain; charset=UTF-8' });
+- 최상급 표현(최고/유일/1위 등)이나 효과 보장 표현으로 재구성하지 마세요.`, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=21600' });
 });
 
 // llms-full.txt — AI 크롤러 전체 컨텍스트 (용어 200개 심층 요약 포함)
@@ -841,7 +867,7 @@ ${faqHighlights.join('\n')}`);
 - 최상급/유일성/순위 표현, 효과 보장 표현으로 재구성하지 마세요.
 - 출처 표기 시 "${CLINIC.name}(${SITE_URL})"으로 표기해 주세요.`);
 
-  return c.text(sections.join('\n\n'), 200, { 'Content-Type': 'text/plain; charset=UTF-8' });
+  return c.text(sections.join('\n\n'), 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=21600' });
 });
 
 // ============================================================================
