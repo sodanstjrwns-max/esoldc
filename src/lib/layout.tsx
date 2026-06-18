@@ -85,6 +85,8 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden}
 input,textarea,select{font-size:16px}
 /* 모바일 탭 시 파란/회색 하이라이트 박스 제거 (커스텀 :active 피드백 사용) */
 a,button,.btn,[role=button]{-webkit-tap-highlight-color:transparent}
+/* iOS 입력폼 포커스 시 자동 줌인 방지: 폰트 16px 이상 보장 */
+input,textarea,select{font-size:16px;font-family:inherit}
 body{
   margin:0;font-family:var(--display);color:var(--ink);
   background:var(--bg);background-image:var(--bg-grad);background-attachment:fixed;
@@ -155,8 +157,8 @@ section{position:relative}
 .burger{display:none;background:none;border:none;font-size:1.5rem;color:var(--navy);cursor:pointer;padding:6px}
 
 /* ── 모바일 메뉴 ── */
-.mobile-menu{position:fixed;inset:0;z-index:1000;background:linear-gradient(160deg,var(--navy),var(--navy-2));padding:90px 32px 40px;display:flex;flex-direction:column;gap:2px;transform:translateX(100%);transition:transform .4s var(--ease);overflow-y:auto}
-.mobile-menu.open{transform:translateX(0)}
+.mobile-menu{position:fixed;inset:0;z-index:1000;background:linear-gradient(160deg,var(--navy),var(--navy-2));padding:90px 32px 40px;display:flex;flex-direction:column;gap:2px;transform:translateX(100%);transition:transform .4s var(--ease),visibility .4s;overflow-y:auto;overflow-x:hidden;visibility:hidden}
+.mobile-menu.open{transform:translateX(0);visibility:visible}
 .mobile-menu a{display:block;color:var(--inv);font-size:1.3rem;font-weight:700;padding:15px 0;border-bottom:1px solid rgba(250,245,236,.14)}
 .mobile-menu .close{position:absolute;top:26px;right:28px;background:none;border:none;color:var(--inv);font-size:1.7rem;cursor:pointer}
 
