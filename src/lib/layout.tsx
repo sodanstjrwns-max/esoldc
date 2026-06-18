@@ -80,7 +80,11 @@ em,i,cite,address,dfn,var,blockquote{font-style:normal}
 /* 접근성: 본문 바로가기 (키보드 포커스 시에만 노출) */
 .skip-link{position:absolute;left:-9999px;top:0;z-index:9999;background:var(--navy);color:#fff;padding:12px 20px;border-radius:0 0 10px 0;font-weight:700;text-decoration:none}
 .skip-link:focus{left:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden}
+/* iOS 입력 포커스 시 자동 줌인 방지: 폼 요소 폰트 16px 보장 */
+input,textarea,select{font-size:16px}
+/* 모바일 탭 시 파란/회색 하이라이트 박스 제거 (커스텀 :active 피드백 사용) */
+a,button,.btn,[role=button]{-webkit-tap-highlight-color:transparent}
 body{
   margin:0;font-family:var(--display);color:var(--ink);
   background:var(--bg);background-image:var(--bg-grad);background-attachment:fixed;
