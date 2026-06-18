@@ -86,7 +86,12 @@ body{
   background:var(--bg);background-image:var(--bg-grad);background-attachment:fixed;
   line-height:1.78;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;font-size:17px;letter-spacing:-.01em;
+  /* 한국어 줄바꿈: 단어(어절) 단위 유지 → 단어 중간 끊김 방지. 긴 URL/영문 토큰만 안전 분리 */
+  word-break:keep-all;overflow-wrap:break-word;
 }
+/* 본문 텍스트 요소 전역 한국어 줄바꿈 보강 (제목 외 단락·목록·셀 등) */
+p,li,td,th,dd,dt,figcaption,blockquote,span,a,div{word-break:keep-all;overflow-wrap:break-word}
+/* nowrap·pre-wrap 등 의도된 줄바꿈 제어는 개별 클래스에서 유지됨 */
 h1,h2,h3,h4{font-family:var(--display);line-height:1.18;letter-spacing:-.045em;margin:0;font-weight:800;color:var(--navy);word-break:keep-all}
 h1{font-weight:860;letter-spacing:-.05em}
 h2{font-weight:820;letter-spacing:-.048em}
