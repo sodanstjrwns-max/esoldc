@@ -173,6 +173,7 @@ section{position:relative}
 .float-cta{position:fixed;bottom:24px;right:24px;z-index:700;display:flex;flex-direction:column;gap:12px}
 .float-cta a{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1.3rem;box-shadow:var(--shadow);transition:transform .3s var(--ease)}
 .float-cta a:hover{transform:scale(1.1)}
+.float-cta a:active{transform:scale(.94)}
 .fc-tel{background:var(--navy)}.fc-map{background:var(--navy-3)}.fc-book{background:var(--gold)}
 
 /* ── 스크롤 리빌 (data-reveal = home / .reveal = 기타 페이지 호환) ── */
@@ -288,8 +289,21 @@ section{position:relative}
   .nav-cta .btn{display:none}
   .nav{height:66px}
   .footer-grid{grid-template-columns:1fr;gap:28px}
-  .float-cta a{width:52px;height:52px;font-size:1.15rem}
+  /* 좌우 여백 축소 → 본문 폭 확보 */
+  .wrap{padding:0 18px}
+  /* 플로팅 버튼: iOS 홈바/노치 안전영역 반영 + 콘텐츠 겹침 완화 */
+  .float-cta{bottom:calc(16px + env(safe-area-inset-bottom));right:14px;gap:10px}
+  .float-cta a{width:50px;height:50px;font-size:1.12rem}
+  /* 버튼 풀폭 + 최소 터치 높이(48px) */
+  .btn{padding:15px 26px;min-height:48px}
+  .btn-block-m{display:flex;width:100%;justify-content:center}
+  /* 본문 제목 letter-spacing 완화(좁은 화면 가독성) */
+  h1{letter-spacing:-.04em}
+  h2{letter-spacing:-.038em}
+  /* 모바일 메뉴 내부 링크 터치 영역 확보 */
+  .mobile-menu a{min-height:48px;display:flex;align-items:center}
 }
+
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
   [data-reveal]{opacity:1!important;transform:none!important}
