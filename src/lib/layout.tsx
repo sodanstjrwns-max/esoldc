@@ -98,7 +98,13 @@ body{
 /* 본문 텍스트 요소 전역 한국어 줄바꿈 보강 (제목 외 단락·목록·셀 등) */
 p,li,td,th,dd,dt,figcaption,blockquote,span,a,div{word-break:keep-all;overflow-wrap:break-word}
 /* nowrap·pre-wrap 등 의도된 줄바꿈 제어는 개별 클래스에서 유지됨 */
-h1,h2,h3,h4{font-family:var(--display);line-height:1.18;letter-spacing:-.045em;margin:0;font-weight:800;color:var(--navy);word-break:keep-all}
+/* 줄바꿈 묶음 유틸: 의미 단위(예: "온 가족 진료")가 줄 끝에서 쪼개지지 않도록 */
+.nowrap{white-space:nowrap}
+/* .nb = 의미 단위 묶음. inline-block으로 한 덩어리 취급 → 구(句) 내부에서는 줄이 안 끊기고,
+   덩어리째 다음 줄로 내려감. 강조 em·평문 어디에든 감싸 사용. */
+.nb{display:inline-block;white-space:nowrap}
+/* 제목 자동 줄 균형: 마지막 줄에 단어 하나만 떨어지는 어색한 줄바꿈 방지 */
+h1,h2,h3,h4{font-family:var(--display);line-height:1.18;letter-spacing:-.045em;margin:0;font-weight:800;color:var(--navy);word-break:keep-all;text-wrap:balance;text-wrap:pretty}
 h1{font-weight:860;letter-spacing:-.05em}
 h2{font-weight:820;letter-spacing:-.048em}
 h3,h4{font-weight:700;letter-spacing:-.035em}

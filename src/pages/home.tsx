@@ -259,10 +259,10 @@ export function HomePage() {
       <div class="hero-kicker" data-reveal><span>남양주 마석 · <b>EST. ${CLINIC.established}</b> · 우리 가족 치과 주치의</span></div>
       <h1 class="hero-display">
         <span data-line data-line-d="1"><span>기분 좋게</span></span>
-        <span data-line data-line-d="2"><span><span class="accent-wrap"><span class="accent">진료를 마칠</span>${raw(`
+        <span data-line data-line-d="2"><span><span class="accent-wrap"><span class="accent nb">진료를 마칠</span>${raw(`
           <svg class="vmg accent-swash" viewBox="0 0 300 26" fill="none" preserveAspectRatio="none" aria-hidden="true">
             <path class="vp vp2" pathLength="1" d="M6 16 C 70 24, 150 4, 230 12 C 258 15, 280 13, 294 10" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity=".85"/>
-          </svg>`)}</span> 때까지</span></span>
+          </svg>`)}</span> <span class="nb">때까지</span></span></span>
       </h1>
       <p class="hero-sub" data-words>
         치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며, 충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
@@ -292,7 +292,7 @@ export function HomePage() {
       <div class="hero-meta-m" data-reveal data-reveal-d="4">
         <div class="hm"><b>10년째</b><span>한자리에서</span></div>
         <div class="hm"><b>5인</b><span>상주 의료진</span></div>
-        <div class="hm"><b>전 연령</b><span>온 가족 진료</span></div>
+        <div class="hm"><b>전 연령</b><span class="nb">온 가족 진료</span></div>
       </div>
       <div class="hero-scroll" aria-hidden="true" data-reveal data-reveal-d="5">
         <span>Prologue · Scroll</span>
@@ -355,7 +355,7 @@ export function HomePage() {
       <span class="folio-num" aria-hidden="true">02</span>
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">두 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Core Treatments</span></span>
-        <h2 data-line><span>가장 <em>집중하는</em> 세 가지</span></h2>
+        <h2 data-line><span>가장 <em class="nb">집중하는</em> <span class="nb">세 가지</span></span></h2>
         <p>임플란트·치아교정·소아치과를 중심으로, 각 분야 전문의가 책임지고 진료합니다.</p>
       </div>
       <div class="core-list">
@@ -387,7 +387,7 @@ export function HomePage() {
       <span class="folio-num" aria-hidden="true">03</span>
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">세 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Why ISOL</span></span>
-        <h2 data-line><span>오래 다녀도 <em>편안한</em> 이유</span></h2>
+        <h2 data-line><span>오래 다녀도 <span class="nb"><em>편안한</em> 이유</span></span></h2>
       </div>
       <div class="why-grid">
         <div class="why-card" data-reveal data-reveal-d="1">
@@ -429,7 +429,7 @@ export function HomePage() {
       <span class="folio-num" aria-hidden="true">04</span>
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">네 번째 이야기</span><span class="ch-line"></span><span class="ch-name">All Care</span></span>
-        <h2 data-line><span>한곳에서 받는 <em>온 가족</em> 진료</span></h2>
+        <h2 data-line><span>한곳에서 받는 <em class="nb">온 가족 진료</em></span></h2>
         <p>핵심 진료 외에도 일상적인 구강 건강 관리를 폭넓게 돌봅니다.</p>
       </div>
       <div class="all-grid">
@@ -454,7 +454,7 @@ export function HomePage() {
       </svg>
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">다섯 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Diagnosis</span></span>
-        <h2 data-line><span>3대가 함께 <em>믿고 맡기는</em> 이유</span></h2>
+        <h2 data-line><span>3대가 함께 <span class="nb"><em>믿고 맡기는</em> 이유</span></span></h2>
         <p>${CLINIC.subSlogan}. 정밀한 진단 장비로 보이지 않는 부분까지 꼼꼼히 살핍니다.</p>
       </div>
       <div class="equip-grid">
@@ -486,7 +486,7 @@ export function HomePage() {
       <span class="folio-num" aria-hidden="true">06</span>
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">여섯 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Specialists</span></span>
-        <h2 data-line><span>각 분야 <em>전문의</em>가 상주합니다</span></h2>
+        <h2 data-line><span>각 분야 <span class="nb"><em>전문의</em>가 상주합니다</span></span></h2>
         <p>대표원장이 진단의 중심을 잡고, 케이스에 따라 교정·소아·보철·통합 각 분야 전문의가 이어받는 분과별 협진. 다섯 명의 원장이 한 명의 환자를 함께 봅니다.</p>
       </div>
       <div class="team-grid">
@@ -509,7 +509,7 @@ export function HomePage() {
     <div class="wrap">
       <div class="sec-head center" data-reveal>
         <span class="mono-lbl"><span class="num">/07</span> 진료 가능 지역</span>
-        <h2 data-line><span>마석 인근에서 <em>편하게</em> 오세요</span></h2>
+        <h2 data-line><span>마석 인근에서 <span class="nb"><em>편하게</em> 오세요</span></span></h2>
         <p>마석을 중심으로 화도·남양주·가평 등 인근 지역에서 찾아주십니다.</p>
       </div>
       <div class="geo-chips" data-reveal>
@@ -533,7 +533,7 @@ export function HomePage() {
     <div class="wrap">
       <div class="epi" data-reveal>
         <span class="epi-fin">Epilogue · 그리고, 당신의 이야기</span>
-        <h2>이 이야기의 다음 장은<br><em>당신의 미소</em>입니다</h2>
+        <h2>이 이야기의 다음 장은<br><span class="nb"><em>당신의 미소</em>입니다</span></h2>
         <p class="epi-copy">궁금한 점은 전화로 편하게 물어보세요. 온라인 예약 문의도 가능합니다. 기분 좋게 진료를 마치실 때까지, 처음부터 끝까지 함께하겠습니다.</p>
         <div class="cta-actions">
           <a href="tel:${CLINIC.tel}" class="btn btn-accent"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
