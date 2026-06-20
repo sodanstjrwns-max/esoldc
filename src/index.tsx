@@ -9,6 +9,7 @@ import {
   articleSchema,
 } from './lib/seo';
 import { HomePage } from './pages/home';
+import { fetchActivePopup, renderPopup } from './lib/popup';
 import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
 import { DoctorsListPage, DoctorDetailPage } from './pages/doctors';
 import {
@@ -48,12 +49,14 @@ app.route('/admin', adminContent);
 // ============================================================================
 // 메인
 // ============================================================================
-app.get('/', (c) => {
+app.get('/', async (c) => {
+  const popup = renderPopup(await fetchActivePopup(c.env.DB));
   return c.html(Layout({
     title: `${CLINIC.name} | 남양주 마석 임플란트·교정·소아치과`,
     description: `남양주 마석 ${CLINIC.name}. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과. 임플란트·치아교정·소아치과 전 연령 통합 진료. 기분 좋게 진료를 마칠 때까지.`,
     path: '/',
     jsonLd: [],
+    extraBody: popup,
   }, HomePage()));
 });
 

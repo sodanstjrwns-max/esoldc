@@ -81,6 +81,31 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
 .editor-body img{max-width:100%;border-radius:10px;margin:8px 0}
 .editor-body.dragover{outline:3px dashed var(--gold)}
 .drop-hint{font-size:.78rem;color:var(--ink-soft);margin-top:6px}
+/* 토글 스위치 */
+.switch{position:relative;display:inline-block;width:48px;height:26px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;inset:0;background:#cbc0ad;border-radius:99px;transition:.25s;cursor:pointer}
+.switch .slider:before{content:"";position:absolute;height:20px;width:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked+.slider{background:var(--gold)}
+.switch input:checked+.slider:before{transform:translateX(22px)}
+.switch.sm{width:38px;height:21px}.switch.sm .slider:before{height:15px;width:15px}.switch.sm input:checked+.slider:before{transform:translateX(17px)}
+/* 팝업 미리보기 */
+.preview-wrap{margin-top:20px;border-top:1px dashed var(--line);padding-top:18px}
+.preview-label{font-size:.8rem;font-weight:700;color:var(--ink-soft);margin-bottom:10px}
+.preview-label i{color:var(--gold);margin-right:6px}
+.preview-stage{background:linear-gradient(135deg,#efe6d4,#f7f0e1);border-radius:14px;padding:30px 16px;display:flex;justify-content:center;min-height:180px;align-items:center}
+.pv-popup{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(62,44,31,.28);width:300px;text-align:left;position:relative;border:1px solid var(--line)}
+.pv-popup.pv-sm{width:240px}.pv-popup.pv-lg{width:380px}
+.pv-popup .pv-x{position:absolute;top:10px;right:10px;width:30px;height:30px;border:none;border-radius:50%;background:rgba(255,255,255,.85);color:var(--navy);font-size:1.2rem;cursor:pointer;z-index:2;line-height:1}
+.pv-img img{width:100%;display:block;max-height:200px;object-fit:cover}
+.pv-body{padding:20px}
+.pv-tag{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:.12em;color:var(--gold);background:var(--gold-soft);padding:4px 10px;border-radius:99px;margin-bottom:10px}
+.pv-body h4{font-size:1.15rem;color:var(--navy);margin:0 0 8px;line-height:1.3;word-break:keep-all}
+.pv-content{font-size:.82rem;color:var(--ink-soft);line-height:1.6;max-height:90px;overflow:hidden}
+.pv-content h3{font-size:.9rem;margin:.4em 0}.pv-content p{margin:.3em 0}
+.pv-actions{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:8px}
+.pv-btn-x{font-size:.74rem;color:var(--ink-soft);text-decoration:underline;cursor:default}
+.pv-btn-go{font-size:.8rem;font-weight:700;color:#fff;background:var(--navy);padding:8px 14px;border-radius:10px}
 @media(max-width:760px){.row2,.row3{grid-template-columns:1fr}.adm-top nav{font-size:.8rem}}
 `;
 
@@ -139,13 +164,44 @@ document.getElementById('af').addEventListener('submit',async function(e){
   }
   // 대시보드
   const db = c.env.DB!;
-  const [members, cases, posts, notices, reservations] = await Promise.all([
+  const today = new Date().toISOString().slice(0, 10);
+  const [members, cases, posts, notices, reservations, activePopup, recentRes] = await Promise.all([
     db.prepare('SELECT COUNT(*) n FROM members').first<any>(),
     db.prepare('SELECT COUNT(*) n, COALESCE(SUM(views),0) v FROM cases').first<any>(),
     db.prepare('SELECT COUNT(*) n, COALESCE(SUM(views),0) v FROM posts').first<any>(),
     db.prepare('SELECT COUNT(*) n, COALESCE(SUM(views),0) v FROM notices').first<any>(),
     db.prepare('SELECT COUNT(*) n FROM reservations').first<any>(),
+    db.prepare(`SELECT id, title, popup_start, popup_end FROM notices
+      WHERE published=1 AND is_popup=1
+        AND (popup_start IS NULL OR popup_start <= ?) AND (popup_end IS NULL OR popup_end >= ?)
+      ORDER BY id DESC LIMIT 1`).bind(today, today).first<any>().catch(() => null),
+    db.prepare('SELECT name, phone, treatment, created_at FROM reservations ORDER BY id DESC LIMIT 5').all().catch(() => ({ results: [] })),
   ]);
+
+  const popupCard = activePopup
+    ? `<div class="card" style="background:linear-gradient(135deg,#fbf4e6,#fff);border:2px solid var(--gold-soft)">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span style="font-size:1.6rem">🟢</span>
+          <div style="flex:1;min-width:180px">
+            <div style="font-weight:800;color:var(--navy)">홈 팝업 노출 중</div>
+            <div style="font-size:.88rem;color:var(--ink-soft);margin-top:2px">"${esc(activePopup.title)}" · ${activePopup.popup_start || '즉시'} ~ ${activePopup.popup_end || '무기한'}</div>
+          </div>
+          <a href="/admin/notices/${activePopup.id}" class="btn btn-o btn-sm">편집</a>
+          <a href="/" target="_blank" class="btn btn-g btn-sm"><i class="fas fa-eye"></i> 확인</a>
+        </div>
+      </div>`
+    : `<div class="card" style="border:1px dashed var(--line)">
+        <div style="display:flex;align-items:center;gap:12px;color:var(--ink-soft)">
+          <span style="font-size:1.4rem">⚪</span>
+          <div style="flex:1">현재 홈 화면에 노출 중인 팝업이 없습니다.</div>
+          <a href="/admin/notices/new" class="btn btn-o btn-sm"><i class="fas fa-plus"></i> 팝업 공지 만들기</a>
+        </div>
+      </div>`;
+
+  const resRows = ((recentRes as any).results as any[] || []).map(r => `
+    <tr><td><strong>${esc(r.name)}</strong></td><td>${esc(r.phone)}</td><td>${esc(r.treatment || '-')}</td>
+    <td style="font-size:.8rem;color:var(--ink-soft)">${(r.created_at || '').slice(0, 16).replace('T', ' ')}</td></tr>`).join('');
+
   return c.html(adminShell('대시보드', 'dash', `
   <h1>대시보드</h1><p class="sub">사이트 현황을 한눈에 확인하세요.</p>
   <div class="stat-grid">
@@ -155,6 +211,7 @@ document.getElementById('af').addEventListener('submit',async function(e){
     <div class="stat"><div class="n">${notices?.n ?? 0}</div><div class="l">공지사항 (조회 ${notices?.v ?? 0})</div></div>
     <div class="stat"><div class="n">${reservations?.n ?? 0}</div><div class="l">예약 문의</div></div>
   </div>
+  ${popupCard}
   <div class="card">
     <h3 style="margin-bottom:12px">빠른 작업</h3>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -162,6 +219,16 @@ document.getElementById('af').addEventListener('submit',async function(e){
       <a href="/admin/posts/new" class="btn btn-g"><i class="fas fa-pen"></i> 블로그 작성</a>
       <a href="/admin/notices/new" class="btn btn-g"><i class="fas fa-bullhorn"></i> 공지 작성</a>
       <a href="/" class="btn btn-o" target="_blank"><i class="fas fa-external-link-alt"></i> 사이트 보기</a>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h3 style="margin:0">최근 예약 문의</h3>
+      <a href="/admin/reservations" style="font-size:.84rem;font-weight:700;color:var(--gold)">전체 보기 →</a>
+    </div>
+    <div style="overflow-x:auto">
+      <table><thead><tr><th>성함</th><th>연락처</th><th>희망진료</th><th>접수일</th></tr></thead>
+      <tbody>${resRows || '<tr><td colspan="4" style="text-align:center;color:var(--ink-soft);padding:24px">아직 접수된 문의가 없습니다.</td></tr>'}</tbody></table>
     </div>
   </div>`));
 });

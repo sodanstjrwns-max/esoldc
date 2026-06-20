@@ -10,6 +10,7 @@ export interface SeoMeta {
   type?: string;
   jsonLd?: object[];     // 추가 구조화 데이터
   noindex?: boolean;
+  extraBody?: any;       // body 끝에 삽입할 추가 마크업 (예: 홈 히어로 팝업)
 }
 
 // ============================================================================

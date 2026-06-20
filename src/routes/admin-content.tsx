@@ -345,27 +345,60 @@ function postForm(x: any): string {
 adminContent.get('/notices', async (c) => {
   if (!(await requireAdmin(c))) return c.redirect('/admin');
   const db = c.env.DB!;
-  const { results } = await db.prepare('SELECT id, title, is_pinned, views, published, created_at FROM notices ORDER BY is_pinned DESC, id DESC LIMIT 300').all();
-  const rows = (results as any[]).map(x => `<tr>
+  const { results } = await db.prepare('SELECT id, title, is_pinned, views, published, is_popup, popup_start, popup_end, created_at FROM notices ORDER BY is_pinned DESC, id DESC LIMIT 300').all();
+  const today = new Date().toISOString().slice(0, 10);
+  const rows = (results as any[]).map(x => {
+    // 팝업 노출 상태 판정
+    let popupLabel = '';
+    if (x.is_popup) {
+      const started = !x.popup_start || x.popup_start <= today;
+      const notEnded = !x.popup_end || x.popup_end >= today;
+      const live = x.published && started && notEnded;
+      const range = (x.popup_start || x.popup_end)
+        ? `<span style="font-size:.72rem;color:var(--ink-soft);display:block;margin-top:2px">${x.popup_start || '즉시'} ~ ${x.popup_end || '무기한'}</span>` : '';
+      popupLabel = live
+        ? `<span class="badge" style="background:#e6f4ea;color:#2e7d4f">● 노출중</span>${range}`
+        : `<span class="badge" style="background:#fff3e0;color:#b07000">● 대기/만료</span>${range}`;
+    } else {
+      popupLabel = '<span style="color:var(--ink-soft);font-size:.8rem">—</span>';
+    }
+    return `<tr>
     <td>${x.id}</td>
     <td>${x.is_pinned ? '<span class="badge pin">📌 고정</span> ' : ''}<strong>${esc(x.title)}</strong></td>
     <td>${x.views}</td>
     <td><span class="badge ${x.published ? 'on' : 'off'}">${x.published ? '공개' : '비공개'}</span></td>
+    <td style="min-width:110px">
+      <label class="switch sm" title="홈 팝업 즉시 ON/OFF"><input type="checkbox" ${x.is_popup ? 'checked' : ''} onchange="togglePopup(${x.id},this)"><span class="slider"></span></label>
+      <div style="margin-top:4px">${popupLabel}</div>
+    </td>
     <td style="font-size:.8rem;color:var(--ink-soft)">${(x.created_at || '').slice(0, 10)}</td>
     <td style="white-space:nowrap">
       <a href="/admin/notices/${x.id}" class="btn btn-o btn-sm">수정</a>
       <button class="btn btn-d btn-sm" onclick="delItem('notices',${x.id})">삭제</button>
-    </td></tr>`).join('');
+    </td></tr>`;
+  }).join('');
   return c.html(adminShell('공지사항', 'notices', `
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
     <h1>공지사항</h1>
     <a href="/admin/notices/new" class="btn btn-g"><i class="fas fa-bullhorn"></i> 새 공지 작성</a>
   </div>
-  <p class="sub">📌 고정 공지는 목록 최상단에 항상 표시됩니다.</p>
+  <p class="sub">📌 고정 공지는 목록 최상단에 표시됩니다. · <i class="fas fa-window-restore" style="color:var(--gold)"></i> 홈팝업 스위치로 즉시 켜고 끌 수 있어요. (노출중인 팝업이 여러 개면 가장 최근 공지 하나만 표시)</p>
   <div class="card" style="overflow-x:auto">
-    <table><thead><tr><th>ID</th><th>제목</th><th>조회수</th><th>상태</th><th>작성일</th><th></th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="6" style="text-align:center;color:var(--ink-soft);padding:30px">작성된 공지가 없습니다.</td></tr>'}</tbody></table>
+    <table><thead><tr><th>ID</th><th>제목</th><th>조회</th><th>상태</th><th>홈 팝업</th><th>작성일</th><th></th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="7" style="text-align:center;color:var(--ink-soft);padding:30px">작성된 공지가 없습니다.</td></tr>'}</tbody></table>
   </div>
+  <script>
+  async function togglePopup(id,el){
+    el.disabled=true;
+    try{
+      var r=await fetch('/admin/api/notices/'+id+'/toggle-popup',{method:'POST'});
+      var j=await r.json();
+      if(!j.ok){el.checked=!el.checked;alert(j.error||'변경 실패');}
+      else{location.reload();}
+    }catch(e){el.checked=!el.checked;alert('네트워크 오류');}
+    el.disabled=false;
+  }
+  </script>
   ${DEL_SCRIPT}`));
 });
 
@@ -383,16 +416,17 @@ adminContent.get('/notices/:id', async (c) => {
 
 function noticeForm(x: any): string {
   const isEdit = !!x;
+  const sz = (x && x.popup_size) || 'md';
   return `
   <h1>${isEdit ? '공지 수정' : '새 공지 작성'}</h1>
   <div class="card">
     <label>제목 *</label>
-    <input type="text" id="f-title" value="${x ? esc(x.title) : ''}" placeholder="공지 제목">
+    <input type="text" id="f-title" value="${x ? esc(x.title) : ''}" placeholder="공지 제목" oninput="syncPreview()">
     <label>사진 (선택)</label>
     <div style="display:flex;gap:8px;align-items:center">
       <input type="text" id="f-img" value="${x && x.image ? esc(x.image) : ''}" placeholder="사진 업로드 (선택)" readonly style="flex:1">
       <button class="btn btn-o btn-sm" onclick="document.getElementById('n-file').click()">업로드</button>
-      <button class="btn btn-d btn-sm" onclick="document.getElementById('f-img').value=''">제거</button>
+      <button class="btn btn-d btn-sm" onclick="document.getElementById('f-img').value='';syncPreview()">제거</button>
       <input type="file" id="n-file" accept="image/*" style="display:none" onchange="uploadN(this)">
     </div>
     <label>내용 *</label>
@@ -401,30 +435,107 @@ function noticeForm(x: any): string {
       <button onclick="fmt('bold')"><b>B</b></button>
       <button onclick="fmt('insertUnorderedList')">• 목록</button>
     </div>
-    <div class="editor-body" id="editor" contenteditable="true" style="min-height:200px">${x ? x.content_html : '<p>공지 내용을 작성하세요...</p>'}</div>
-    <div class="row3" style="margin-top:18px;align-items:center">
+    <div class="editor-body" id="editor" contenteditable="true" style="min-height:200px" oninput="syncPreview()">${x ? x.content_html : '<p>공지 내용을 작성하세요...</p>'}</div>
+    <div class="row2" style="margin-top:18px;align-items:center">
       <label style="margin:0"><input type="checkbox" id="f-pin" ${x && x.is_pinned ? 'checked' : ''} style="width:auto;margin-right:8px;accent-color:var(--gold)">📌 대장 공지로 고정</label>
       <label style="margin:0"><input type="checkbox" id="f-pub" ${!x || x.published ? 'checked' : ''} style="width:auto;margin-right:8px;accent-color:var(--gold)">사이트에 공개</label>
-      <div style="text-align:right"><button class="btn btn-p" onclick="saveNotice(${isEdit ? x.id : 'null'})"><i class="fas fa-save"></i> 저장</button></div>
     </div>
-    <div class="msg" id="m"></div>
   </div>
+
+  <!-- ===== 히어로 팝업 설정 ===== -->
+  <div class="card" style="border:2px solid var(--gold-soft)">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <h3 style="margin:0"><i class="fas fa-window-restore" style="color:var(--gold);margin-right:8px"></i>홈 화면 팝업</h3>
+      <label class="switch-lbl" style="margin:0;display:flex;align-items:center;gap:10px;cursor:pointer">
+        <span style="font-size:.85rem;color:var(--ink-soft)">방문자가 홈에 들어오면 팝업으로 띄우기</span>
+        <span class="switch"><input type="checkbox" id="f-popup" ${x && x.is_popup ? 'checked' : ''} onchange="togglePopupBox();syncPreview()"><span class="slider"></span></span>
+      </label>
+    </div>
+    <div id="popup-box" style="margin-top:18px;${x && x.is_popup ? '' : 'display:none'}">
+      <div class="row3">
+        <div>
+          <label>노출 시작일 (선택)</label>
+          <input type="date" id="f-pstart" value="${x && x.popup_start ? esc(x.popup_start) : ''}">
+        </div>
+        <div>
+          <label>노출 종료일 (선택)</label>
+          <input type="date" id="f-pend" value="${x && x.popup_end ? esc(x.popup_end) : ''}">
+        </div>
+        <div>
+          <label>팝업 크기</label>
+          <select id="f-psize" onchange="syncPreview()">
+            <option value="sm" ${sz === 'sm' ? 'selected' : ''}>작게</option>
+            <option value="md" ${sz === 'md' ? 'selected' : ''}>보통</option>
+            <option value="lg" ${sz === 'lg' ? 'selected' : ''}>크게</option>
+          </select>
+        </div>
+      </div>
+      <label>클릭 시 이동 링크 (선택)</label>
+      <input type="text" id="f-link" value="${x && x.link_url ? esc(x.link_url) : ''}" placeholder="비워두면 공지 상세 페이지로 이동 (예: /reservation, https://...)">
+      <p class="drop-hint" style="margin-top:8px"><i class="fas fa-circle-info"></i> 날짜를 비워두면 즉시~무기한 노출됩니다. 활성 팝업이 여러 개면 가장 최근에 등록된 공지 하나만 표시됩니다. 방문자는 "오늘 하루 보지 않기"를 누를 수 있습니다.</p>
+
+      <div class="preview-wrap" id="preview-wrap">
+        <div class="preview-label"><i class="fas fa-eye"></i> 실시간 미리보기</div>
+        <div class="preview-stage">
+          <div class="pv-popup" id="pv-popup">
+            <button class="pv-x">&times;</button>
+            <div class="pv-img" id="pv-img" style="display:none"><img id="pv-img-el" src="" alt=""></div>
+            <div class="pv-body">
+              <span class="pv-tag">NOTICE</span>
+              <h4 id="pv-title">공지 제목</h4>
+              <div class="pv-content" id="pv-content"></div>
+              <div class="pv-actions">
+                <span class="pv-btn-x">오늘 하루 보지 않기</span>
+                <span class="pv-btn-go">자세히 보기 <i class="fas fa-arrow-right"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:6px">
+    <a href="/admin/notices" class="btn btn-o">취소</a>
+    <button class="btn btn-p" onclick="saveNotice(${isEdit ? x.id : 'null'})"><i class="fas fa-save"></i> 저장</button>
+  </div>
+  <div class="msg" id="m"></div>
+
   <script>
-  function fmt(cmd,val){document.execCommand(cmd,false,val||null);document.getElementById('editor').focus();}
+  function fmt(cmd,val){document.execCommand(cmd,false,val||null);document.getElementById('editor').focus();syncPreview();}
+  function togglePopupBox(){document.getElementById('popup-box').style.display=document.getElementById('f-popup').checked?'block':'none';}
+  function syncPreview(){
+    var pop=document.getElementById('pv-popup');
+    var sz=document.getElementById('f-psize').value;
+    pop.className='pv-popup pv-'+sz;
+    document.getElementById('pv-title').textContent=document.getElementById('f-title').value.trim()||'공지 제목';
+    document.getElementById('pv-content').innerHTML=document.getElementById('editor').innerHTML;
+    var img=document.getElementById('f-img').value;
+    var box=document.getElementById('pv-img'),el=document.getElementById('pv-img-el');
+    if(img){box.style.display='block';el.src='/api/img/'+img;}else{box.style.display='none';}
+  }
   async function uploadN(input){
     if(!input.files[0])return;
     var fd=new FormData();fd.append('file',input.files[0]);
     var r=await fetch('/admin/api/upload',{method:'POST',body:fd});var j=await r.json();
-    if(j.ok)document.getElementById('f-img').value=j.key;
+    if(j.ok){document.getElementById('f-img').value=j.key;syncPreview();}
   }
   async function saveNotice(id){
     var m=document.getElementById('m');
+    var pend=document.getElementById('f-pend').value||null;
+    var pstart=document.getElementById('f-pstart').value||null;
+    if(pstart&&pend&&pend<pstart){m.className='msg err';m.textContent='종료일이 시작일보다 빠릅니다.';return;}
     var data={
       title:document.getElementById('f-title').value.trim(),
       content_html:document.getElementById('editor').innerHTML,
       image:document.getElementById('f-img').value||null,
       is_pinned:document.getElementById('f-pin').checked?1:0,
-      published:document.getElementById('f-pub').checked?1:0
+      published:document.getElementById('f-pub').checked?1:0,
+      is_popup:document.getElementById('f-popup').checked?1:0,
+      popup_start:pstart,
+      popup_end:pend,
+      popup_size:document.getElementById('f-psize').value,
+      link_url:document.getElementById('f-link').value.trim()||null
     };
     if(!data.title){m.className='msg err';m.textContent='제목을 입력해 주세요.';return;}
     var url=id?'/admin/api/notices/'+id:'/admin/api/notices';
@@ -433,6 +544,7 @@ function noticeForm(x: any): string {
     if(j.ok){m.className='msg ok';m.textContent='저장되었습니다!';setTimeout(function(){location.href='/admin/notices';},700);}
     else{m.className='msg err';m.textContent=j.error||'저장 실패';}
   }
+  syncPreview();
   </script>`;
 }
 
@@ -510,22 +622,38 @@ adminContent.delete('/api/posts/:id', async (c) => {
 });
 
 // ---- notices CRUD ----
+const SIZES = ['sm', 'md', 'lg'];
+function normSize(s: any): string { return SIZES.includes(s) ? s : 'md'; }
+function normDate(d: any): string | null { return (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) ? d : null; }
+
 adminContent.post('/api/notices', async (c) => {
   if (!(await requireAdmin(c))) return c.json({ ok: false }, 403);
   const b = await c.req.json();
-  await c.env.DB!.prepare(`INSERT INTO notices (title, content_html, image, is_pinned, published) VALUES (?,?,?,?,?)`)
-    .bind(b.title, b.content_html || '', b.image ?? null, b.is_pinned ? 1 : 0, b.published ? 1 : 0).run();
+  await c.env.DB!.prepare(`INSERT INTO notices (title, content_html, image, is_pinned, published, is_popup, popup_start, popup_end, popup_size, link_url) VALUES (?,?,?,?,?,?,?,?,?,?)`)
+    .bind(b.title, b.content_html || '', b.image ?? null, b.is_pinned ? 1 : 0, b.published ? 1 : 0,
+      b.is_popup ? 1 : 0, normDate(b.popup_start), normDate(b.popup_end), normSize(b.popup_size), b.link_url ?? null).run();
   return c.json({ ok: true });
 });
 adminContent.put('/api/notices/:id', async (c) => {
   if (!(await requireAdmin(c))) return c.json({ ok: false }, 403);
   const b = await c.req.json();
-  await c.env.DB!.prepare(`UPDATE notices SET title=?, content_html=?, image=?, is_pinned=?, published=?, updated_at=datetime('now') WHERE id=?`)
-    .bind(b.title, b.content_html || '', b.image ?? null, b.is_pinned ? 1 : 0, b.published ? 1 : 0, c.req.param('id')).run();
+  await c.env.DB!.prepare(`UPDATE notices SET title=?, content_html=?, image=?, is_pinned=?, published=?, is_popup=?, popup_start=?, popup_end=?, popup_size=?, link_url=?, updated_at=datetime('now') WHERE id=?`)
+    .bind(b.title, b.content_html || '', b.image ?? null, b.is_pinned ? 1 : 0, b.published ? 1 : 0,
+      b.is_popup ? 1 : 0, normDate(b.popup_start), normDate(b.popup_end), normSize(b.popup_size), b.link_url ?? null, c.req.param('id')).run();
   return c.json({ ok: true });
 });
 adminContent.delete('/api/notices/:id', async (c) => {
   if (!(await requireAdmin(c))) return c.json({ ok: false }, 403);
   await c.env.DB!.prepare('DELETE FROM notices WHERE id = ?').bind(c.req.param('id')).run();
   return c.json({ ok: true });
+});
+// 팝업 ON/OFF 즉시 토글 (목록에서)
+adminContent.post('/api/notices/:id/toggle-popup', async (c) => {
+  if (!(await requireAdmin(c))) return c.json({ ok: false }, 403);
+  const id = c.req.param('id');
+  const cur = await c.env.DB!.prepare('SELECT is_popup FROM notices WHERE id = ?').bind(id).first<any>();
+  if (!cur) return c.json({ ok: false, error: '공지를 찾을 수 없습니다.' }, 404);
+  const next = cur.is_popup ? 0 : 1;
+  await c.env.DB!.prepare(`UPDATE notices SET is_popup=?, updated_at=datetime('now') WHERE id=?`).bind(next, id).run();
+  return c.json({ ok: true, is_popup: next });
 });

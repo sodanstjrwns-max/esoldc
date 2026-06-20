@@ -773,6 +773,7 @@ export function Layout(meta: SeoMeta, body: any) {
   ${header()}
   <main id="main-content">${body}</main>
   ${footer()}
+  ${meta.extraBody ? raw(meta.extraBody) : ''}
   <script>${raw(INTERACTION_JS)}</script>
 </body>
 </html>`;
