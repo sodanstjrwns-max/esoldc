@@ -134,7 +134,7 @@ export function TreatmentsListPage() {
 export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] = []) {
   const docs = getDoctorsForTreatment(t.slug);
   const related = TREATMENTS.filter(x => x.slug !== t.slug).slice(0, 5);
-  const areaLinks = t.isCore ? NEARBY_AREAS.slice(0, 5) : [];
+  const areaLinks = t.isCore ? NEARBY_AREAS.slice(0, 8) : [];
 
   return html`
   <style>${raw(TREAT_CSS)}</style>

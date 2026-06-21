@@ -289,7 +289,7 @@ export function areaFaqs(area: NearbyArea, t: Treatment) {
 }
 
 // ============ 지역 허브 페이지 (/area) ============
-export function AreaHubPage() {
+export function AreaHubPage(hubFaqs: { q: string; a: string }[] = []) {
   return html`
   ${raw(PAGE_HERO('지역 안내', '지역별 진료 안내', `${CLINIC.region} ${CLINIC.district} 마석에서, 인근 지역 주민분들을 위한 진료를 안내합니다.`))}
   <style>
@@ -322,6 +322,22 @@ export function AreaHubPage() {
             </div>
           </article>`).join(''))}
       </div>
+
+      ${hubFaqs.length ? html`
+      <div style="margin-top:56px">
+        <h2 style="font-size:1.5rem;color:var(--navy);font-family:var(--serif);margin-bottom:20px;text-align:center">지역 진료 자주 묻는 질문</h2>
+        <div class="area-faq" style="max-width:760px;margin:0 auto">
+          ${raw(hubFaqs.map(f => `<details><summary>${f.q}<i class="fas fa-plus"></i></summary><div class="afb">${f.a}</div></details>`).join(''))}
+        </div>
+      </div>
+      <style>
+        .area-faq details{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px;background:#fff;overflow:hidden}
+        .area-faq summary{padding:18px 22px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--navy)}
+        .area-faq summary::-webkit-details-marker{display:none}
+        .area-faq summary i{color:var(--gold);transition:transform .3s}
+        .area-faq details[open] summary i{transform:rotate(45deg)}
+        .area-faq .afb{padding:0 22px 20px;color:var(--ink-soft);line-height:1.8}
+      </style>` : ''}
 
       <div style="text-align:center;margin-top:52px;background:var(--navy);color:#fff;border-radius:var(--radius-lg);padding:48px">
         <h3 style="font-size:1.5rem;margin-bottom:10px;color:#fff;font-family:var(--serif)">어느 지역에서 오시든 편하게 문의해 주세요</h3>

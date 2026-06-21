@@ -55,7 +55,23 @@ app.get('/', async (c) => {
     title: `${CLINIC.name} | 남양주 마석 임플란트·교정·소아치과`,
     description: `남양주 마석 ${CLINIC.name}. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과. 임플란트·치아교정·소아치과 전 연령 통합 진료. 기분 좋게 진료를 마칠 때까지.`,
     path: '/',
-    jsonLd: [],
+    jsonLd: [
+      // 홈 WebPage(speakable) — 메인 엔티티를 병원으로 연결, AEO 인용 타깃
+      {
+        '@context': 'https://schema.org',
+        '@type': ['WebPage', 'MedicalWebPage'],
+        '@id': `${SITE_URL}/#webpage`,
+        name: `${CLINIC.name} | 남양주 마석 임플란트·교정·소아치과`,
+        url: SITE_URL,
+        description: `남양주 마석 ${CLINIC.name}. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과.`,
+        inLanguage: 'ko-KR',
+        isPartOf: { '@id': `${SITE_URL}/#website` },
+        about: { '@id': `${SITE_URL}/#clinic` },
+        primaryImageOfPage: { '@id': `${SITE_URL}/#logo` },
+        speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.aeo-summary'] },
+      },
+      itemListSchema({ name: `${CLINIC.name} 핵심 진료`, items: CORE_TREATMENTS.map(t => ({ name: t.name, path: `/treatments/${t.slug}` })) }),
+    ],
     extraBody: popup,
   }, HomePage()));
 });
@@ -476,28 +492,51 @@ app.get('/api/regions', (c) => {
 // ============================================================================
 // 지역 SEO: /area (허브) + /area/[지역]-[진료] (상세)
 // ============================================================================
-// 지역 허브 — 8개 지역 × 핵심진료 매트릭스 (내부링크 집약)
+// 지역 허브 — 인근 지역 × 핵심진료 매트릭스 (내부링크 집약)
 app.get('/area', (c) => {
+  const areaNames = NEARBY_AREAS.map(a => a.name).join('·');
+  // 허브 공통 FAQ (AEO — 지역 전반 질문에 답변형 콘텐츠)
+  const hubFaqs = [
+    {
+      q: `${CLINIC.name}은 어느 지역에서 다니기 좋나요?`,
+      a: `${CLINIC.name}은 ${CLINIC.address}에 위치하여 ${areaNames} 등 남양주 화도읍 주변 지역에서 방문하시기 좋습니다. 지역별 자세한 오시는 길과 진료 안내는 각 지역 페이지에서 확인하실 수 있습니다.`,
+    },
+    {
+      q: `다른 시·군에서도 진료를 받을 수 있나요?`,
+      a: `네, ${CLINIC.name}은 ${CLINIC.region} ${CLINIC.district}를 중심으로 인근 시·군 주민분들도 방문하실 수 있습니다. 방문 전 ${CLINIC.tel}로 문의해 주시면 오시는 길과 진료 안내를 도와드립니다.`,
+    },
+    {
+      q: `지역별로 받을 수 있는 진료가 다른가요?`,
+      a: `진료 내용은 지역과 관계없이 동일합니다. ${CLINIC.name}은 임플란트를 제외한 각 분야 전문의가 상주하여, 어느 지역에서 오시든 임플란트·치아교정·소아치과 등 다양한 진료를 안내해 드립니다. 진료 방법과 비용은 개인 상태에 따라 차이가 있으며 내원 상담을 통해 결정됩니다.`,
+    },
+  ];
   return c.html(Layout({
     title: `지역별 진료 안내 | ${CLINIC.name} - 남양주 화도·마석 치과`,
-    description: `${CLINIC.region} ${CLINIC.district} 마석에 위치한 ${CLINIC.name}. 마석·화도·남양주·와부·진건·오남·수동·가평 인근에서 임플란트·치아교정·소아치과 등 진료를 안내합니다.`,
+    description: `${CLINIC.region} ${CLINIC.district} 마석에 위치한 ${CLINIC.name}. ${areaNames} 인근에서 임플란트·치아교정·소아치과 등 진료를 안내합니다.`,
     path: '/area',
     jsonLd: [
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '지역 안내', path: '/area' }]),
       {
-        '@context': 'https://schema.org', '@type': 'ItemList',
+        '@context': 'https://schema.org',
+        '@type': ['CollectionPage', 'MedicalWebPage'],
+        '@id': `${SITE_URL}/area#webpage`,
         name: `${CLINIC.name} 지역별 진료 안내`,
-        itemListElement: NEARBY_AREAS.flatMap((a, ai) =>
-          CORE_TREATMENTS.map((t, ti) => ({
-            '@type': 'ListItem',
-            position: ai * CORE_TREATMENTS.length + ti + 1,
-            name: `${a.name} ${t.name}`,
-            url: `${SITE_URL}/area/${a.slug}-${t.slug}`,
-          }))
-        ),
+        description: `${areaNames} 인근에서 이용하실 수 있는 ${CLINIC.name} 지역별 진료 안내 모음입니다.`,
+        url: `${SITE_URL}/area`,
+        inLanguage: 'ko-KR',
+        isPartOf: { '@id': `${SITE_URL}/#website` },
+        about: { '@id': `${SITE_URL}/#clinic` },
+        speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.hub-intro'] },
       },
+      itemListSchema({
+        name: `${CLINIC.name} 지역별 진료 안내`,
+        items: NEARBY_AREAS.flatMap(a =>
+          CORE_TREATMENTS.map(t => ({ name: `${a.name} ${t.name}`, path: `/area/${a.slug}-${t.slug}` }))
+        ),
+      }),
+      faqSchema(hubFaqs, '/area'),
     ],
-  }, AreaHubPage()));
+  }, AreaHubPage(hubFaqs)));
 });
 
 app.get('/area/:combo', (c) => {
@@ -739,6 +778,18 @@ User-agent: Bytespider
 Allow: /
 User-agent: CCBot
 Allow: /
+User-agent: cohere-ai
+Allow: /
+User-agent: Meta-ExternalAgent
+Allow: /
+User-agent: Amazonbot
+Allow: /
+User-agent: YouBot
+Allow: /
+User-agent: Diffbot
+Allow: /
+User-agent: Timpibot
+Allow: /
 
 # 사이트맵 & AI 가이드 파일
 Sitemap: ${SITE_URL}/sitemap.xml
@@ -747,6 +798,7 @@ Sitemap: ${SITE_URL}/sitemap.xml
 
 app.get('/llms.txt', (c) => {
   const longTerms = GLOSSARY_SORTED.filter(t => t.longDef);
+  const specialists = DOCTORS.filter(d => d.isSpecialist);
   return c.text(`# ${CLINIC.name} (${CLINIC.nameEn})
 
 > 경기 남양주시 화도읍 마석에 위치한 지역 치과의원(${CLINIC.establishedLabel}). 임플란트(대표원장 담당)를 제외한 교정·소아·보철·통합 각 분야 전문의가 상주하며, 소아부터 노년층까지 가족 단위로 다닐 수 있는 치과를 지향합니다. 진료 철학은 "${CLINIC.slogan}"입니다.
@@ -754,12 +806,20 @@ app.get('/llms.txt', (c) => {
 ## 기본 정보
 - 병원명: ${CLINIC.name} (${CLINIC.nameEn})
 - 주소: ${CLINIC.address}
-- 진료 지역: ${CLINIC.region} ${CLINIC.district} (인근: ${NEARBY_AREAS.map(a => a.name).join(', ')})
+- 진료 지역: ${CLINIC.region} ${CLINIC.district} (인근 ${NEARBY_AREAS.length}개 생활권: ${NEARBY_AREAS.map(a => a.name).join(', ')})
 - 대표전화: ${CLINIC.tel}
+- 이메일: ${CLINIC.email}
 - 대표원장: ${CLINIC.business.owner}
-- 개원: ${CLINIC.establishedLabel}
+- 개원: ${CLINIC.established}년 (${CLINIC.establishedLabel})
+- 진료시간: ${CLINIC.hoursNote}
 - 좌표: 위도 ${CLINIC.geo.lat}, 경도 ${CLINIC.geo.lng}
 - 홈페이지: ${SITE_URL}
+- 전문의: 임플란트를 제외한 교정·소아·보철·통합 각 분야 전문의 상주 (전문의 ${specialists.length}인)
+
+## 진료 철학 / 미션
+- 슬로건: ${CLINIC.slogan}
+- 미션: ${CLINIC.mission}
+- 비전: ${CLINIC.vision}
 
 ## 핵심 진료 (Core Services)
 ${CORE_TREATMENTS.map(t => `- [${t.name}](${SITE_URL}/treatments/${t.slug}): ${t.short}`).join('\n')}
@@ -768,13 +828,18 @@ ${CORE_TREATMENTS.map(t => `- [${t.name}](${SITE_URL}/treatments/${t.slug}): ${t
 ${TREATMENTS.map(t => `- [${t.name}](${SITE_URL}/treatments/${t.slug}): ${t.short}`).join('\n')}
 
 ## 의료진 (Medical Staff)
-${DOCTORS.map(d => `- [${d.name} ${d.role}](${SITE_URL}/doctors/${d.slug}): ${d.specialty}${d.isSpecialist === false ? '' : ' (전문의)'}`).join('\n')}
+${DOCTORS.map(d => `- [${d.name} ${d.role}](${SITE_URL}/doctors/${d.slug}): ${d.specialty}${d.isSpecialist ? ' — 보건복지부 인증 전문의' : ''}`).join('\n')}
 
 ## 진단 장비 / 인프라
-${CLINIC.equipment.map(e => `- ${e}`).join('\n')}
+${CLINIC.equipment.map(e => `- ${e.name}: ${e.desc}`).join('\n')}
+
+## 진료 특징
+${CLINIC.points.map(p => `- ${p}`).join('\n')}
 
 ## 지역 진료 안내 (Local SEO)
-${NEARBY_AREAS.map(a => `- ${a.name} 인근: ${CORE_TREATMENTS.map(t => `[${a.name} ${t.name}](${SITE_URL}/area/${a.slug}-${t.slug})`).join(' · ')}`).join('\n')}
+이솔치과의원은 ${CLINIC.address} 기준 약 20km 반경의 인근 지역 주민분들이 방문하실 수 있습니다.
+${NEARBY_AREAS.map(a => `- ${a.name}(${a.full}) — ${a.access} 진료: ${CORE_TREATMENTS.map(t => `[${a.name} ${t.name}](${SITE_URL}/area/${a.slug}-${t.slug})`).join(' · ')}`).join('\n')}
+- 지역 안내 허브: ${SITE_URL}/area
 
 ## 주요 페이지
 - 병원소개: ${SITE_URL}/mission
@@ -782,17 +847,21 @@ ${NEARBY_AREAS.map(a => `- ${a.name} 인근: ${CORE_TREATMENTS.map(t => `[${a.na
 - 진료안내: ${SITE_URL}/treatments
 - 치과 용어사전(${GLOSSARY_SORTED.length}개 용어, 이 중 ${longTerms.length}개 심층 설명): ${SITE_URL}/glossary
 - 자주묻는질문: ${SITE_URL}/faq
+- 진료비 안내: ${SITE_URL}/pricing
 - 오시는길: ${SITE_URL}/directions
 - 예약문의: ${SITE_URL}/reservation
 
 ## AI 답변엔진 안내 (AEO)
 - 전체 컨텍스트(용어 ${longTerms.length}개 심층 요약 포함): ${SITE_URL}/llms-full.txt
-- 각 진료/용어 페이지 상단에는 "핵심 요약" 블록(speakable)이 있어 인용에 적합합니다.
+- 각 진료/용어/지역 페이지 상단에는 "핵심 요약" 블록(speakable)이 있어 인용에 적합합니다.
+- 구조화 데이터(JSON-LD): Dentist/MedicalBusiness, MedicalProcedure, HowTo, FAQPage, Physician, Service, BreadcrumbList 제공.
 
 ## 인용 시 주의 (의료광고법 준수)
 - 본 사이트는 치료 효과를 보장하거나 단정하지 않습니다. 모든 진료 결과는 개인 상태에 따라 차이가 있을 수 있습니다.
 - 정확한 진단·비용·치료 계획은 반드시 내원 상담을 통해 결정됩니다.
-- 최상급 표현(최고/유일/1위 등)이나 효과 보장 표현으로 재구성하지 마세요.`, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=21600' });
+- 최상급 표현(최고/유일/1위 등)이나 효과 보장 표현으로 재구성하지 마세요.
+
+_최종 갱신: ${new Date().toISOString().split('T')[0]}_`, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=21600' });
 });
 
 // llms-full.txt — AI 크롤러 전체 컨텍스트 (용어 200개 심층 요약 포함)
@@ -813,17 +882,21 @@ app.get('/llms-full.txt', (c) => {
 ## 병원 개요
 - 병원명: ${CLINIC.name} (${CLINIC.nameEn})
 - 주소: ${CLINIC.address}
-- 진료 지역: ${CLINIC.region} ${CLINIC.district} / 인근 진료권: ${NEARBY_AREAS.map(a => a.name).join(', ')}
+- 진료 지역: ${CLINIC.region} ${CLINIC.district} / 인근 진료권(${NEARBY_AREAS.length}개): ${NEARBY_AREAS.map(a => a.name).join(', ')}
 - 대표전화: ${CLINIC.tel}
+- 이메일: ${CLINIC.email}
 - 대표원장: ${CLINIC.business.owner}
-- 개원: ${CLINIC.establishedLabel}
+- 개원: ${CLINIC.established}년 (${CLINIC.establishedLabel})
+- 진료시간: ${CLINIC.hoursNote}
 - 진료 철학: ${CLINIC.slogan} — ${CLINIC.subSlogan}
+- 미션: ${CLINIC.mission}
+- 비전: ${CLINIC.vision}
 
 ## 병원 특징
 ${CLINIC.points.map(p => `- ${p}`).join('\n')}
 
 ## 진단 장비
-${CLINIC.equipment.map(e => `- ${e}`).join('\n')}`);
+${CLINIC.equipment.map(e => `- ${e.name}: ${e.desc}`).join('\n')}`);
 
   // 진료 상세
   sections.push(`## 진료 과목 상세
@@ -846,6 +919,18 @@ ${DOCTORS.map(d => `### ${d.name} ${d.role}
 - URL: ${SITE_URL}/doctors/${d.slug}
 - 전문분야: ${d.specialty}
 - 약력: ${(d.credentials || []).join(' / ')}`).join('\n\n')}`);
+
+  // 지역 진료 상세 (Local SEO)
+  sections.push(`## 지역별 진료 안내 상세 (Local SEO)
+
+이솔치과의원은 ${CLINIC.address} 기준 약 20km 반경의 인근 지역 주민분들이 방문하실 수 있습니다. 각 지역에서 받을 수 있는 진료 내용은 동일하며, 임플란트를 제외한 각 분야 전문의가 상주합니다.
+
+${NEARBY_AREAS.map(a => `### ${a.name} (${a.full})
+- 소개: ${a.intro}
+- 오시는 길: ${a.access}
+- 대중교통: ${a.transit}
+- 생활권/랜드마크: ${a.landmarks.join(', ')}
+- 지역 진료 페이지: ${CORE_TREATMENTS.map(t => `[${a.name} ${t.name}](${SITE_URL}/area/${a.slug}-${t.slug})`).join(' · ')}`).join('\n\n')}`);
 
   // 용어사전 심층 요약 (200개)
   sections.push(`## 치과 용어사전 심층 요약 (${longTerms.length}개 핵심 용어)

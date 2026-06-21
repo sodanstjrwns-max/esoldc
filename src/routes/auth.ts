@@ -76,8 +76,9 @@ authApi.post('/logout', async (c) => {
 });
 
 // 세션 확인
+// 비로그인은 정상 상태 → 401 대신 200 + {ok:false} 반환(브라우저 콘솔 노이즈 제거).
 authApi.get('/me', async (c) => {
   const s = await getSession(c);
-  if (!s) return c.json({ ok: false }, 401);
+  if (!s) return c.json({ ok: false });
   return c.json({ ok: true, name: s.name, isAdmin: s.isAdmin });
 });

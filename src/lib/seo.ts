@@ -1,5 +1,10 @@
 import { CLINIC, DOCTORS, TREATMENTS, CORE_TREATMENTS, NEARBY_AREAS, type Treatment, type NearbyArea } from '../data/clinic';
 
+// 진료시간 미확정 → openingHours 스키마 생략(정직성). 확정 시 이 함수만 채우면 전 페이지 반영.
+function openingHoursSpec(): object[] | undefined {
+  return undefined;
+}
+
 export const SITE_URL = 'https://isoldc.kr'; // 실 도메인 (가비아 구매, Cloudflare 연결)
 
 export interface SeoMeta {
@@ -109,11 +114,36 @@ export function siteGraph() {
         currenciesAccepted: 'KRW',
         paymentAccepted: '현금, 카드',
         areaServed: NEARBY_AREAS.map(a => ({ '@type': 'City', name: a.full })),
-        availableService: CORE_TREATMENTS.map(t => ({
+        availableService: TREATMENTS.map(t => ({
           '@type': 'MedicalProcedure',
           name: t.name,
           url: `${SITE_URL}/treatments/${t.slug}`,
         })),
+        // 제공 진료를 OfferCatalog로 묶어 "이 병원의 진료 메뉴"를 명시(AEO)
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: `${CLINIC.name} 진료 안내`,
+          itemListElement: TREATMENTS.map(t => ({
+            '@type': 'Offer',
+            itemOffered: { '@type': 'MedicalProcedure', name: t.name, url: `${SITE_URL}/treatments/${t.slug}` },
+          })),
+        },
+        // 의료진(전문의 상주) → employee로 연결. AI가 "어떤 전문의가 있나"를 직접 인용 가능.
+        employee: DOCTORS.map(d => ({
+          '@type': ['Person', 'Physician'],
+          name: d.name,
+          jobTitle: d.role,
+          url: `${SITE_URL}/doctors/${d.slug}`,
+          medicalSpecialty: 'Dentistry',
+        })),
+        // 보유 장비 → amenityFeature(진단·진료 환경 신호)
+        amenityFeature: CLINIC.equipment.map(e => ({
+          '@type': 'LocationFeatureSpecification',
+          name: e.name,
+          value: true,
+        })),
+        availableLanguage: { '@type': 'Language', name: 'Korean', alternateName: 'ko' },
+        ...(openingHoursSpec() ? { openingHoursSpecification: openingHoursSpec() } : {}),
         sameAs: clinicSameAs(),
         foundingDate: String(CLINIC.established),
       },
@@ -188,15 +218,25 @@ export function areaServiceSchema(area: NearbyArea, t: Treatment) {
     '@id': `${SITE_URL}${path}#service`,
     name: `${area.name} ${t.name}`,
     serviceType: t.name,
+    category: '치과 진료',
     url: `${SITE_URL}${path}`,
     description: `${area.full} 인근에서 이용하실 수 있는 ${t.name} 진료 안내`,
     provider: { '@id': CLINIC_ID },
-    areaServed: { '@type': 'City', name: area.full, address: { '@type': 'PostalAddress', addressLocality: area.full, addressRegion: '경기도', addressCountry: 'KR' } },
+    // 지역 City + 병원 기준 진료권 GeoCircle(대략 20km) → 로컬 검색 신호 강화
+    areaServed: [
+      { '@type': 'City', name: area.full, address: { '@type': 'PostalAddress', addressLocality: area.full, addressRegion: '경기도', addressCountry: 'KR' } },
+      {
+        '@type': 'GeoCircle',
+        geoMidpoint: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
+        geoRadius: 20000,
+      },
+    ],
     availableChannel: {
       '@type': 'ServiceChannel',
       servicePhone: { '@type': 'ContactPoint', telephone: CLINIC.tel, contactType: '진료 예약/문의', areaServed: 'KR', availableLanguage: 'Korean' },
       serviceUrl: `${SITE_URL}${path}`,
     },
+    isRelatedTo: { '@id': `${SITE_URL}/treatments/${t.slug}#procedure` },
   };
 }
 
@@ -208,14 +248,22 @@ export function areaWebPageSchema(area: NearbyArea, t: Treatment) {
   return {
     '@context': 'https://schema.org',
     '@type': 'MedicalWebPage',
+    '@id': `${SITE_URL}${path}#webpage`,
     name: `${area.name} ${t.name} | ${CLINIC.name}`,
     description: `${area.full} ${t.name} 치과 안내. ${area.access}`,
     url: `${SITE_URL}${path}`,
     inLanguage: 'ko-KR',
     isPartOf: { '@id': WEBSITE_ID },
     about: { '@id': CLINIC_ID },
+    mainEntity: { '@id': `${SITE_URL}${path}#service` },
     publisher: { '@id': ORG_ID },
-    lastReviewed: new Date().toISOString().split('T')[0],
+    lastReviewed: CLINIC.reopenDate,
+    reviewedBy: { '@id': CLINIC_ID },
+    significantLink: [
+      `${SITE_URL}/treatments/${t.slug}`,
+      `${SITE_URL}/directions`,
+      `${SITE_URL}/area`,
+    ],
     speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.aeo-summary'] },
   };
 }
