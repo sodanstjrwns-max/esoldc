@@ -56,6 +56,8 @@ export function DoctorsListPage() {
   </section>
   <section class="section">
     <div class="wrap">
+      <h2 style="text-align:center;font-size:clamp(1.5rem,3vw,2rem);margin-bottom:8px">${CLINIC.region} 마석 이솔치과 의료진</h2>
+      <p style="text-align:center;color:#7a6f60;margin-bottom:32px">임플란트·치아교정·소아치과 등 분야별 진료를 담당하는 의료진입니다.</p>
       <div class="doc-grid">
         ${raw(DOCTORS.map((d,i) => `
           <a href="/doctors/${d.slug}" class="doc-card reveal reveal-d${(i%4)+1}">

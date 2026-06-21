@@ -87,6 +87,8 @@ em,i,cite,address,dfn,var,blockquote{font-style:normal}
 .btn:focus-visible,a.btn:focus-visible{outline-offset:4px}
 /* 마우스 사용자에겐 기본 outline 제거(포커스 링은 :focus-visible로만) */
 :focus:not(:focus-visible){outline:none}
+/* 스크린리더·검색봇 전용 텍스트(화면 비표시) — SEO 키워드/접근성 보조 */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* ── C6: 카드류 미세 상호작용 — 클릭 시 살짝 눌리는 피드백 ── */
 .btn:active{transform:translateY(0) scale(.985)}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden}

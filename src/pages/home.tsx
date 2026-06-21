@@ -299,12 +299,13 @@ export function HomePage() {
   <section class="hero" id="ch-hero">
     <div class="wrap">
       <div class="hero-kicker" data-reveal><span>남양주 마석 · <b>EST. ${CLINIC.established}</b> · 우리 가족 치과 주치의</span></div>
-      <h1 class="hero-display">
+      <h1 class="hero-display" aria-label="이솔치과의원 — 남양주 마석 임플란트·치아교정·소아치과. 기분 좋게 진료를 마칠 때까지.">
         <span data-line data-line-d="1"><span>기분 좋게</span></span>
         <span data-line data-line-d="2"><span><span class="accent-wrap"><span class="accent nb">진료를 마칠</span>${raw(`
           <svg class="vmg accent-swash" viewBox="0 0 300 26" fill="none" preserveAspectRatio="none" aria-hidden="true">
             <path class="vp vp2" pathLength="1" d="M6 16 C 70 24, 150 4, 230 12 C 258 15, 280 13, 294 10" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity=".85"/>
           </svg>`)}</span> <span class="nb">때까지</span></span></span>
+        <span class="sr-only">이솔치과의원 — 남양주 마석 임플란트·치아교정·소아치과 진료</span>
       </h1>
       <p class="hero-sub" data-words>
         치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며, 충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
