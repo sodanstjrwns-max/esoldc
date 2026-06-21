@@ -61,8 +61,8 @@ export const CLINIC = {
   //    네이버: 서치어드바이저 > 사이트 등록 > HTML 태그 → content="..." 부분만
   //    빙:   Bing Webmaster Tools > Add site > HTML Meta Tag → content="..." 부분만
   siteVerification: {
-    google: '',   // 예: 'abcdEFG123...'  (Google Search Console)
-    naver: '',    // 예: '1a2b3c4d...'    (네이버 서치어드바이저)
+    google: '',   // 도메인 속성(DNS)으로 확인 완료 — 메타태그 불필요
+    naver: '4a23203f085129feff3f93dddaeedd92d1336ce7',  // 네이버 서치어드바이저 (소유확인용)
     bing: '',     // 예: 'A1B2C3...'      (Bing Webmaster Tools)
   },
 
