@@ -1,103 +1,140 @@
-# 이솔치과의원 (ISOL Dental Clinic) 홈페이지
+# 이솔치과의원 (ISOL Dental Clinic) 공식 홈페이지
 
-## 프로젝트 개요
-- **병원명**: 이솔치과의원 (대표원장 고경우) — 2017 개원, 10년째 한자리
-- **목표**: 하이엔드 스토리텔링 치과 홈페이지. 환자 퍼널(검색→방문→예약→소개) 전환율을 높이는 SEO·AEO 최적화 사이트.
-- **위치**: 경기 남양주시 화도읍 마석로 25, 4층 (2026-06-22 이전 후 진료 시작) / ☎ 031-592-7258
-- **컨셉**: "기분 좋게 진료를 마칠 때까지" — 3대가 함께 다니는 가족 주치의 치과, 5인 원장 분과별 협진(임플란트 제외 각 분야 전문의 상주)
-- **진료시간**: 이전 오픈 준비 중 — 확정 전까지 전화 안내 (창작 금지 원칙)
+> 남양주 마석, "기분 좋게 진료를 마칠 때까지" — 환자 퍼널 전환에 최적화된 하이엔드 스토리텔링 치과 홈페이지
 
-## 의료진 (실명 약력 반영 완료 — 2026-06)
-| 슬러그 | 성함 | 직책 | 전문 분야 |
-|---|---|---|---|
-| `ko-kyungwoo` | 고경우 | 대표원장 | 임플란트 (구강악안면외과 임플란트학) |
-| `jang-yujin` | 장유진 | 교정과원장 | 치과교정과 전문의 |
-| `park-jina` | 박진아 | 소아치과원장 | 소아치과 전문의 |
-| `byun-jinsoo` | 변진수 | 보철과원장 | 치과보철과 + 통합치의학과 전문의 (보철학 박사) |
-| `kang-sewon` | 강세원 | 통합과원장 | 통합치의학 전문의 |
+---
 
-## 디자인 방향 (v7 "Book Cover" — 북커버 에디토리얼 × 페이블 내러티브)
-- **북커버 히어로**: 중앙 정렬 초대형 세리프 타이틀("기분 좋게 / 진료를 마칠 때까지", 골드 이탤릭 악센트) + 골드 플랭킹 킥커 라인 + **대성당 아치 프레임**(border-radius 480px) 병원 사진 + 회전 배지 + 스크롤 큐 라인 애니메이션
-- **아치 모티프 통일**: 히어로(480px) → 인트로 이미지(300px) → 의료진 초상(160px) — 모든 이미지가 같은 아치 언어를 공유 + 내부 이중 스트로크
-- **북 디테일**: 첫 문단 드롭캡(`.dropcap::first-letter` 골드 3.3em), 원형 골드 장비 아이콘(hover 회전), CTA → **에필로그 챕터**("이 이야기의 다음 장은 *당신의 미소*입니다" + 슬로건 서명)
-- **페이블 스토리텔링 시스템(v6 유지)**: 프롤로그→Ch.1~6→에필로그 챕터 구조, 브리지 내레이션, 스크럽 텍스트(스크롤 단어 하이라이트), 스토리 레일(좌측 고정 챕터 내비)
-- **원장 스토리 반영**: 3대 가족 내러티브(홈 Ch.1·미션), 과잉진료 없는 정직 진료(Why 카드·미션), 5인 분과별 협진 프레이밍(Ch.6), 소아→성장기 교정 연계(교정 페이지)
-- **컬러(v7 심화)**: 에스프레소 브라운 `#3E2C1F`/`#291C12` · 골드 그라데이션 `#E8C885→#A6772F→#D9B675` · 미색 배경 `#F7F0E1` / **폰트**: Gowun Batang(세리프) + Space Grotesk + Pretendard
+## 1. 프로젝트 개요
 
-### 이전 버전 메모 (v5 "Warm Futurism" · 신청서 무드 × 2026 트렌드)
-- **무드**: 신청서 그대로 — "따뜻하고 친근한, 전문적이고 신뢰감 있는" / 타깃 **중장년+전 세대** / 강점 **체어타임·친절·직원숙련도**
-- **2026 트렌드**: 세이지·어스톤 미니멀, 소프트 글래스모피즘, 큼직한 라운드(`--radius 14px`/`pill`), 넉넉한 여백
-- **컬러**: 딥 세이지/에버그린 `#2F6B5E`(메인·자연·청결·신뢰) · 웜 테라코타 `#D98E63`(포인트·따뜻·친근) · 웜 아이보리 `#FBF8F3`(배경). 잉크 `#2A332F`, 라인 `#E7E1D6`
-- **폰트**: 전체 Pretendard(둥근 모던 산세리프) — **명조 폐기, 중장년 가독성 최우선**(본문 17px, 큰 버튼·큰 전화번호)
-- **인터랙션(최소화 유지)**: 스크롤 페이드 리빌, 헤더 글래스 상태, 카운트업, 모바일 메뉴. ❌ 파티클·커스텀커서·마그네틱·키네틱·마퀴 없음(어르신도 헤매지 않게)
-- **성능/접근성**: GPU 가속, `prefers-reduced-motion` 가드, 폰트 preconnect/`font-display:swap`
+| 항목 | 내용 |
+|------|------|
+| **병원명** | 이솔치과의원 (대표원장 고경우) |
+| **개원** | 2017년 (새 공간 2026.06.22 진료 시작) |
+| **주소** | 경기 남양주시 화도읍 마석로 25, 4층 |
+| **대표전화** | 031-592-7258 |
+| **이메일** | isoldent1@gmail.com |
+| **목표** | 검색→방문→예약→소개 환자 퍼널 전환율을 높이는 SEO·AEO·지역SEO 최적화 사이트 |
+| **기술스택** | Hono v4 (TypeScript SSR) + Vite 6 + Cloudflare Pages/Workers + D1 + R2 |
 
-## 완료된 기능 (Currently Completed)
-- ✅ 메인 페이지 — 히어로 + 퍼널 전구간(신뢰 스탯 / 핵심진료 / 철학 / 강점 / 전체진료 / 의료진 / 지역SEO / CTA)
-- ✅ 진료 페이지 — 핵심 TOP3(임플란트·교정·소아치과) 상세(1,500자+ AEO 구성) + 그 외 진료 4종 + 진료별 FAQ
-- ✅ 의료진 — 목록 + 개별 SSR 프로필 (진료↔의료진 양방향 인링크)
-- ✅ 병원소개/미션, 오시는길(진료시간), 비용안내, 통합 FAQ, 예약 문의, 비포&애프터(의료법 게이팅 안내)
-- ✅ 지역 SEO — 인근 8개 지역 × 핵심 3진료 조합 페이지 (`/area/[지역]-[진료]`)
-- ✅ 예약 API (R2 저장 + Resend 이메일 알림, 바인딩 시 동작)
-- ✅ SEO/AEO — Dentist/LocalBusiness/Person/MedicalProcedure/FAQPage/BreadcrumbList/City 스키마, sitemap.xml, robots.txt(AI 봇 허용), llms.txt
-- ✅ 의료광고법 컴플라이언스 — 수치·최상급·효과단정 표현 배제, 푸터 고지문, 사실관계(전문의 상주) 보존
+---
 
-## 기능 진입 URI 요약
+## 2. 공개 URL
+
+- **프로덕션**: https://isoldent.pages.dev (Cloudflare Pages)
+- **커스텀 도메인(설정 시)**: https://isoldc.kr
+- **GitHub**: https://github.com/sodanstjrwns-max/esoldc
+- **로컬 개발**: http://localhost:3000 (PM2 + wrangler pages dev)
+
+---
+
+## 3. 완료된 기능 (Currently Completed Features)
+
+### 공개 페이지
 | 경로 | 설명 |
 |------|------|
-| `/` | 메인 |
-| `/mission` | 병원소개·미션 |
-| `/doctors` , `/doctors/:slug` | 의료진 목록 / 개별 프로필 |
-| `/treatments` , `/treatments/:slug` | 진료 목록 / 상세 (implant·orthodontics·pediatric·prosthetics·periodontics·general) |
-| `/directions` | 오시는길·진료시간 |
-| `/faq` | 통합 FAQ |
-| `/pricing` | 비용 안내 |
-| `/reservation` | 예약 문의 (폼) |
-| `/cases` | 비포&애프터 (의료법 안내) |
-| `/area/:area-:treatment` | 지역SEO (예: `/area/maseok-implant`) |
-| `POST /api/reservation` | 예약 접수 API (name, phone 필수) |
-| `/sitemap.xml` `/robots.txt` `/llms.txt` | SEO 기술 파일 |
+| `/` | 홈 — 스토리텔링 히어로, 핵심진료, 병원 강점, 의료진, CTA, 공지 팝업 |
+| `/about` | 병원 소개 (미션/비전/장비/강점) |
+| `/treatments` | 진료안내 허브 (핵심진료 + 전체진료 목록) |
+| `/treatments/:slug` | 진료 상세 (MedicalProcedure/HowTo 구조화데이터) |
+| `/doctors` | 의료진 목록 (전문의 5인) |
+| `/doctors/:slug` | 의료진 상세 (Physician 구조화데이터) |
+| `/directions` | 오시는 길 (지도/대중교통/주차) |
+| `/reservation` | 온라인 예약 문의 (접근성 폼) |
+| `/faq` | 자주 묻는 질문 (FAQPage 구조화데이터) |
+| `/glossary` | 치과 용어사전 (검색 기능, DefinedTermSet) |
+| `/area` | 지역별 진료 안내 허브 (CollectionPage + FAQ) |
+| `/area/:slug` | 지역별 안내 (마석/화도/남양주 등 12개 지역) |
+| `/area/:area-:treatment` | 지역×진료 매트릭스 (36개 조합) |
 
-## 데이터 아키텍처
-- **단일 소스**: `src/data/clinic.ts` (병원정보·의료진·진료·지역) — 모든 페이지/스키마/푸터가 참조
-- **저장소(배포 시)**: Cloudflare R2 (예약 JSON), D1 (조회수 — 향후)
-- **데이터 흐름**: 신청서 → §B 의료광고법 필터 → clinic.ts → SSR 렌더 → 정적 HTML
+### 콘텐츠/관리
+- 관리자 로그인/콘텐츠 관리 (`/admin`) — 공지 팝업, 콘텐츠 편집
+- 회원 로그인/회원가입
 
-## 아직 구현되지 않은 기능 (확장 예정)
-- 회원가입/Google OAuth + 마이페이지 (퍼널 만족·소개 단계)
-- 비포&애프터 실제 업로드/슬라이더/로그인 게이팅 (현재는 의료법 안내 페이지)
-- 원장 칼럼 SEO 에디터 + 백과사전 500+ 용어 + 공지사항
-- 관리자 패널 (회원·예약·게시물·조회수)
-- D1 마이그레이션 + R2/KV 바인딩 실연결
+### SEO / AEO (AI 검색 최적화)
+- **전역 구조화데이터** `@graph`: Organization / WebSite / Dentist (@id 연결)
+- **페이지별 JSON-LD**: MedicalWebPage / MedicalProcedure / HowTo / FAQPage / Service / BreadcrumbList / ItemList / DefinedTermSet / CollectionPage / Physician
+- **Speakable** 스펙 (음성 검색 대응)
+- **사이트맵 인덱스**: 6개 서브 사이트맵 (`/sitemap.xml`)
+- **robots.txt**: 24개 AI 크롤러 허용 (GPTBot, ClaudeBot, PerplexityBot, Google-Extended 등)
+- **llms.txt / llms-full.txt**: LLM용 사이트 요약 (병원정보/진료/의료진/지역)
+- **지역SEO**: 12개 인근지역 × 3개 핵심진료 = 37개 지역 랜딩 URL
 
-## 권장 다음 단계
-1. **원장님 자료 수신 대기**: 최종 진료시간 / 교통편·주차 동선 / 의료진 사진 / 로고 / 네이버플레이스·카카오채널 URL
-2. Cloudflare Pages 배포 + R2/D1 생성 + 시크릿(RESEND_API_KEY 등) 설정
-3. 실제 병원/의료진 사진·로고 교체 (현재 SVG 플레이스홀더)
-4. SNS 연동: 홈페이지(isoldent.com) / 인스타그램(@isoldent_) / 유튜브(@이솔치과, 재정비 예정)
-5. 회원/관리자/칼럼/백과사전 단계적 추가
+### 성능 / 접근성 / 보안
+- **CLS 방지**: 모든 이미지 `width`/`height` 명시 + 컨테이너 `aspect-ratio`
+- **LCP 최적화**: 히어로 `fetchpriority=high` + `loading=eager`, `decoding=async`
+- **정적자산 캐시**: `_headers` — `/static/*` 1년 불변 캐시 (immutable)
+- **보안 헤더**: X-Content-Type-Options / X-Frame-Options / Referrer-Policy / Permissions-Policy
+- **접근성(WCAG AA)**: 색 대비 0건 실패, 폼 label `for/id` 연결, aria-label, 시맨틱 HTML, 스킵링크
 
-## 의료광고법 컴플라이언스 노트
-- 환자 치료경험담(직접 인용)은 의료광고법상 제한 → 원장님이 주신 환자 발언/임플란트 8년 사례는 **병원 철학·사실 서술로 재구성**하여 반영 (직접 인용·효과 단정 배제)
-- "지역 유일 교정 전문의" 등 최상급·배타적 표현 미사용 — "교정과 전문의 상주" 사실 서술만 사용
-- 진료시간 등 미확정 정보는 창작하지 않고 "전화 문의"로 안내
+---
 
-## 사용 가이드
-- 방문자는 상단 GNB(병원소개·의료진·진료안내·비포애프터·FAQ·오시는길)와 우하단 플로팅 CTA(전화/지도/예약)로 이동
-- 예약은 `/reservation` 폼 또는 전화로 진행
+## 4. 데이터 아키텍처
 
-## 기술 스택 / 배포
-- **프레임워크**: Hono v4 (TypeScript) + SSR
-- **빌드**: Vite + @hono/vite-build (Cloudflare Pages)
-- **프론트**: Vanilla JS + Pretendard (CDN) + Font Awesome
-- **플랫폼**: Cloudflare Pages/Workers
-- **상태**: ✅ **프로덕션 배포 완료** (https://isoldent.pages.dev) — D1·R2 실바인딩, 회원가입 API D1 쓰기 검증 완료, 전 라우트 200, 콘솔 에러 0
-- **배포 정보**: Cloudflare Pages 프로젝트 `isoldent` / D1 `isoldent-production` (id: eb299741…) / R2 `isoldent-bucket` / 시크릿 `ADMIN_PASSWORD` 설정됨
-- **Last Updated**: 2026-06-02 (v5 Warm Futurism — 신청서 무드(따뜻·친근·중장년) × 2026 세이지/테라코타 트렌드, 콘텐츠·데이터·SEO 보존)
+| 데이터 | 저장 위치 |
+|--------|-----------|
+| 병원정보/진료/의료진/지역 | `src/data/clinic.ts` (정적, 신청서 원문 기반) |
+| 지역 자동완성 | `src/data/regions.ts` |
+| 공지 팝업 / 콘텐츠 / 회원 / 예약문의 | Cloudflare **D1** (`isoldent-production`) |
+| 이미지 등 바이너리 | Cloudflare **R2** (`isoldent-bucket`) |
 
-## 치과 백과사전 (2026-06-13 추가)
-- **/glossary**: 치과 용어 510개 — 검색·12개 카테고리·초성(ㄱ~ㅎ/A-Z) 필터
-- **/glossary/:term**: 용어 상세 (DefinedTerm 스키마, 관련 진료 인링크 → /treatments/:slug, 관련 용어 12개)
-- 핵심진료 3종 본문 증량: 임플란트 1,979자 / 교정 1,756자 / 소아 1,675자 (의료광고법 준수 문구 포함)
-- FAQ 전 과목 20개+ (EXTRA_FAQS 병합), 헤더 콘텐츠 메뉴·모바일·푸터에 백과사전 링크 추가
-- sitemap.xml에 glossary 511 URL 자동 포함
+**핵심 데이터 모델**
+- `CLINIC`: 병원 기본정보 (name/tel/email/address/geo/hours/equipment/points/mission/vision)
+- `DOCTORS[5]`: 의료진 (전문의 자격 포함)
+- `TREATMENTS` / `CORE_TREATMENTS`: 진료 항목
+- `NEARBY_AREAS[12]`: 인근 지역 (slug/name/intro/access/landmarks/transit)
+
+---
+
+## 5. 운영 가이드 (병원 담당자용)
+
+### 공지 팝업 변경
+1. `/admin` 로그인 → 콘텐츠 관리
+2. 공지 제목/내용 수정 → 저장 (즉시 반영)
+
+### 진료시간/병원정보 변경
+- 정적 데이터(`src/data/clinic.ts`) 수정 후 재배포 필요 → 개발 담당자 요청
+
+### 의료진/진료항목 추가
+- `src/data/clinic.ts`의 `DOCTORS` / `TREATMENTS` 배열 수정 후 재배포
+
+### ⚠️ 의료광고법 준수 (필수)
+- 최상급 표현 금지 (최고/유일/1위 등)
+- 효과 보장/단정 표현 금지
+- 사실에 근거하지 않은 내용 금지
+
+---
+
+## 6. 개발/배포 명령어
+
+```bash
+# 로컬 개발 (PM2)
+npm run build
+pm2 start ecosystem.config.cjs   # http://localhost:3000
+
+# 프로덕션 배포 (Cloudflare Pages, BYOK)
+npm run build
+npx wrangler pages deploy dist --project-name isoldent
+
+# D1 마이그레이션
+npm run db:migrate:prod          # 프로덕션 DB 적용
+npm run db:migrate:local         # 로컬 SQLite 적용
+```
+
+---
+
+## 7. 향후 권장 개발 (Recommended Next Steps)
+
+1. **페이지별 OG 이미지**: 현재 전 페이지 공통 `og.png` → 진료/지역별 맞춤 OG 이미지 제작 시 SNS 공유 클릭률 향상
+2. **예약 알림 자동화**: 예약문의 접수 시 카카오 알림톡/이메일 자동 발송 연동
+3. **리뷰/후기 수집**: (의료광고법 검토 후) 환자 후기 섹션
+4. **Google Search Console / GA4 연동**: 검색 유입·전환 데이터 측정
+5. **블로그/콘텐츠 정기 발행**: 진료 관련 칼럼으로 검색 노출 면적 확대
+
+---
+
+## 8. 배포 상태
+
+- **플랫폼**: Cloudflare Pages
+- **상태**: ✅ Active
+- **기술스택**: Hono + TypeScript + Cloudflare D1/R2 + Vite
+- **최종 업데이트**: 2026-06-21 (납품 버전 — SEO/AEO/지역SEO/성능/접근성 슈퍼 업그레이드)

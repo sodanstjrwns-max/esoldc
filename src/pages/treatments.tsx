@@ -180,7 +180,7 @@ export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] =
         <div class="t-doc-row">
           ${raw(docs.map(d => `
             <a href="/doctors/${d.slug}" class="t-doc">
-              <img src="${d.photo}" alt="${d.name} ${d.role}" loading="lazy" decoding="async">
+              <img src="${d.photo}" alt="${d.name} ${d.role}" loading="lazy" decoding="async" width="62" height="62">
               <div><div class="tn">${d.name}</div><div class="tr">${d.role} · ${d.specialty}</div></div>
             </a>`).join(''))}
         </div>

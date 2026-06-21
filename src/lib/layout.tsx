@@ -22,17 +22,18 @@ const DESIGN_TOKENS = `
   --navy-2:#291C12;
   --navy-3:#6B5747;
   /* ── 포인트: 따뜻한 카멜/골드 (더 깊고 메탈릭) ── */
-  --gold:#A6772F;
-  --gold-2:#C99A52;
-  --gold-3:#8A5F26;
+  /* 밝은 베이지 배경 위 작은 텍스트 대비(WCAG AA) 확보를 위해 한 단계 더 깊게 */
+  --gold:#8A5F26;
+  --gold-2:#A6772F;
+  --gold-3:#7A511F;
   --gold-soft:#EFE2C9;
   /* 골드 메탈릭 그라데이션 (텍스트·테두리용) */
   --gold-grad:linear-gradient(110deg,#E8C885 0%,#C99A52 32%,#A6772F 58%,#D9B675 100%);
   --gold-grad-deep:linear-gradient(135deg,#C99A52 0%,#8A5F26 100%);
   /* ── 잉크(텍스트) — 웜 브라운-그레이 (살짝 더 깊게) ── */
   --ink:#2C2620;
-  --ink-soft:#615A50;
-  --ink-faint:#94897A;
+  --ink-soft:#5A5249;
+  --ink-faint:#6E6457;
   --line:#E2D8C6;
   --line-soft:#EDE5D6;
   /* ── 배경 — 따뜻한 크림/베이지 (한 톤 가라앉혀 깊이감) ── */

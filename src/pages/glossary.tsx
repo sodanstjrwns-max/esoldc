@@ -57,7 +57,7 @@ export function GlossaryListPage() {
       <div class="gl-toolbar">
         <div class="gl-search">
           <i class="fas fa-search"></i>
-          <input type="text" id="glSearch" placeholder="용어 또는 설명으로 검색 (예: 임플란트, 시린이)" autocomplete="off">
+          <input type="search" id="glSearch" placeholder="용어 또는 설명으로 검색 (예: 임플란트, 시린이)" autocomplete="off" aria-label="치과 용어 검색">
         </div>
       </div>
       <div class="gl-cats" id="glCats">

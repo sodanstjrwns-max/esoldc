@@ -59,7 +59,7 @@ export function DoctorsListPage() {
       <div class="doc-grid">
         ${raw(DOCTORS.map((d,i) => `
           <a href="/doctors/${d.slug}" class="doc-card reveal reveal-d${(i%4)+1}">
-            <img src="${d.photo}" alt="${CLINIC.name} ${d.role} ${d.name} - ${d.specialty}" loading="lazy">
+            <img src="${d.photo}" alt="${CLINIC.name} ${d.role} ${d.name} - ${d.specialty}" loading="lazy" decoding="async" width="300" height="400">
             <div class="info">
               <div class="role">${d.role}</div>
               <h3>${d.name}</h3>
@@ -87,7 +87,7 @@ export function DoctorDetailPage(d: Doctor) {
     <div class="wrap">
       <div class="dd-wrap">
         <div class="dd-photo reveal">
-          <img src="${d.photo}" alt="${CLINIC.name} ${d.role} ${d.name}" loading="lazy" decoding="async">
+          <img src="${d.photo}" alt="${CLINIC.name} ${d.role} ${d.name}" loading="lazy" decoding="async" width="400" height="500">
           <div class="pcta">
             <a href="/reservation" class="btn btn-primary"><i class="fas fa-calendar-check"></i> 진료 예약 문의</a>
             <a href="tel:${CLINIC.tel}" class="btn btn-ghost"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>

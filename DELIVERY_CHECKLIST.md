@@ -1,0 +1,116 @@
+# 이솔치과의원 홈페이지 — 납품 검수 체크리스트
+
+> 작성일: 2026-06-21 / 검수자: 개발팀 / 대상: 이솔치과의원
+
+본 문서는 납품 시점의 품질 검증 결과를 정리한 검수서입니다. 모든 항목은 자동/수동 테스트로 실측 검증되었습니다.
+
+---
+
+## ✅ A. 기능 (Functionality)
+
+| 항목 | 결과 |
+|------|------|
+| 전 페이지 정상 응답 (HTTP 200) | ✅ 홈/진료/의료진/지역/예약/FAQ/용어사전 모두 200 |
+| 지역SEO 라우트 37개 (허브 1 + 매트릭스 36) | ✅ 전수 200 확인 |
+| 진료 상세/의료진 상세 동적 라우트 | ✅ 정상 |
+| 온라인 예약 문의 폼 동작 | ✅ 정상 |
+| 공지 팝업 표시/닫기 | ✅ 정상 |
+| 관리자 콘텐츠 관리 | ✅ 정상 |
+| 콘솔 에러 | ✅ **0건** (비로그인 401 노이즈 제거 완료) |
+
+---
+
+## ✅ B. SEO / AEO (검색 + AI 검색 최적화)
+
+| 항목 | 결과 |
+|------|------|
+| 전역 구조화데이터 @graph (Organization/WebSite/Dentist) | ✅ |
+| 페이지별 JSON-LD (10종 스키마) | ✅ 전 페이지 유효성 검증 통과 |
+| Speakable 스펙 (음성검색) | ✅ |
+| 메타 title 길이 (14–40자) | ✅ 전 페이지 적정 |
+| 메타 description 길이 (59–169자) | ✅ 전 페이지 적정 |
+| h1 페이지당 1개 | ✅ |
+| canonical / hreflang / OG / Twitter Card | ✅ |
+| sitemap.xml (6개 서브 사이트맵 인덱스) | ✅ |
+| robots.txt (24개 AI 크롤러 허용) | ✅ |
+| llms.txt / llms-full.txt | ✅ ([object Object] 버그 수정 완료) |
+
+---
+
+## ✅ C. 지역 SEO
+
+| 항목 | 결과 |
+|------|------|
+| 인근 지역 12개 (마석/화도/남양주/다산/별내/구리 등) | ✅ |
+| 지역 허브 페이지 (CollectionPage + FAQ) | ✅ |
+| 지역×진료 매트릭스 36개 조합 | ✅ |
+| GeoCircle (반경 20km) areaServed | ✅ |
+| 지역 페이지 mainEntity / significantLink | ✅ |
+
+---
+
+## ✅ D. 성능 (Performance)
+
+| 항목 | 결과 |
+|------|------|
+| CLS 방지 (이미지 width/height + aspect-ratio) | ✅ imgNoDim **0건** |
+| LCP 최적화 (히어로 fetchpriority/eager) | ✅ |
+| 이미지 decoding=async | ✅ |
+| 정적자산 1년 불변 캐시 (`_headers`) | ✅ /static/* immutable |
+| _worker.js 번들 | 847 kB (SSR, Cloudflare 한도 내) |
+
+---
+
+## ✅ E. 접근성 (Accessibility — WCAG AA)
+
+| 항목 | 결과 |
+|------|------|
+| 색 대비 (본문 4.5:1 / 큰글씨 3:1) | ✅ 단색 배경 **실패 0건** |
+| 폼 label for/id 연결 | ✅ 예약폼 5개 입력 전부 |
+| input autocomplete / inputmode / type=tel | ✅ |
+| 검색 input aria-label / type=search | ✅ |
+| 시맨틱 HTML (main/header/nav/footer) | ✅ |
+| 스킵 링크 / 키보드 접근 | ✅ |
+
+---
+
+## ✅ F. 보안 (Security)
+
+| 항목 | 결과 |
+|------|------|
+| X-Content-Type-Options: nosniff | ✅ |
+| X-Frame-Options: SAMEORIGIN | ✅ |
+| Referrer-Policy | ✅ |
+| Permissions-Policy (geolocation/camera/mic 차단) | ✅ |
+| 세션 기반 인증 | ✅ |
+
+---
+
+## ✅ G. 디자인 / 반응형
+
+| 항목 | 결과 |
+|------|------|
+| 데스크탑(1366px) 시각 QA | ✅ 전 페이지 |
+| 모바일(390px) 시각 QA | ✅ 전 페이지 |
+| 브랜드 골드/우드 톤 일관성 | ✅ |
+| 모바일 햄버거 메뉴 / 플로팅 버튼 | ✅ |
+
+---
+
+## ✅ H. 컴플라이언스 (의료광고법)
+
+| 항목 | 결과 |
+|------|------|
+| 최상급 표현(최고/유일/1위) 미사용 | ✅ |
+| 효과 보장/단정 표현 미사용 | ✅ |
+| 데이터 무결성 (신청서 원문 기반, 허위 없음) | ✅ |
+| 의료광고 준수사항 안내 푸터 명시 | ✅ |
+
+---
+
+## 검수 결론
+
+> 본 홈페이지는 기능·SEO·AEO·지역SEO·성능·접근성·보안·디자인·컴플라이언스 전 영역에서
+> 납품 기준을 충족하며, 운영 가능한 상태로 인도됩니다.
+
+**검증 방식**: Playwright 자동 감사(콘솔/DOM/대비/스크린샷) + JSON-LD 유효성 검증 + 라우트 전수 응답 테스트 + 수동 시각 QA

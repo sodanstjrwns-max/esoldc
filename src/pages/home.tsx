@@ -277,7 +277,7 @@ export function HomePage() {
           <div class="fm"><b><span data-count="5" data-suffix="인">0</span></b><span>상주 의료진</span></div>
         </div>
         <div class="arch-frame" data-parallax="10">
-          <img src="/static/img/clinic-reception.webp" alt="이솔치과의원 내부 전경" loading="eager">
+          <img src="/static/img/clinic-reception.webp" alt="이솔치과의원 내부 전경" loading="eager" decoding="async" width="1280" height="752" fetchpriority="high">
           <div class="tag"><span class="dot"></span><span><b>진료 안내</b> <span>· 진료시간은 전화로 확인해 주세요</span></span></div>
         </div>
         <div class="hero-flank fl-r">
@@ -336,7 +336,7 @@ export function HomePage() {
         </div>
       </div>
       <div class="intro-img" data-reveal data-reveal-d="2">
-        <img src="/static/img/clinic-consult.webp" alt="이솔치과의원 진료 상담 공간" loading="lazy">
+        <img src="/static/img/clinic-consult.webp" alt="이솔치과의원 진료 상담 공간" loading="lazy" decoding="async" width="900" height="1200">
       </div>
     </div>
   </section>
@@ -492,7 +492,7 @@ export function HomePage() {
       <div class="team-grid">
         ${raw(DOCTORS.map((d, i) => `
           <a href="/doctors/${d.slug}" class="team-card" data-reveal data-reveal-d="${(i % 5) + 1}">
-            <div class="team-photo"><img src="${d.photo}" alt="${d.name} ${d.role}" loading="lazy"></div>
+            <div class="team-photo"><img src="${d.photo}" alt="${d.name} ${d.role}" loading="lazy" decoding="async" width="300" height="400"></div>
             <h4>${d.name}</h4>
             <div class="role">${d.role}</div>
             <div class="spec">${d.specialty}</div>

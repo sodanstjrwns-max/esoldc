@@ -206,16 +206,16 @@ export function ReservationPage() {
         <div class="res-form reveal">
           <h3 style="font-size:1.4rem;margin-bottom:6px">온라인 예약 문의</h3>
           <p style="color:var(--ink-soft);font-size:.9rem">남겨주시면 확인 후 연락드립니다. (실제 예약 확정은 전화 안내로 진행됩니다.)</p>
-          <form id="resForm">
-            <label>성함 *</label><input name="name" required placeholder="홍길동">
-            <label>연락처 *</label><input name="phone" required placeholder="010-0000-0000">
-            <label>희망 진료</label>
-            <select name="treatment">
+          <form id="resForm" aria-label="온라인 예약 문의 양식">
+            <label for="res-name">성함 *</label><input id="res-name" name="name" required placeholder="홍길동" autocomplete="name">
+            <label for="res-phone">연락처 *</label><input id="res-phone" name="phone" type="tel" required placeholder="010-0000-0000" autocomplete="tel" inputmode="tel">
+            <label for="res-treatment">희망 진료</label>
+            <select id="res-treatment" name="treatment">
               <option value="">선택 안 함</option>
               ${raw(TREATMENTS.map(t => `<option value="${t.name}">${t.name}</option>`).join(''))}
             </select>
-            <label>희망 날짜/시간</label><input name="datetime" placeholder="예: 0월 0일 오후">
-            <label>문의 내용</label><textarea name="message" rows="4" placeholder="궁금하신 점을 적어주세요."></textarea>
+            <label for="res-datetime">희망 날짜/시간</label><input id="res-datetime" name="datetime" placeholder="예: 0월 0일 오후">
+            <label for="res-message">문의 내용</label><textarea id="res-message" name="message" rows="4" placeholder="궁금하신 점을 적어주세요."></textarea>
             <div class="agree"><input type="checkbox" id="agree" required><label for="agree" style="margin:0;font-weight:400">개인정보 수집·이용(예약 상담 목적)에 동의합니다. *</label></div>
             <button type="submit" class="btn btn-primary" style="width:100%;margin-top:20px;justify-content:center"><i class="fas fa-paper-plane"></i> 예약 문의 보내기</button>
             <div class="res-msg" id="resMsg"></div>
@@ -448,7 +448,7 @@ export function AreaPage(area: NearbyArea, t: Treatment) {
       ${docs.length ? html`
       <h2>${t.name} 담당 의료진</h2>
       <div class="area-docrow">
-        ${raw(docs.map(d => `<a href="/doctors/${d.slug}"><img src="${d.photo}" alt="${d.name} ${d.role}" loading="lazy" decoding="async"><div><div style="font-weight:800;color:var(--navy)">${d.name}</div><div style="font-size:.85rem;color:var(--ink-soft)">${d.role} · ${d.specialty}</div></div></a>`).join(''))}
+        ${raw(docs.map(d => `<a href="/doctors/${d.slug}"><img src="${d.photo}" alt="${d.name} ${d.role}" loading="lazy" decoding="async" width="54" height="54"><div><div style="font-weight:800;color:var(--navy)">${d.name}</div><div style="font-size:.85rem;color:var(--ink-soft)">${d.role} · ${d.specialty}</div></div></a>`).join(''))}
       </div>` : ''}
 
       <h2>${area.name} ${t.name} 자주 묻는 질문</h2>
