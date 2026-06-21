@@ -251,6 +251,48 @@ export function HomePage() {
       .equip-grid{grid-template-columns:1fr}
       .equip-card,.equip-card:nth-child(odd){border-right:none;padding-right:0;margin-right:0;padding:24px 0}
     }
+
+    /* ====================== B4: 환자 여정 (페이션트 퍼널) ====================== */
+    .journey{background:var(--navy);color:var(--inv);position:relative;overflow:hidden}
+    .journey::before{content:'';position:absolute;top:-20%;right:-10%;width:640px;height:640px;background:radial-gradient(closest-side,rgba(201,154,82,.16),transparent 70%);pointer-events:none}
+    .journey .chapter-lbl .ch-name,.journey .sec-head p{color:var(--inv-faint)}
+    .journey .sec-head h2{color:var(--inv)}
+    .jy-track{position:relative;margin-top:54px}
+    /* 세로 연결선 (모바일) / 가로 연결선 (데스크탑) */
+    .jy-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;position:relative}
+    .jy-line{position:absolute;top:32px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.5) 12%,rgba(201,154,82,.5) 88%,transparent);z-index:0}
+    .jy-step{position:relative;z-index:1;text-align:center;padding:0 6px}
+    .jy-ic{width:66px;height:66px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;
+      background:linear-gradient(135deg,#A6772F,#7A511F);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);position:relative}
+    .jy-ic::after{content:attr(data-n);position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;
+      background:var(--inv);color:var(--navy);font-family:var(--grotesk);font-weight:700;font-size:.78rem;display:grid;place-items:center;border:2px solid var(--navy)}
+    .jy-step h4{color:var(--inv);font-size:1.12rem;margin-bottom:8px;font-family:var(--serif)}
+    .jy-step p{color:var(--inv-soft);font-size:.88rem;line-height:1.65;margin:0}
+    .jy-step .jy-tag{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-2);opacity:.85}
+    .jy-foot{margin-top:48px;text-align:center}
+    .jy-foot p{color:var(--inv-soft);font-size:1rem;max-width:620px;margin:0 auto 22px;line-height:1.8}
+    @media(max-width:860px){
+      .jy-steps{grid-template-columns:1fr;gap:0}
+      .jy-line{display:none}
+      .jy-step{display:grid;grid-template-columns:66px 1fr;gap:18px;text-align:left;padding:18px 0;align-items:start;position:relative}
+      .jy-step:not(:last-child)::before{content:'';position:absolute;left:32px;top:66px;bottom:-18px;width:2px;background:rgba(201,154,82,.4)}
+      .jy-ic{margin:0}
+      .jy-step h4{margin-top:4px}
+    }
+
+    /* ====================== B3: 신뢰 · 리뷰 안내 ====================== */
+    .trust-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:40px 0 8px;border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:#fff}
+    .trust-stats .ts{padding:34px 20px;text-align:center;border-right:1px solid var(--line)}
+    .trust-stats .ts:last-child{border-right:none}
+    .trust-stats .ts-num{font-family:var(--serif);font-weight:700;font-size:clamp(2rem,4vw,2.8rem);color:var(--navy);line-height:1;letter-spacing:-.03em}
+    .trust-stats .ts-num em{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .trust-stats .ts-lbl{margin-top:10px;font-size:.9rem;color:var(--ink-soft);font-weight:600}
+    .review-cta{margin-top:24px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius-lg);padding:32px 30px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:space-between}
+    .review-cta .rc-left{display:flex;align-items:center;gap:18px}
+    .review-cta .rc-ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:1.5rem;color:#fff;background:#03C75A;flex:none}
+    .review-cta h4{font-size:1.18rem;margin-bottom:4px}
+    .review-cta p{color:var(--ink-soft);font-size:.92rem;margin:0;line-height:1.6}
+    @media(max-width:680px){.trust-stats{grid-template-columns:1fr}.trust-stats .ts{border-right:none;border-bottom:1px solid var(--line)}.trust-stats .ts:last-child{border-bottom:none}.review-cta{flex-direction:column;align-items:flex-start;text-align:left}}
   </style>
 
   <!-- ============ HERO = PROLOGUE (책의 표지) ============ -->
@@ -504,11 +546,63 @@ export function HomePage() {
     </div>
   </section>
 
+  <!-- ============ B4: 환자 여정 (페이션트 퍼널) = CHAPTER 7 ============ -->
+  <section class="sec journey">
+    <span class="kicker-v">YOUR JOURNEY</span>
+    <div class="wrap folio">
+      <span class="folio-num" aria-hidden="true" style="-webkit-text-stroke-color:rgba(250,245,236,.12)">07</span>
+      <div class="sec-head" data-reveal>
+        <span class="chapter-lbl"><span class="ch-no">일곱 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Your Journey</span></span>
+        <h2 data-line><span>처음 오신 순간부터, <span class="nb"><em>치료를 마친 뒤</em>까지</span></span></h2>
+        <p>이솔치과는 한 번의 진료로 끝나지 않습니다. 처음 문의하시는 순간부터 치료 후 관리까지, 다섯 단계로 함께합니다.</p>
+      </div>
+      <div class="jy-track" data-reveal>
+        <div class="jy-steps">
+          <span class="jy-line" aria-hidden="true"></span>
+          <div class="jy-step">
+            <div class="jy-ic" data-n="1"><i class="fas fa-hand-holding-heart"></i></div>
+            <h4>문의 · 예약</h4>
+            <p>전화나 온라인으로 편하게 문의하세요. 어떤 점이 궁금하신지부터 듣습니다.</p>
+            <span class="jy-tag">Contact</span>
+          </div>
+          <div class="jy-step">
+            <div class="jy-ic" data-n="2"><i class="fas fa-comments"></i></div>
+            <h4>상담 · 경청</h4>
+            <p>증상과 걱정, 원하시는 방향을 충분히 여쭙고 함께 이야기 나눕니다.</p>
+            <span class="jy-tag">Consult</span>
+          </div>
+          <div class="jy-step">
+            <div class="jy-ic" data-n="3"><i class="fas fa-magnifying-glass-chart"></i></div>
+            <h4>정밀 진단</h4>
+            <p>CT·구강스캐너 등으로 보이지 않는 부분까지 살펴 상태를 설명드립니다.</p>
+            <span class="jy-tag">Diagnosis</span>
+          </div>
+          <div class="jy-step">
+            <div class="jy-ic" data-n="4"><i class="fas fa-tooth"></i></div>
+            <h4>맞춤 진료</h4>
+            <p>설명드린 계획에 동의하신 뒤, 각 분야 전문의가 진료를 진행합니다.</p>
+            <span class="jy-tag">Treatment</span>
+          </div>
+          <div class="jy-step">
+            <div class="jy-ic" data-n="5"><i class="fas fa-heart-circle-check"></i></div>
+            <h4>사후 관리</h4>
+            <p>치료가 끝난 뒤에도 정기 점검으로 건강한 상태를 함께 지켜갑니다.</p>
+            <span class="jy-tag">Aftercare</span>
+          </div>
+        </div>
+      </div>
+      <div class="jy-foot" data-reveal>
+        <p>좋은 진료는 ‘기술’만으로 완성되지 않는다고 믿습니다.<br>환자분이 <em style="color:var(--gold-2);font-style:normal">기분 좋게 진료를 마치실 때까지</em>, 그 여정을 함께하겠습니다.</p>
+        <a href="/reservation" class="btn btn-gold"><i class="fas fa-calendar-check"></i> 첫 상담 문의하기</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ 지역 ============ -->
   <section class="sec geo">
     <div class="wrap">
       <div class="sec-head center" data-reveal>
-        <span class="mono-lbl"><span class="num">/07</span> 진료 가능 지역</span>
+        <span class="mono-lbl"><span class="num">/08</span> 진료 가능 지역</span>
         <h2 data-line><span>마석 인근에서 <span class="nb"><em>편하게</em> 오세요</span></span></h2>
         <p>마석을 중심으로 화도·남양주·가평 등 인근 지역에서 찾아주십니다.</p>
       </div>
@@ -518,6 +612,45 @@ export function HomePage() {
       <div data-reveal style="text-align:center;margin-top:26px">
         <a href="/area" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--gold-3);border-bottom:2px solid var(--gold-soft);padding-bottom:4px">지역별 진료 안내 전체 보기 <i class="fas fa-arrow-right" style="font-size:.85em"></i></a>
       </div>
+    </div>
+  </section>
+
+  <!-- ============ B3: 신뢰 · 리뷰 안내 ============ -->
+  <section class="sec" style="padding-top:0">
+    <div class="wrap" style="max-width:1000px">
+      <div class="sec-head center" data-reveal>
+        <span class="mono-lbl"><span class="num">/09</span> 환자분들의 신뢰</span>
+        <h2 data-line><span>숫자보다 <span class="nb"><em>관계</em>로 쌓아온 시간</span></span></h2>
+        <p>이솔치과가 한자리에서 지역 주민분들과 함께해 온 시간입니다.</p>
+      </div>
+      <div class="trust-stats" data-reveal>
+        <div class="ts"><div class="ts-num"><em>${new Date().getFullYear() - CLINIC.established}</em>년</div><div class="ts-lbl">한자리에서 (${CLINIC.established}년 개원)</div></div>
+        <div class="ts"><div class="ts-num"><em>5</em>인</div><div class="ts-lbl">분야별 전문의 협진</div></div>
+        <div class="ts"><div class="ts-num"><em>3</em>대</div><div class="ts-lbl">함께 다니는 가족 주치의</div></div>
+      </div>
+      <div class="review-cta" data-reveal>
+        <div class="rc-left">
+          <div class="rc-ic"><i class="fas fa-comment-dots"></i></div>
+          <div>
+            <h4>실제 방문자 리뷰는 네이버에서 확인하세요</h4>
+            <p>의료법에 따라 치료 후기는 사이트에 직접 게시하지 않습니다.<br>대신 실제 방문자분들이 남긴 후기를 네이버 플레이스에서 보실 수 있습니다.</p>
+          </div>
+        </div>
+        ${CLINIC.sns.naverPlaceUrl
+          ? raw(`<a href="${CLINIC.sns.naverPlaceUrl}" target="_blank" rel="noopener" class="btn btn-primary" data-cta="naver-review"><i class="fas fa-arrow-up-right-from-square"></i> 네이버 리뷰 보기</a>`)
+          : raw(`<a href="https://search.naver.com/search.naver?query=${encodeURIComponent(CLINIC.name + ' ' + CLINIC.region)}" target="_blank" rel="noopener" class="btn btn-primary" data-cta="naver-review"><i class="fas fa-magnifying-glass"></i> 네이버에서 찾아보기</a>`)}
+      </div>
+      <div class="review-cta" data-reveal style="margin-top:14px">
+        <div class="rc-left">
+          <div class="rc-ic" style="background:var(--gold-grad);background:linear-gradient(135deg,#A6772F,#7A511F)"><i class="fas fa-images"></i></div>
+          <div>
+            <h4>치료 전후, 직접 비교해 보실 수 있습니다</h4>
+            <p>동의를 받은 실제 진료 사례를 ‘전후 비교 슬라이더’로 살펴보실 수 있습니다.<br>치료 후 사진은 의료법에 따라 회원 열람으로 제공됩니다.</p>
+          </div>
+        </div>
+        <a href="/cases" class="btn btn-ghost" data-cta="cases"><i class="fas fa-arrows-left-right"></i> 비포&애프터 보기</a>
+      </div>
+      <p style="text-align:center;font-size:.82rem;color:var(--ink-faint);margin-top:18px">※ 모든 진료 결과는 개인의 구강 상태에 따라 차이가 있을 수 있습니다.</p>
     </div>
   </section>
 

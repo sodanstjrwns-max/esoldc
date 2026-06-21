@@ -1,0 +1,16 @@
+{
+  "name": "이솔치과의원",
+  "short_name": "이솔치과",
+  "description": "남양주 마석, 3대가 함께 다니는 우리 가족 치과 주치의. 기분 좋게 진료를 마칠 때까지.",
+  "lang": "ko-KR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F7F0E1",
+  "theme_color": "#5A463A",
+  "icons": [
+    { "src": "/static/img/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/static/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/static/img/apple-touch-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

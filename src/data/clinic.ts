@@ -49,6 +49,9 @@ export const CLINIC = {
     youtube: 'https://www.youtube.com/@이솔치과',        // 휴면 — 재정비 예정
     naverPlace: true,    // 운영 중 (URL 취합 예정)
     kakaoChannel: true,  // 운영 시작 (URL 취합 예정)
+    // ⚠️ URL 확정 시 아래 채워 넣으면 자동으로 버튼/링크 활성화. 빈 값이면 안전하게 대체 동선 사용(창작 금지)
+    kakaoChannelUrl: '',     // 예: 'http://pf.kakao.com/_xxxxx'
+    naverPlaceUrl: '',       // 예: 'https://map.naver.com/p/entry/place/xxxxxxxx'
   },
 
   // --- 보유 장비 (6/3 시트) ---

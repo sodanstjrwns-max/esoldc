@@ -82,6 +82,13 @@ em,i,cite,address,dfn,var,blockquote{font-style:normal}
 /* 접근성: 본문 바로가기 (키보드 포커스 시에만 노출) */
 .skip-link{position:absolute;left:-9999px;top:0;z-index:9999;background:var(--navy);color:#fff;padding:12px 20px;border-radius:0 0 10px 0;font-weight:700;text-decoration:none}
 .skip-link:focus{left:0}
+/* ── C6: 통일된 키보드 포커스 링 (접근성 — 마우스 클릭엔 안 보이고 키보드에만) ── */
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:6px}
+.btn:focus-visible,a.btn:focus-visible{outline-offset:4px}
+/* 마우스 사용자에겐 기본 outline 제거(포커스 링은 :focus-visible로만) */
+:focus:not(:focus-visible){outline:none}
+/* ── C6: 카드류 미세 상호작용 — 클릭 시 살짝 눌리는 피드백 ── */
+.btn:active{transform:translateY(0) scale(.985)}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden}
 /* iOS 입력 포커스 시 자동 줌인 방지: 폼 요소 폰트 16px 보장 */
 input,textarea,select{font-size:16px}
@@ -128,6 +135,11 @@ section{position:relative}
 .btn{position:relative;display:inline-flex;align-items:center;gap:.6em;padding:15px 30px;border-radius:12px;font-weight:700;font-size:1.01rem;transition:transform .4s var(--ease),box-shadow .4s var(--ease),background .35s var(--ease),border-color .35s;cursor:pointer;border:1.5px solid transparent;letter-spacing:-.01em;font-family:var(--display);overflow:hidden}
 .btn i{transition:transform .35s var(--ease)}
 .btn:hover i.fa-arrow-right{transform:translateX(4px)}
+/* C6: 버튼 위로 흐르는 광택 스윕 (hover 시 1회) — 채움형 버튼에만 */
+.btn-primary::before,.btn-accent::before,.btn-gold::before{content:'';position:absolute;top:0;left:-130%;width:60%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);transition:left .7s var(--ease);pointer-events:none}
+.btn-primary:hover::before,.btn-accent:hover::before,.btn-gold:hover::before{left:140%}
+@media(prefers-reduced-motion:reduce){.btn-primary::before,.btn-accent::before,.btn-gold::before{display:none}}
 .btn-primary{background:var(--navy);color:var(--inv);box-shadow:var(--shadow-sm)}
 .btn-primary:hover{background:var(--navy-2);transform:translateY(-3px);box-shadow:var(--shadow)}
 .btn-accent{background:var(--gold-grad);background-size:160% 160%;background-position:0% 50%;color:#fff;box-shadow:0 10px 28px rgba(138,95,38,.32);transition:transform .4s var(--ease),box-shadow .4s var(--ease),background-position .6s var(--ease)}
@@ -190,7 +202,20 @@ section{position:relative}
 .float-cta a{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1.3rem;box-shadow:var(--shadow);transition:transform .3s var(--ease)}
 .float-cta a:hover{transform:scale(1.1)}
 .float-cta a:active{transform:scale(.94)}
-.fc-tel{background:var(--navy)}.fc-map{background:var(--navy-3)}.fc-book{background:var(--gold)}
+.fc-tel{background:var(--navy)}.fc-map{background:var(--navy-3)}.fc-book{background:var(--gold)}.fc-kko{background:#3C1E1E}
+/* 플로팅 버튼: 라벨 툴팁(데스크탑 hover 시 좌측 노출) */
+.float-cta a{position:relative}
+.float-cta a .fc-lbl{position:absolute;right:calc(100% + 12px);top:50%;transform:translateY(-50%) translateX(6px);
+  background:var(--navy);color:#fff;font-size:.78rem;font-weight:700;letter-spacing:-.01em;white-space:nowrap;
+  padding:7px 12px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .25s var(--ease),transform .25s var(--ease);
+  box-shadow:0 6px 18px rgba(62,44,31,.22)}
+.float-cta a .fc-lbl::after{content:'';position:absolute;left:100%;top:50%;transform:translateY(-50%);
+  border:5px solid transparent;border-left-color:var(--navy)}
+.float-cta a:hover .fc-lbl{opacity:1;transform:translateY(-50%) translateX(0)}
+/* 첫 진입 펄스(주의 환기) — 예약 버튼만, 1회성 */
+@keyframes fcPulse{0%{box-shadow:var(--shadow),0 0 0 0 rgba(166,119,47,.5)}70%{box-shadow:var(--shadow),0 0 0 14px rgba(166,119,47,0)}100%{box-shadow:var(--shadow),0 0 0 0 rgba(166,119,47,0)}}
+.float-cta .fc-book{animation:fcPulse 2.6s var(--ease) 1.4s 2}
+@media(prefers-reduced-motion:reduce){.float-cta .fc-book{animation:none}}
 
 /* ── 스크롤 리빌 (data-reveal = home / .reveal = 기타 페이지 호환) ── */
 [data-reveal],.reveal{opacity:0;transform:translateY(36px);transition:opacity .9s var(--ease-soft),transform .9s var(--ease-soft)}
@@ -313,12 +338,13 @@ section{position:relative}
     padding:8px 10px calc(8px + env(safe-area-inset-bottom));gap:8px;
     background:rgba(247,240,225,.92);backdrop-filter:blur(10px);
     border-top:1px solid var(--line);box-shadow:0 -4px 20px rgba(62,44,31,.1)}
-  .mobile-cta-bar a{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
-    min-height:50px;border-radius:12px;font-weight:800;font-size:.98rem;text-decoration:none}
+  .mobile-cta-bar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    min-height:54px;border-radius:12px;font-weight:800;font-size:.82rem;text-decoration:none;line-height:1.1}
   .mobile-cta-bar .mc-tel{background:var(--navy);color:#fff}
+  .mobile-cta-bar .mc-kko{background:#FAE100;color:#3C1E1E}
   .mobile-cta-bar .mc-book{background:var(--gold-grad);color:#fff;
-    background:linear-gradient(135deg,#A6772F,#8A5F26)}
-  .mobile-cta-bar .mc-tel i,.mobile-cta-bar .mc-book i{font-size:.92em}
+    background:linear-gradient(135deg,#A6772F,#8A5F26);flex:1.25}
+  .mobile-cta-bar a i{font-size:1.12em}
   /* 하단 바 높이만큼 푸터 여백 확보(콘텐츠 가림 방지) */
   body{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
   /* 버튼 풀폭 + 최소 터치 높이(48px) */
@@ -574,6 +600,31 @@ const INTERACTION_JS = `
       }, {passive:true});
     }
   }
+
+  // ── Before/After 비교 슬라이더 (전역 공통 — .ba-slider 있으면 어느 페이지든 작동) ──
+  // 드래그 + 키보드(←/→) + 클릭 이동 지원. 접근성 위해 핸들에 role/aria 부여.
+  document.querySelectorAll('.ba-slider').forEach(function(sl){
+    var wrap=sl.querySelector('.ba-before-wrap'),handle=sl.querySelector('.ba-handle'),drag=false;
+    if(!wrap||!handle)return;
+    var img=wrap.querySelector('img'); var pos=50;
+    function fit(){ if(img){img.style.width=sl.offsetWidth+'px';img.style.height='auto';img.style.maxWidth='none';} }
+    fit(); window.addEventListener('resize',fit);
+    function set(p){ pos=Math.max(2,Math.min(98,p)); wrap.style.width=pos+'%'; handle.style.left=pos+'%'; handle.setAttribute('aria-valuenow',Math.round(pos)); }
+    function move(clientX){ var r=sl.getBoundingClientRect(); set((clientX-r.left)/r.width*100); }
+    sl.addEventListener('pointerdown',function(e){drag=true;try{sl.setPointerCapture(e.pointerId);}catch(_){}move(e.clientX);});
+    sl.addEventListener('pointermove',function(e){if(drag)move(e.clientX);});
+    sl.addEventListener('pointerup',function(){drag=false;});
+    sl.addEventListener('pointercancel',function(){drag=false;});
+    // 접근성: 핸들 포커스 + 방향키
+    handle.setAttribute('tabindex','0'); handle.setAttribute('role','slider');
+    handle.setAttribute('aria-label','전후 비교 슬라이더'); handle.setAttribute('aria-valuemin','0'); handle.setAttribute('aria-valuemax','100'); handle.setAttribute('aria-valuenow','50');
+    handle.addEventListener('keydown',function(e){
+      if(e.key==='ArrowLeft'){e.preventDefault();set(pos-4);}
+      else if(e.key==='ArrowRight'){e.preventDefault();set(pos+4);}
+      else if(e.key==='Home'){e.preventDefault();set(2);}
+      else if(e.key==='End'){e.preventDefault();set(98);}
+    });
+  });
 })();
 `;
 
@@ -639,6 +690,8 @@ function header() {
 }
 
 function footer() {
+  // 카카오 채널 URL이 확정된 경우에만 카카오 버튼 활성화 (없으면 '오시는 길'로 안전 대체 — 창작/허위링크 금지)
+  const kko = (CLINIC.sns.kakaoChannelUrl || '').trim();
   return html`
   <footer class="site-footer">
     <div class="wrap">
@@ -693,13 +746,18 @@ function footer() {
     </div>
   </footer>
   <div class="float-cta">
-    <a href="tel:${CLINIC.tel}" class="fc-tel" aria-label="전화"><i class="fas fa-phone"></i></a>
-    <a href="/directions" class="fc-map" aria-label="오시는길"><i class="fas fa-map-marker-alt"></i></a>
-    <a href="/reservation" class="fc-book" aria-label="예약"><i class="fas fa-calendar-check"></i></a>
+    <a href="tel:${CLINIC.tel}" class="fc-tel" aria-label="전화 상담"><i class="fas fa-phone"></i><span class="fc-lbl">전화 상담</span></a>
+    ${kko
+      ? raw(`<a href="${kko}" class="fc-kko" target="_blank" rel="noopener" aria-label="카카오톡 상담"><i class="fas fa-comment"></i><span class="fc-lbl">카카오톡 상담</span></a>`)
+      : raw(`<a href="/directions" class="fc-map" aria-label="오시는 길"><i class="fas fa-map-marker-alt"></i><span class="fc-lbl">오시는 길</span></a>`)}
+    <a href="/reservation" class="fc-book" aria-label="예약 문의"><i class="fas fa-calendar-check"></i><span class="fc-lbl">예약 문의</span></a>
   </div>
   <nav class="mobile-cta-bar" aria-label="빠른 연락">
-    <a href="tel:${CLINIC.tel}" class="mc-tel"><i class="fas fa-phone"></i> 전화 상담</a>
-    <a href="/reservation" class="mc-book"><i class="fas fa-calendar-check"></i> 예약 문의</a>
+    <a href="tel:${CLINIC.tel}" class="mc-tel"><i class="fas fa-phone"></i><span>전화 상담</span></a>
+    ${kko
+      ? raw(`<a href="${kko}" class="mc-kko" target="_blank" rel="noopener" data-cta="kakao"><i class="fas fa-comment"></i><span>카카오톡</span></a>`)
+      : raw(`<a href="/directions" class="mc-kko" style="background:var(--navy-3);color:#fff"><i class="fas fa-map-marker-alt"></i><span>오시는 길</span></a>`)}
+    <a href="/reservation" class="mc-book"><i class="fas fa-calendar-check"></i><span>예약 문의</span></a>
   </nav>`;
 }
 
@@ -739,6 +797,7 @@ export function Layout(meta: SeoMeta, body: any) {
   <meta property="og:image" content="${ogImage}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${CLINIC.name} — ${CLINIC.slogan}">
   <meta property="og:locale" content="ko_KR">
   ${raw(`<meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${t}">
@@ -748,6 +807,10 @@ export function Layout(meta: SeoMeta, body: any) {
   <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32.png">
   <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="${CLINIC.name}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

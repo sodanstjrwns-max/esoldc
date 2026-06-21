@@ -184,22 +184,8 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
       </div>
     </div>
   </section>
-  <script>
-  document.querySelectorAll('.ba-slider').forEach(function(sl){
-    var wrap=sl.querySelector('.ba-before-wrap'),handle=sl.querySelector('.ba-handle'),drag=false;
-    var img=wrap.querySelector('img');
-    function fit(){img.style.width=sl.offsetWidth+'px';img.style.height='auto';img.style.maxWidth='none';}
-    fit();window.addEventListener('resize',fit);
-    function move(clientX){
-      var r=sl.getBoundingClientRect();
-      var p=Math.max(2,Math.min(98,(clientX-r.left)/r.width*100));
-      wrap.style.width=p+'%';handle.style.left=p+'%';
-    }
-    sl.addEventListener('pointerdown',function(e){drag=true;sl.setPointerCapture(e.pointerId);move(e.clientX);});
-    sl.addEventListener('pointermove',function(e){if(drag)move(e.clientX);});
-    sl.addEventListener('pointerup',function(){drag=false;});
-  });
-  </script>`;
+  <!-- 비교 슬라이더 구동은 전역 INTERACTION_JS(.ba-slider 공통 핸들러)로 처리 — 키보드 접근성 포함 -->
+  `;
 }
 
 // ============================================================

@@ -208,6 +208,26 @@ export function ReservationPage() {
     .res-step .rs-ico{color:var(--gold);font-size:1.3rem;margin-bottom:10px}
     @media(max-width:740px){.res-steps{grid-template-columns:1fr;gap:14px}}
     @media(max-width:860px){.res-grid{grid-template-columns:1fr}}
+    /* ── A2: 폼 진행 퍼널 표시 ── */
+    .res-progress{display:flex;align-items:center;gap:0;margin:4px 0 26px}
+    .res-progress .rp-step{display:flex;flex-direction:column;align-items:center;gap:7px;flex:none;position:relative;z-index:1}
+    .res-progress .rp-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.9rem;
+      background:#fff;border:2px solid var(--line);color:var(--ink-faint);transition:all .4s var(--ease)}
+    .res-progress .rp-lbl{font-size:.74rem;font-weight:700;color:var(--ink-faint);white-space:nowrap;transition:color .4s}
+    .res-progress .rp-step.on .rp-dot{background:linear-gradient(135deg,#A6772F,#8A5F26);border-color:transparent;color:#fff;box-shadow:0 4px 12px rgba(166,119,47,.3)}
+    .res-progress .rp-step.on .rp-lbl{color:var(--gold-3)}
+    .res-progress .rp-step.done .rp-dot{background:var(--navy);border-color:transparent;color:#fff}
+    .res-progress .rp-bar{flex:1;height:2px;background:var(--line);margin:0 8px;position:relative;top:-13px;border-radius:2px;overflow:hidden}
+    .res-progress .rp-bar i{position:absolute;inset:0;width:0;background:var(--gold-grad);background:linear-gradient(90deg,#A6772F,#8A5F26);transition:width .5s var(--ease)}
+    /* ── A2: 진료항목·시간대 칩 선택 ── */
+    .chip-group{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border:1.5px solid var(--line);border-radius:999px;
+      background:#fff;font-size:.88rem;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:all .22s var(--ease);user-select:none}
+    .chip:hover{border-color:var(--gold-2);color:var(--gold-3)}
+    .chip.sel{background:var(--gold-soft);border-color:var(--gold);color:var(--gold-3);font-weight:800}
+    .chip.sel i{color:var(--gold)}
+    .chip i{font-size:.82em;color:var(--ink-faint)}
+    .field-hint{font-size:.8rem;color:var(--ink-faint);margin-top:6px}
   </style>
   <section class="section" style="padding-bottom:0">
     <div class="wrap">
@@ -243,18 +263,35 @@ export function ReservationPage() {
         <div class="res-form reveal">
           <h3 style="font-size:1.4rem;margin-bottom:6px">온라인 예약 문의</h3>
           <p style="color:var(--ink-soft);font-size:.9rem">남겨주시면 확인 후 연락드립니다. (실제 예약 확정은 전화 안내로 진행됩니다.)</p>
+          <!-- A2: 진행 퍼널 표시 -->
+          <div class="res-progress" id="resProgress" aria-hidden="true">
+            <div class="rp-step on" data-step="1"><span class="rp-dot">1</span><span class="rp-lbl">정보 입력</span></div>
+            <div class="rp-bar"><i></i></div>
+            <div class="rp-step" data-step="2"><span class="rp-dot">2</span><span class="rp-lbl">문의 접수</span></div>
+            <div class="rp-bar"><i></i></div>
+            <div class="rp-step" data-step="3"><span class="rp-dot">3</span><span class="rp-lbl">확인 연락</span></div>
+          </div>
           <form id="resForm" aria-label="온라인 예약 문의 양식">
             <label for="res-name">성함 *</label><input id="res-name" name="name" required placeholder="홍길동" autocomplete="name">
             <label for="res-phone">연락처 *</label><input id="res-phone" name="phone" type="tel" required placeholder="010-0000-0000" autocomplete="tel" inputmode="tel">
-            <label for="res-treatment">희망 진료</label>
-            <select id="res-treatment" name="treatment">
-              <option value="">선택 안 함</option>
-              ${raw(TREATMENTS.map(t => `<option value="${t.name}">${t.name}</option>`).join(''))}
-            </select>
-            <label for="res-datetime">희망 날짜/시간</label><input id="res-datetime" name="datetime" placeholder="예: 0월 0일 오후">
-            <label for="res-message">문의 내용</label><textarea id="res-message" name="message" rows="4" placeholder="궁금하신 점을 적어주세요."></textarea>
+
+            <label id="lbl-treatment">희망 진료 <span style="font-weight:400;color:var(--ink-faint);font-size:.84rem">(복수 선택 가능)</span></label>
+            <div class="chip-group" role="group" aria-labelledby="lbl-treatment" id="treatChips">
+              ${raw(TREATMENTS.map(t => `<span class="chip" data-val="${t.name}" role="button" tabindex="0">${t.name}</span>`).join(''))}
+            </div>
+            <input type="hidden" id="res-treatment" name="treatment">
+
+            <label id="lbl-time">희망 시간대 <span style="font-weight:400;color:var(--ink-faint);font-size:.84rem">(선택)</span></label>
+            <div class="chip-group" role="group" aria-labelledby="lbl-time" id="timeChips">
+              ${raw(['오전 (9–12시)','오후 (12–17시)','저녁 (17시 이후)','주말·공휴일','시간 무관'].map(v => `<span class="chip" data-val="${v}" role="button" tabindex="0"><i class="far fa-clock"></i>${v}</span>`).join(''))}
+            </div>
+            <label for="res-datetime" style="margin-top:14px">희망 날짜 <span style="font-weight:400;color:var(--ink-faint);font-size:.84rem">(선택)</span></label>
+            <input id="res-datetime" name="datetime" placeholder="예: 6월 25일경 / 다음 주 중">
+
+            <label for="res-message">문의 내용</label><textarea id="res-message" name="message" rows="4" placeholder="궁금하신 점이나 증상을 자유롭게 적어주세요."></textarea>
             <div class="agree"><input type="checkbox" id="agree" required><label for="agree" style="margin:0;font-weight:400">개인정보 수집·이용(예약 상담 목적)에 동의합니다. *</label></div>
             <button type="submit" class="btn btn-primary" style="width:100%;margin-top:20px;justify-content:center"><i class="fas fa-paper-plane"></i> 예약 문의 보내기</button>
+            <p class="field-hint" style="text-align:center;margin-top:10px"><i class="fas fa-shield-halved"></i> 입력하신 정보는 예약 상담 목적으로만 사용됩니다.</p>
             <div class="res-msg" id="resMsg"></div>
           </form>
         </div>
@@ -278,6 +315,43 @@ export function ReservationPage() {
     var btnHTML=btn?btn.innerHTML:'';
     var submitting=false;
 
+    // ── A2: 칩 선택(진료/시간대) ──
+    var treatHidden=document.getElementById('res-treatment');
+    function bindChips(groupId, multi, onChange){
+      var g=document.getElementById(groupId); if(!g)return;
+      function toggle(chip){
+        if(multi){ chip.classList.toggle('sel'); }
+        else{ var was=chip.classList.contains('sel');
+          g.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel');});
+          if(!was)chip.classList.add('sel'); }
+        onChange&&onChange();
+      }
+      g.querySelectorAll('.chip').forEach(function(chip){
+        chip.addEventListener('click',function(){toggle(chip);});
+        chip.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(chip);}});
+      });
+    }
+    function selVals(groupId){
+      var g=document.getElementById(groupId); if(!g)return [];
+      return Array.prototype.map.call(g.querySelectorAll('.chip.sel'),function(c){return c.getAttribute('data-val');});
+    }
+    bindChips('treatChips', true, function(){ if(treatHidden)treatHidden.value=selVals('treatChips').join(', '); updateProgress(); });
+    bindChips('timeChips', false, updateProgress);
+
+    // ── A2: 진행 퍼널 업데이트 (입력 충실도 → 1단계 활성/충족 표시) ──
+    var prog=document.getElementById('resProgress');
+    function updateProgress(){
+      if(!prog)return;
+      var nameOk=(document.getElementById('res-name').value||'').trim().length>0;
+      var phoneOk=((phone&&phone.value||'').replace(/[^0-9]/g,'')).length>=10;
+      var ready=nameOk&&phoneOk;
+      var bar=prog.querySelector('.rp-bar i');
+      if(bar)bar.style.width=ready?'100%':(nameOk||phoneOk?'45%':'0');
+      var s2=prog.querySelector('[data-step="2"]');
+      if(s2)s2.classList.toggle('on',ready);
+    }
+    document.getElementById('res-name').addEventListener('input',updateProgress);
+
     // 전화번호 자동 하이픈 포맷 (010-0000-0000)
     if(phone){
       phone.addEventListener('input',function(){
@@ -285,6 +359,7 @@ export function ReservationPage() {
         if(v.length<4){this.value=v;}
         else if(v.length<8){this.value=v.slice(0,3)+'-'+v.slice(3);}
         else{this.value=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7);}
+        updateProgress();
       });
     }
 
@@ -292,6 +367,10 @@ export function ReservationPage() {
       e.preventDefault();
       if(submitting)return; // 중복 제출 방지
       var data=Object.fromEntries(new FormData(f).entries());
+      // 진료(칩 다중) 반영 + 시간대 칩을 희망 일정에 합산
+      data.treatment=selVals('treatChips').join(', ');
+      var times=selVals('timeChips');
+      if(times.length){ data.datetime=(times.join(', ')+(data.datetime?(' / '+data.datetime):'')); }
       // 간단 검증
       if(!data.name||!data.name.trim()){msg.className='res-msg err';msg.textContent='성함을 입력해 주세요.';document.getElementById('res-name').focus();return;}
       var digits=(data.phone||'').replace(/[^0-9]/g,'');
@@ -307,7 +386,18 @@ export function ReservationPage() {
           msg.innerHTML='<i class="fas fa-check-circle"></i> 문의가 정상 접수되었습니다. 진료시간 내 확인 후 연락드리겠습니다. 감사합니다!';
           // 전환 이벤트 발행 (GA4가 수신)
           try{ window.dispatchEvent(new CustomEvent('isol:reservation_success',{detail:{treatment:data.treatment||''}})); }catch(_){}
+          // 퍼널 완료 표시 (1·2 done, 3 on)
+          if(prog){
+            var bar2=prog.querySelector('.rp-bar i'); if(bar2)bar2.style.width='100%';
+            prog.querySelectorAll('.rp-bar').forEach(function(b){var bi=b.querySelector('i');if(bi)bi.style.width='100%';});
+            var s1=prog.querySelector('[data-step="1"]'),s2=prog.querySelector('[data-step="2"]'),s3=prog.querySelector('[data-step="3"]');
+            if(s1){s1.classList.remove('on');s1.classList.add('done');}
+            if(s2){s2.classList.remove('on');s2.classList.add('done');}
+            if(s3)s3.classList.add('on');
+          }
           f.reset();
+          document.querySelectorAll('.chip.sel').forEach(function(c){c.classList.remove('sel');});
+          if(treatHidden)treatHidden.value='';
           msg.scrollIntoView({behavior:'smooth',block:'center'});
         } else { throw new Error(); }
       }catch(_){
@@ -568,12 +658,40 @@ export function AreaPage(area: NearbyArea, t: Treatment) {
 // ============ 404 ============
 export function NotFoundPage() {
   return html`
-  <section style="min-height:80vh;display:flex;align-items:center;justify-content:center;background:var(--bg-soft);text-align:center;padding:120px 20px 60px">
-    <div>
-      <div style="font-size:6rem;font-weight:800;color:var(--gold);line-height:1">404</div>
-      <h1 style="font-size:1.8rem;margin:16px 0 10px">페이지를 찾을 수 없습니다</h1>
-      <p style="color:var(--ink-soft);margin-bottom:28px">요청하신 페이지가 존재하지 않거나 이동되었습니다.</p>
-      <a href="/" class="btn btn-primary"><i class="fas fa-home"></i> 홈으로 돌아가기</a>
+  <style>
+    .nf-wrap{min-height:84vh;display:flex;align-items:center;justify-content:center;background:var(--bg-grad-soft);text-align:center;padding:130px 20px 70px;position:relative;overflow:hidden}
+    .nf-wrap::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:760px;height:620px;background:radial-gradient(closest-side,rgba(201,154,82,.12),transparent 70%);pointer-events:none}
+    .nf-inner{position:relative;z-index:1;max-width:560px}
+    .nf-tooth{width:96px;height:120px;margin:0 auto 8px;color:var(--gold);opacity:.9}
+    .nf-code{font-family:var(--grotesk);font-weight:700;font-size:clamp(4.5rem,14vw,7rem);line-height:.9;letter-spacing:-.04em;
+      background:var(--gold-grad);background:linear-gradient(135deg,#A6772F,#7A511F);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .nf-inner h1{font-family:var(--serif);font-size:clamp(1.5rem,4vw,2rem);margin:8px 0 12px;color:var(--navy)}
+    .nf-inner p{color:var(--ink-soft);margin-bottom:30px;line-height:1.8;font-size:1.02rem}
+    .nf-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:34px}
+    .nf-links{border-top:1px solid var(--line);padding-top:24px;display:flex;gap:8px 22px;justify-content:center;flex-wrap:wrap}
+    .nf-links a{color:var(--gold-3);font-weight:700;font-size:.92rem;display:inline-flex;align-items:center;gap:6px}
+    .nf-links a:hover{text-decoration:underline;text-underline-offset:3px}
+  </style>
+  <section class="nf-wrap">
+    <div class="nf-inner">
+      <svg class="nf-tooth" viewBox="0 0 120 150" fill="none" aria-hidden="true">
+        <path d="M60 14 C 36 14, 24 30, 26 52 C 28 74, 38 80, 40 114 C 41.5 134, 50 136, 53 116 C 55.5 100, 58 96, 60 96 C 62 96, 64.5 100, 67 116 C 70 136, 78.5 134, 80 114 C 82 80, 92 74, 94 52 C 96 30, 84 14, 60 14 Z" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+        <text x="60" y="74" text-anchor="middle" font-size="30" fill="currentColor" font-family="serif">?</text>
+      </svg>
+      <div class="nf-code">404</div>
+      <h1>찾으시는 페이지가 보이지 않네요</h1>
+      <p>주소가 바뀌었거나, 사라진 페이지일 수 있습니다.<br>아래에서 원하시는 곳으로 바로 이동해 보세요.</p>
+      <div class="nf-actions">
+        <a href="/" class="btn btn-primary"><i class="fas fa-house"></i> 홈으로</a>
+        <a href="/reservation" class="btn btn-gold"><i class="fas fa-calendar-check"></i> 예약 문의</a>
+        <a href="tel:${CLINIC.tel}" class="btn btn-ghost"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
+      </div>
+      <nav class="nf-links" aria-label="자주 찾는 페이지">
+        <a href="/treatments"><i class="fas fa-tooth"></i> 진료 안내</a>
+        <a href="/doctors"><i class="fas fa-user-md"></i> 의료진</a>
+        <a href="/directions"><i class="fas fa-map-marker-alt"></i> 오시는 길</a>
+        <a href="/faq"><i class="fas fa-circle-question"></i> 자주 묻는 질문</a>
+      </nav>
     </div>
   </section>
   `;
