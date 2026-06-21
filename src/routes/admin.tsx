@@ -8,6 +8,7 @@ import { createSession, setSessionCookie, destroySession, getSession, adminPassw
 import { DOCTORS, TREATMENTS, CLINIC } from '../data/clinic';
 import { searchRegions } from '../data/regions';
 import { EDITOR_CSS, EDITOR_MODALS, EDITOR_JS } from '../lib/editor';
+import { submitUrls } from '../lib/indexnow';
 
 type Bindings = { DB?: D1Database; R2?: R2Bucket; ADMIN_PASSWORD?: string };
 
@@ -223,7 +224,26 @@ document.getElementById('af').addEventListener('submit',async function(e){
       <a href="/admin/posts/new" class="btn btn-g"><i class="fas fa-pen"></i> 블로그 작성</a>
       <a href="/admin/notices/new" class="btn btn-g"><i class="fas fa-bullhorn"></i> 공지 작성</a>
       <a href="/" class="btn btn-o" target="_blank"><i class="fas fa-external-link-alt"></i> 사이트 보기</a>
+      <button type="button" id="indexnowBtn" class="btn btn-o"><i class="fas fa-magnifying-glass-location"></i> 검색엔진 색인 요청</button>
     </div>
+    <p style="margin:10px 0 0;font-size:.8rem;color:#8a7d6e;line-height:1.5">
+      <i class="fas fa-circle-info"></i> 글·비포애프터를 <b>공개로 발행하면 자동으로</b> 검색엔진(빙·구글 등)에 색인이 요청됩니다.
+      위 버튼은 전체 주요 페이지를 한 번에 재요청할 때만 누르세요.
+    </p>
+    <script>
+      document.getElementById('indexnowBtn')?.addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        const orig = btn.innerHTML;
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 요청 중...';
+        try {
+          const r = await fetch('/admin/api/indexnow/resubmit', { method: 'POST' });
+          const j = await r.json();
+          if (j.ok) { btn.innerHTML = '<i class="fas fa-check"></i> ' + j.count + '건 색인 요청 완료'; }
+          else { btn.innerHTML = '<i class="fas fa-triangle-exclamation"></i> 실패'; btn.disabled = false; }
+        } catch { btn.innerHTML = '<i class="fas fa-triangle-exclamation"></i> 네트워크 오류'; btn.disabled = false; }
+        setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 4000);
+      });
+    </script>
   </div>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -388,6 +408,24 @@ admin.post('/reservations/:id/status', async (c) => {
   if (!RES_STATUS[status]) return c.json({ ok: false, error: 'invalid status' }, 400);
   await c.env.DB!.prepare('UPDATE reservations SET status = ? WHERE id = ?').bind(status, id).run();
   return c.json({ ok: true });
+});
+
+// 🔔 전체 주요 페이지 + 발행 콘텐츠 IndexNow 일괄 재요청
+admin.post('/api/indexnow/resubmit', async (c) => {
+  if (!(await requireAdmin(c))) return c.json({ ok: false }, 403);
+  const paths: string[] = ['/', '/treatments', '/doctors', '/area', '/sitemap.xml', '/sitemap-content.xml'];
+  if (c.env.DB) {
+    try {
+      const [posts, cases] = await Promise.all([
+        c.env.DB.prepare('SELECT slug FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
+        c.env.DB.prepare('SELECT id FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
+      ]);
+      for (const p of posts.results as any[]) paths.push(`/blog/${p.slug}`);
+      for (const x of cases.results as any[]) paths.push(`/cases/${x.id}`);
+    } catch {}
+  }
+  await submitUrls(paths, c.executionCtx?.waitUntil?.bind(c.executionCtx));
+  return c.json({ ok: true, count: paths.length });
 });
 
 function esc(s: string): string {

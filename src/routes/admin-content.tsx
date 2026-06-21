@@ -5,6 +5,7 @@ import { Hono } from 'hono';
 import { adminShell, requireAdmin, esc } from './admin';
 import { DOCTORS, TREATMENTS } from '../data/clinic';
 import { editorToolbar, editorBody, seoPanel } from '../lib/editor';
+import { pingContent } from '../lib/indexnow';
 
 type Bindings = { DB?: D1Database; R2?: R2Bucket; ADMIN_PASSWORD?: string };
 
@@ -560,20 +561,29 @@ adminContent.post('/api/upload', async (c) => {
 adminContent.post('/api/cases', async (c) => {
   if (!(await requireAdmin(c))) return c.json({ ok: false }, 403);
   const b = await c.req.json();
-  await c.env.DB!.prepare(`INSERT INTO cases (title, description, age_group, gender, category, region, doctor_slug, duration,
+  const r = await c.env.DB!.prepare(`INSERT INTO cases (title, description, age_group, gender, category, region, doctor_slug, duration,
     img_pano_before, img_pano_after, img_oral_before, img_oral_after, published)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`)
     .bind(b.title, b.description || '', b.age_group || '', b.gender || '', b.category || '', b.region || '', b.doctor_slug || '', b.duration || '',
       b.img_pano_before ?? null, b.img_pano_after ?? null, b.img_oral_before ?? null, b.img_oral_after ?? null, b.published ? 1 : 0).run();
+  // 🔔 공개 발행 시 검색엔진에 즉시 색인 요청 (실패해도 발행은 정상)
+  if (b.published && r.meta?.last_row_id) {
+    await pingContent('cases', r.meta.last_row_id, c.executionCtx?.waitUntil?.bind(c.executionCtx));
+  }
   return c.json({ ok: true });
 });
 adminContent.put('/api/cases/:id', async (c) => {
   if (!(await requireAdmin(c))) return c.json({ ok: false }, 403);
   const b = await c.req.json();
+  const id = c.req.param('id');
   await c.env.DB!.prepare(`UPDATE cases SET title=?, description=?, age_group=?, gender=?, category=?, region=?, doctor_slug=?, duration=?,
     img_pano_before=?, img_pano_after=?, img_oral_before=?, img_oral_after=?, published=?, updated_at=datetime('now') WHERE id=?`)
     .bind(b.title, b.description || '', b.age_group || '', b.gender || '', b.category || '', b.region || '', b.doctor_slug || '', b.duration || '',
-      b.img_pano_before ?? null, b.img_pano_after ?? null, b.img_oral_before ?? null, b.img_oral_after ?? null, b.published ? 1 : 0, c.req.param('id')).run();
+      b.img_pano_before ?? null, b.img_pano_after ?? null, b.img_oral_before ?? null, b.img_oral_after ?? null, b.published ? 1 : 0, id).run();
+  // 🔔 공개 상태로 수정 시 재색인 요청
+  if (b.published) {
+    await pingContent('cases', id, c.executionCtx?.waitUntil?.bind(c.executionCtx));
+  }
   return c.json({ ok: true });
 });
 adminContent.delete('/api/cases/:id', async (c) => {
@@ -590,6 +600,10 @@ adminContent.post('/api/posts', async (c) => {
   if (dup) return c.json({ ok: false, error: '이미 사용 중인 슬러그입니다.' }, 409);
   await c.env.DB!.prepare(`INSERT INTO posts (slug, title, content_html, excerpt, thumbnail, author_slug, published) VALUES (?,?,?,?,?,?,?)`)
     .bind(b.slug, b.title, b.content_html || '', b.excerpt || '', b.thumbnail ?? null, b.author_slug || '', b.published ? 1 : 0).run();
+  // 🔔 공개 발행 시 검색엔진에 즉시 색인 요청
+  if (b.published && b.slug) {
+    await pingContent('blog', b.slug, c.executionCtx?.waitUntil?.bind(c.executionCtx));
+  }
   return c.json({ ok: true });
 });
 adminContent.put('/api/posts/:id', async (c) => {
@@ -597,6 +611,10 @@ adminContent.put('/api/posts/:id', async (c) => {
   const b = await c.req.json();
   await c.env.DB!.prepare(`UPDATE posts SET slug=?, title=?, content_html=?, excerpt=?, thumbnail=?, author_slug=?, published=?, updated_at=datetime('now') WHERE id=?`)
     .bind(b.slug, b.title, b.content_html || '', b.excerpt || '', b.thumbnail ?? null, b.author_slug || '', b.published ? 1 : 0, c.req.param('id')).run();
+  // 🔔 공개 상태로 수정 시 재색인 요청
+  if (b.published && b.slug) {
+    await pingContent('blog', b.slug, c.executionCtx?.waitUntil?.bind(c.executionCtx));
+  }
   return c.json({ ok: true });
 });
 adminContent.delete('/api/posts/:id', async (c) => {

@@ -28,6 +28,7 @@ import { GLOSSARY, GLOSSARY_SORTED } from './data/glossary';
 import { authApi } from './routes/auth';
 import { admin } from './routes/admin';
 import { adminContent } from './routes/admin-content';
+import { INDEXNOW_KEY } from './lib/indexnow';
 import { getSession } from './lib/auth';
 import { searchRegions } from './data/regions';
 import { setGaId } from './lib/analytics';
@@ -670,6 +671,11 @@ function buildUrlset(urls: SUrl[], now: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset ${ns}>\n${body}\n</urlset>`;
 }
 const xmlResp = (c: any, xml: string) => c.text(xml, 200, { 'Content-Type': 'application/xml; charset=UTF-8', 'Cache-Control': 'public, max-age=3600' });
+
+// 🔑 IndexNow 키 파일 — 도메인 소유 증명 (콘텐츠 발행 시 즉시 색인 요청에 사용)
+app.get(`/${INDEXNOW_KEY}.txt`, (c) =>
+  c.text(INDEXNOW_KEY, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=86400' }),
+);
 
 // 🗺️ Sitemap Index (사이트맵 색인)
 app.get('/sitemap.xml', (c) => {
