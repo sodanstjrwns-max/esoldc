@@ -54,6 +54,18 @@ export const CLINIC = {
     naverPlaceUrl: '',       // 예: 'https://map.naver.com/p/entry/place/xxxxxxxx'
   },
 
+  // --- 검색엔진 소유 확인 (웹마스터 도구 등록용) ---
+  // ⚠️ 각 웹마스터 도구에서 받은 "확인 코드(content 값)"만 아래에 붙여넣으면 자동으로 <head>에 메타태그가 들어갑니다.
+  //    빈 값이면 아무것도 출력되지 않습니다(안전). 절대 임의로 만들지 마세요 — 반드시 콘솔에서 발급받은 값만 입력.
+  //    구글: Search Console > 소유권 확인 > HTML 태그 → content="..." 부분만
+  //    네이버: 서치어드바이저 > 사이트 등록 > HTML 태그 → content="..." 부분만
+  //    빙:   Bing Webmaster Tools > Add site > HTML Meta Tag → content="..." 부분만
+  siteVerification: {
+    google: '',   // 예: 'abcdEFG123...'  (Google Search Console)
+    naver: '',    // 예: '1a2b3c4d...'    (네이버 서치어드바이저)
+    bing: '',     // 예: 'A1B2C3...'      (Bing Webmaster Tools)
+  },
+
   // --- 보유 장비 (6/3 시트) ---
   equipment: [
     { name: '파노라마 · CT', desc: '치아·턱뼈·신경을 입체적으로 확인하는 3D 진단' },

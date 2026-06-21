@@ -789,6 +789,11 @@ export function Layout(meta: SeoMeta, body: any) {
   <link rel="alternate" hreflang="ko-KR" href="${canonical}">
   <link rel="alternate" hreflang="x-default" href="${canonical}">
   ${meta.noindex ? raw('<meta name="robots" content="noindex,nofollow">') : raw('<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">')}
+  ${raw([
+    (CLINIC as any).siteVerification?.google ? `<meta name="google-site-verification" content="${(CLINIC as any).siteVerification.google}">` : '',
+    (CLINIC as any).siteVerification?.naver ? `<meta name="naver-site-verification" content="${(CLINIC as any).siteVerification.naver}">` : '',
+    (CLINIC as any).siteVerification?.bing ? `<meta name="msvalidate.01" content="${(CLINIC as any).siteVerification.bing}">` : '',
+  ].filter(Boolean).join('\n  '))}
   <meta property="og:type" content="${meta.type || 'website'}">
   <meta property="og:site_name" content="${CLINIC.name}">
   <meta property="og:title" content="${meta.title}">
