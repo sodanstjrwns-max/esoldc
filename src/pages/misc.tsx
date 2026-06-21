@@ -54,6 +54,21 @@ export function MissionPage() {
   </section>
 
   <section class="section" style="background:var(--bg-soft)">
+    <div class="wrap m-story">
+      <div class="section-head reveal" style="text-align:left;margin:0 0 36px;max-width:none">
+        <span class="eyebrow">A Long Relationship</span>
+        <h2 style="font-size:2rem;margin-top:14px">8년째 이어지는 어느 진료실의 기록</h2>
+      </div>
+      <p class="reveal">개원 초에 만난 한 어르신을 오래 기억합니다. 앞니 몇 개만 남아 식사가 불편한 상태로 오셨는데, 잇몸뼈가 부족해 다른 곳에서는 임플란트가 어렵다는 설명을 들으셨다고 했습니다. 처음에는 틀니를 생각하고 내원하셨습니다.</p>
+      <p class="reveal">충분한 진단 끝에, 부족한 잇몸뼈를 보완하는 여러 방법을 함께 적용해 고정성 임플란트로 치료를 마무리할 수 있었습니다. 쉬운 과정은 아니었지만, 환자분과 의료진이 같은 방향을 보며 한 단계씩 밟아간 시간이었습니다.</p>
+      <p class="big reveal">"오래 다닐 수 있는 치과,<br>치료가 끝난 뒤에도 함께 챙기는 치과."</p>
+      <p class="reveal">치료가 끝난 것이 관계의 끝은 아니었습니다. 그 어르신은 8년이 지난 지금도 정기 점검차 내원하고 계십니다. 표정도, 말씀도 처음 오셨을 때와는 사뭇 달라지셨고, 이제는 가족과 함께 찾아주시기도 합니다.</p>
+      <p class="reveal">한 번의 치료로 끝나는 관계가 아니라, 오랜 시간 곁에서 구강 건강을 함께 살피는 것 — 우리가 ‘가족 주치의’라는 말을 쓰는 이유가 바로 이런 시간들 속에 있습니다.</p>
+      <p class="reveal" style="font-size:.85rem;color:var(--ink-soft);margin-top:18px">※ 위 내용은 실제 진료 경험을 바탕으로 개인정보가 드러나지 않도록 재구성한 글이며, 치료 결과는 환자분의 상태와 조건에 따라 다를 수 있습니다.</p>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--bg-soft)">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow" style="justify-content:center">Core Values</span>

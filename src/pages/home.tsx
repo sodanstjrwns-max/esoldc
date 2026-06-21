@@ -435,13 +435,13 @@ export function HomePage() {
       <div class="why-grid">
         <div class="why-card" data-reveal data-reveal-d="1">
           <div class="wn">01</div>
-          <h3>짧고 편안한 체어타임</h3>
-          <p>숙련된 진료로 체어에 앉아 있는 시간은 짧게, 환자분이 말씀하시는 포인트는 놓치지 않게 진료합니다.</p>
+          <h3>가려운 곳을 짚는 진료</h3>
+          <p>체어에 앉아 있는 시간은 짧게, 그러나 환자분이 정작 걱정하시는 포인트는 놓치지 않습니다. 짧게 봐도 “어떻게 아셨어요” 소리를 듣는 진료를 지향합니다.</p>
         </div>
         <div class="why-card" data-reveal data-reveal-d="2">
           <div class="wn">02</div>
-          <h3>필요한 치료만, 정직하게</h3>
-          <p>비용이 걱정이신 분께는 비용에 맞는 계획을, 통증이 두려우신 분께는 통증을 줄이는 방향으로. 하지 않아도 되는 치료를 먼저 권하지 않습니다.</p>
+          <h3>과잉진료 없이, 정직하게</h3>
+          <p>비용이 걱정이신 분께는 비용에 맞는 계획을, 통증이 두려우신 분께는 통증을 줄이는 방향으로. 하지 않아도 되는 치료를 먼저 권하지 않는 — 지역에서 ‘과잉진료 없는 치과’로 쌓아온 신뢰입니다.</p>
         </div>
         <div class="why-card" data-reveal data-reveal-d="3">
           <div class="wn">03</div>
