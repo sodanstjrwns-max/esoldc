@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { secureHeaders } from 'hono/secure-headers';
 import { CLINIC, TREATMENTS, DOCTORS, NEARBY_AREAS, CORE_TREATMENTS, getTreatment, getDoctor } from './data/clinic';
 import { Layout } from './lib/layout';
 import {
@@ -39,6 +40,19 @@ type Bindings = {
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
+
+// 전역 보안 헤더 (동적 SSR 페이지 포함 모든 응답에 적용)
+app.use('*', secureHeaders({
+  xContentTypeOptions: 'nosniff',
+  xFrameOptions: 'SAMEORIGIN',
+  referrerPolicy: 'strict-origin-when-cross-origin',
+  permissionsPolicy: { geolocation: [], microphone: [], camera: [] },
+  // CDN(jsdelivr/fonts) 및 인라인 스크립트/스타일 사용 → CSP는 과도한 차단 방지 위해 비활성
+  contentSecurityPolicy: undefined,
+  crossOriginEmbedderPolicy: false,
+  strictTransportSecurity: 'max-age=31536000; includeSubDomains',
+}));
+
 app.use('/api/*', cors());
 
 // 서브 라우터 마운트
