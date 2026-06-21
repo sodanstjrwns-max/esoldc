@@ -301,6 +301,7 @@ export function ReservationPage() {
           <div class="si"><i class="fas fa-map-marker-alt"></i><div>${CLINIC.address}</div></div>
           <div class="si" style="border:none"><i class="fas fa-clock"></i><div>${raw(CLINIC.hours.map(h=>`${h.day} ${h.time}`).join('<br>'))}</div></div>
           <a href="tel:${CLINIC.tel}" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:24px"><i class="fas fa-phone"></i> 지금 전화하기</a>
+          ${CLINIC.sns.kakaoChannelUrl ? raw(`<a href="${CLINIC.sns.kakaoChannelUrl}" target="_blank" rel="noopener" data-cta="kakao" style="width:100%;justify-content:center;margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:#FAE100;color:#3C1E1E;font-weight:800;padding:14px;border-radius:12px"><i class="fas fa-comment"></i> 카카오톡으로 문의하기</a>`) : ''}
         </div>
       </div>
     </div>
