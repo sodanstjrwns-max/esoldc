@@ -30,6 +30,7 @@ import { admin } from './routes/admin';
 import { adminContent } from './routes/admin-content';
 import { getSession } from './lib/auth';
 import { searchRegions } from './data/regions';
+import { setGaId } from './lib/analytics';
 
 type Bindings = {
   R2?: R2Bucket;
@@ -37,6 +38,7 @@ type Bindings = {
   RESEND_API_KEY?: string;
   NOTIFICATION_EMAIL?: string;
   ADMIN_PASSWORD?: string;
+  GA_MEASUREMENT_ID?: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -54,6 +56,12 @@ app.use('*', secureHeaders({
 }));
 
 app.use('/api/*', cors());
+
+// 요청마다 GA 측정 ID 주입 (환경변수 GA_MEASUREMENT_ID, 없으면 GA 비활성)
+app.use('*', async (c, next) => {
+  setGaId(c.env.GA_MEASUREMENT_ID);
+  await next();
+});
 
 // 서브 라우터 마운트
 app.route('/api/auth', authApi);
@@ -226,7 +234,20 @@ app.get('/reservation', (c) => {
     title: `예약 문의 | ${CLINIC.name}`,
     description: `${CLINIC.name} 진료 예약 문의. 전화 ${CLINIC.tel} 또는 온라인으로 편하게 예약 상담을 신청하세요.`,
     path: '/reservation',
-    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '예약문의', path: '/reservation' }])],
+    jsonLd: [
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '예약문의', path: '/reservation' }]),
+      {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: `${CLINIC.name} 예약 문의 진행 절차`,
+        description: '온라인 또는 전화로 예약 문의 후 진행되는 과정 안내',
+        step: [
+          { '@type': 'HowToStep', position: 1, name: '문의 남기기', text: '온라인 폼에 성함·연락처와 궁금한 점을 남기거나 전화로 문의합니다.' },
+          { '@type': 'HowToStep', position: 2, name: '확인 연락', text: '접수 내용을 확인한 뒤 진료시간 내에 직접 연락드려 일정을 조율합니다.' },
+          { '@type': 'HowToStep', position: 3, name: '방문 상담', text: '예약된 시간에 내원하시면 구강 상태를 살펴보고 충분히 설명드립니다.' },
+        ],
+      },
+    ],
   }, ReservationPage()));
 });
 

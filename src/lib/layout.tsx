@@ -1,6 +1,7 @@
 import { html, raw } from 'hono/html';
 import { CLINIC, TREATMENTS, CORE_TREATMENTS } from '../data/clinic';
 import { SITE_URL, siteGraph, type SeoMeta } from './seo';
+import { gaHeadSnippet, conversionTrackingSnippet } from './analytics';
 
 // ============================================================================
 // 디자인 토큰 — "Soft Organic" (2026 웜 내추럴)
@@ -183,6 +184,8 @@ section{position:relative}
 .footer-bottom{border-top:1px solid rgba(250,245,236,.14);margin-top:40px;padding-top:24px;font-size:.83rem;color:var(--inv-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;position:relative}
 
 /* ── 플로팅 CTA ── */
+/* 모바일 하단 스티키 CTA 바 (전환 동선 강화) — 데스크탑 숨김 */
+.mobile-cta-bar{display:none}
 .float-cta{position:fixed;bottom:24px;right:24px;z-index:700;display:flex;flex-direction:column;gap:12px}
 .float-cta a{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1.3rem;box-shadow:var(--shadow);transition:transform .3s var(--ease)}
 .float-cta a:hover{transform:scale(1.1)}
@@ -304,9 +307,20 @@ section{position:relative}
   .footer-grid{grid-template-columns:1fr;gap:28px}
   /* 좌우 여백 축소 → 본문 폭 확보 */
   .wrap{padding:0 18px}
-  /* 플로팅 버튼: iOS 홈바/노치 안전영역 반영 + 콘텐츠 겹침 완화 */
-  .float-cta{bottom:calc(16px + env(safe-area-inset-bottom));right:14px;gap:10px}
-  .float-cta a{width:50px;height:50px;font-size:1.12rem}
+  /* 모바일: 원형 플로팅 버튼 숨기고 하단 풀바 CTA로 대체 (전환 동선) */
+  .float-cta{display:none}
+  .mobile-cta-bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:720;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));gap:8px;
+    background:rgba(247,240,225,.92);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);box-shadow:0 -4px 20px rgba(62,44,31,.1)}
+  .mobile-cta-bar a{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+    min-height:50px;border-radius:12px;font-weight:800;font-size:.98rem;text-decoration:none}
+  .mobile-cta-bar .mc-tel{background:var(--navy);color:#fff}
+  .mobile-cta-bar .mc-book{background:var(--gold-grad);color:#fff;
+    background:linear-gradient(135deg,#A6772F,#8A5F26)}
+  .mobile-cta-bar .mc-tel i,.mobile-cta-bar .mc-book i{font-size:.92em}
+  /* 하단 바 높이만큼 푸터 여백 확보(콘텐츠 가림 방지) */
+  body{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
   /* 버튼 풀폭 + 최소 터치 높이(48px) */
   .btn{padding:15px 26px;min-height:48px}
   .btn-block-m{display:flex;width:100%;justify-content:center}
@@ -682,7 +696,11 @@ function footer() {
     <a href="tel:${CLINIC.tel}" class="fc-tel" aria-label="전화"><i class="fas fa-phone"></i></a>
     <a href="/directions" class="fc-map" aria-label="오시는길"><i class="fas fa-map-marker-alt"></i></a>
     <a href="/reservation" class="fc-book" aria-label="예약"><i class="fas fa-calendar-check"></i></a>
-  </div>`;
+  </div>
+  <nav class="mobile-cta-bar" aria-label="빠른 연락">
+    <a href="tel:${CLINIC.tel}" class="mc-tel"><i class="fas fa-phone"></i> 전화 상담</a>
+    <a href="/reservation" class="mc-book"><i class="fas fa-calendar-check"></i> 예약 문의</a>
+  </nav>`;
 }
 
 // ============================================================================
@@ -752,6 +770,7 @@ export function Layout(meta: SeoMeta, body: any) {
   </noscript>`)}
   <style>${raw(CRITICAL_FONT_CSS)}${raw(DESIGN_TOKENS)}</style>
   ${raw(jsonLdBlocks)}
+  ${raw(gaHeadSnippet())}
 </head>
 <body>
   <a href="#main-content" class="skip-link">본문 바로가기</a>
@@ -776,6 +795,7 @@ export function Layout(meta: SeoMeta, body: any) {
   ${footer()}
   ${meta.extraBody ? raw(meta.extraBody) : ''}
   <script>${raw(INTERACTION_JS)}</script>
+  ${raw(conversionTrackingSnippet())}
 </body>
 </html>`;
 }

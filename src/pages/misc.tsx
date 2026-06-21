@@ -198,8 +198,45 @@ export function ReservationPage() {
     .res-msg{padding:14px 18px;border-radius:12px;margin-top:16px;display:none;font-weight:600}
     .res-msg.ok{display:block;background:var(--gold-soft);color:var(--navy)}
     .res-msg.err{display:block;background:#fde8e8;color:#a33}
+    /* 예약 진행 안내 3단계 */
+    .res-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:8px}
+    .res-step{position:relative;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px 24px;text-align:center}
+    .res-step .rs-num{width:46px;height:46px;margin:0 auto 16px;border-radius:50%;display:grid;place-items:center;
+      background:linear-gradient(135deg,#A6772F,#8A5F26);color:#fff;font-weight:800;font-size:1.15rem}
+    .res-step h4{font-size:1.08rem;margin-bottom:8px}
+    .res-step p{color:var(--ink-soft);font-size:.9rem;line-height:1.65}
+    .res-step .rs-ico{color:var(--gold);font-size:1.3rem;margin-bottom:10px}
+    @media(max-width:740px){.res-steps{grid-template-columns:1fr;gap:14px}}
     @media(max-width:860px){.res-grid{grid-template-columns:1fr}}
   </style>
+  <section class="section" style="padding-bottom:0">
+    <div class="wrap">
+      <div style="text-align:center;margin-bottom:32px" class="reveal">
+        <span style="color:var(--gold);font-weight:700;letter-spacing:.05em;font-size:.85rem">HOW IT WORKS</span>
+        <h2 style="font-size:1.7rem;margin-top:8px">예약 문의, 이렇게 진행됩니다</h2>
+      </div>
+      <div class="res-steps">
+        <div class="res-step reveal">
+          <div class="rs-num">1</div>
+          <div class="rs-ico"><i class="fas fa-pen-to-square"></i></div>
+          <h4>문의 남기기</h4>
+          <p>아래 폼에 성함·연락처와 궁금한 점을 남겨주세요. 전화 문의도 가능합니다.</p>
+        </div>
+        <div class="res-step reveal reveal-d1">
+          <div class="rs-num">2</div>
+          <div class="rs-ico"><i class="fas fa-phone-volume"></i></div>
+          <h4>확인 연락</h4>
+          <p>접수 내용을 확인한 뒤, 진료시간 내에 직접 연락드려 일정을 조율합니다.</p>
+        </div>
+        <div class="res-step reveal reveal-d2">
+          <div class="rs-num">3</div>
+          <div class="rs-ico"><i class="fas fa-calendar-check"></i></div>
+          <h4>방문 상담</h4>
+          <p>예약된 시간에 내원하시면, 구강 상태를 살펴보고 충분히 설명드립니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
   <section class="section">
     <div class="wrap">
       <div class="res-grid">
@@ -232,15 +269,56 @@ export function ReservationPage() {
     </div>
   </section>
   <script>
-    document.getElementById('resForm').addEventListener('submit',async function(e){
-      e.preventDefault();var f=e.target,msg=document.getElementById('resMsg');
+  (function(){
+    var f=document.getElementById('resForm');
+    if(!f)return;
+    var msg=document.getElementById('resMsg');
+    var btn=f.querySelector('button[type=submit]');
+    var phone=document.getElementById('res-phone');
+    var btnHTML=btn?btn.innerHTML:'';
+    var submitting=false;
+
+    // 전화번호 자동 하이픈 포맷 (010-0000-0000)
+    if(phone){
+      phone.addEventListener('input',function(){
+        var v=this.value.replace(/[^0-9]/g,'').slice(0,11);
+        if(v.length<4){this.value=v;}
+        else if(v.length<8){this.value=v.slice(0,3)+'-'+v.slice(3);}
+        else{this.value=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7);}
+      });
+    }
+
+    f.addEventListener('submit',async function(e){
+      e.preventDefault();
+      if(submitting)return; // 중복 제출 방지
       var data=Object.fromEntries(new FormData(f).entries());
+      // 간단 검증
+      if(!data.name||!data.name.trim()){msg.className='res-msg err';msg.textContent='성함을 입력해 주세요.';document.getElementById('res-name').focus();return;}
+      var digits=(data.phone||'').replace(/[^0-9]/g,'');
+      if(digits.length<10){msg.className='res-msg err';msg.textContent='연락처를 정확히 입력해 주세요. (예: 010-0000-0000)';phone&&phone.focus();return;}
+
+      submitting=true;
+      if(btn){btn.disabled=true;btn.style.opacity='.7';btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> 접수 중...';}
+      msg.style.display='none';
       try{
         var r=await fetch('/api/reservation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-        if(r.ok){msg.className='res-msg ok';msg.textContent='문의가 정상 접수되었습니다. 확인 후 연락드리겠습니다. 감사합니다!';f.reset();}
-        else{throw new Error();}
-      }catch(_){msg.className='res-msg err';msg.textContent='접수 중 오류가 발생했습니다. 전화로 문의해 주세요.';}
+        if(r.ok){
+          msg.className='res-msg ok';
+          msg.innerHTML='<i class="fas fa-check-circle"></i> 문의가 정상 접수되었습니다. 진료시간 내 확인 후 연락드리겠습니다. 감사합니다!';
+          // 전환 이벤트 발행 (GA4가 수신)
+          try{ window.dispatchEvent(new CustomEvent('isol:reservation_success',{detail:{treatment:data.treatment||''}})); }catch(_){}
+          f.reset();
+          msg.scrollIntoView({behavior:'smooth',block:'center'});
+        } else { throw new Error(); }
+      }catch(_){
+        msg.className='res-msg err';
+        msg.innerHTML='<i class="fas fa-exclamation-circle"></i> 접수 중 오류가 발생했습니다. 전화(${raw(CLINIC.tel)})로 문의해 주세요.';
+      }finally{
+        submitting=false;
+        if(btn){btn.disabled=false;btn.style.opacity='';btn.innerHTML=btnHTML;}
+      }
     });
+  })();
   </script>
   `;
 }

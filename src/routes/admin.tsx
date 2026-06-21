@@ -284,21 +284,110 @@ admin.delete('/api/members/:id', async (c) => {
 });
 
 // ---------- 예약 문의 목록 ----------
+const RES_STATUS: Record<string, { label: string; color: string }> = {
+  new:       { label: '신규',     color: '#A6772F' },
+  contacted: { label: '연락완료', color: '#2563EB' },
+  confirmed: { label: '예약확정', color: '#16A34A' },
+  hold:      { label: '보류',     color: '#9CA3AF' },
+  done:      { label: '완료',     color: '#6B5747' },
+};
+
 admin.get('/reservations', async (c) => {
   if (!(await requireAdmin(c))) return c.redirect('/admin');
   const db = c.env.DB!;
-  const { results } = await db.prepare('SELECT * FROM reservations ORDER BY id DESC LIMIT 300').all();
-  const rows = (results as any[]).map(r => `
-    <tr><td>${r.id}</td><td><strong>${esc(r.name)}</strong></td><td>${esc(r.phone)}</td>
-    <td>${esc(r.treatment || '-')}</td><td>${esc(r.datetime || '-')}</td>
-    <td style="max-width:240px;font-size:.82rem">${esc(r.message || '-')}</td>
-    <td style="font-size:.8rem;color:var(--ink-soft)">${(r.created_at || '').slice(0, 16).replace('T', ' ')}</td></tr>`).join('');
+  const filter = c.req.query('status') || '';
+  const where = filter && RES_STATUS[filter] ? `WHERE status = '${filter}'` : '';
+  const { results } = await db.prepare(`SELECT * FROM reservations ${where} ORDER BY id DESC LIMIT 500`).all();
+
+  // 상태별 통계
+  const stats = await db.prepare(`SELECT status, COUNT(*) n FROM reservations GROUP BY status`).all().catch(() => ({ results: [] }));
+  const statMap: Record<string, number> = {};
+  (stats.results as any[]).forEach(s => { statMap[s.status || 'new'] = s.n; });
+  const total = Object.values(statMap).reduce((a, b) => a + b, 0);
+
+  const statChips = `<a href="/admin/reservations" class="rs-chip ${!filter ? 'on' : ''}">전체 <b>${total}</b></a>` +
+    Object.keys(RES_STATUS).map(k =>
+      `<a href="/admin/reservations?status=${k}" class="rs-chip ${filter === k ? 'on' : ''}" style="--c:${RES_STATUS[k].color}">${RES_STATUS[k].label} <b>${statMap[k] || 0}</b></a>`
+    ).join('');
+
+  const rows = (results as any[]).map(r => {
+    const st = RES_STATUS[r.status] || RES_STATUS.new;
+    const opts = Object.keys(RES_STATUS).map(k =>
+      `<option value="${k}" ${r.status === k ? 'selected' : ''}>${RES_STATUS[k].label}</option>`).join('');
+    return `
+    <tr data-id="${r.id}">
+      <td>${r.id}</td>
+      <td><strong>${esc(r.name)}</strong></td>
+      <td><a href="tel:${esc(r.phone)}" style="color:var(--gold);font-weight:700">${esc(r.phone)}</a></td>
+      <td>${esc(r.treatment || '-')}</td>
+      <td>${esc(r.datetime || '-')}</td>
+      <td style="max-width:220px;font-size:.82rem">${esc(r.message || '-')}</td>
+      <td style="font-size:.8rem;color:var(--ink-soft);white-space:nowrap">${(r.created_at || '').slice(0, 16).replace('T', ' ')}</td>
+      <td><span class="rs-badge" style="background:${st.color}">${st.label}</span></td>
+      <td><select class="rs-sel" data-id="${r.id}">${opts}</select></td>
+    </tr>`;
+  }).join('');
+
   return c.html(adminShell('예약 문의', 'res', `
-  <h1>예약 문의</h1><p class="sub">온라인 예약 문의 접수 내역입니다.</p>
+  <style>
+    .rs-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+    .rs-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;
+      background:var(--bg-soft,#EFE6D5);color:var(--ink,#2C2620);text-decoration:none;font-size:.86rem;font-weight:700;
+      border:1.5px solid transparent}
+    .rs-chip b{color:var(--c,#A6772F)}
+    .rs-chip.on{background:#fff;border-color:var(--c,#A6772F)}
+    .rs-badge{display:inline-block;padding:3px 10px;border-radius:999px;color:#fff;font-size:.76rem;font-weight:700;white-space:nowrap}
+    .rs-sel{padding:5px 8px;border-radius:8px;border:1px solid var(--line,#E2D8C6);font-size:.82rem;background:#fff}
+    .rs-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .rs-csv{padding:9px 16px;border-radius:10px;background:var(--navy,#3E2C1F);color:#fff;text-decoration:none;font-weight:700;font-size:.86rem;border:none;cursor:pointer}
+  </style>
+  <h1>예약 문의</h1><p class="sub">온라인 예약 문의 접수 및 상태 관리.</p>
+  <div class="rs-chips">${statChips}</div>
+  <div class="rs-toolbar">
+    <span style="color:var(--ink-soft);font-size:.86rem">총 ${(results as any[]).length}건 표시 ${filter ? `(${RES_STATUS[filter]?.label} 필터)` : ''}</span>
+    <button class="rs-csv" id="rsCsv"><i class="fas fa-file-csv"></i> CSV 내보내기</button>
+  </div>
   <div class="card" style="overflow-x:auto">
-    <table><thead><tr><th>ID</th><th>성함</th><th>연락처</th><th>희망진료</th><th>희망일시</th><th>내용</th><th>접수일</th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="7" style="text-align:center;color:var(--ink-soft);padding:30px">접수된 문의가 없습니다.</td></tr>'}</tbody></table>
-  </div>`));
+    <table><thead><tr><th>ID</th><th>성함</th><th>연락처</th><th>희망진료</th><th>희망일시</th><th>내용</th><th>접수일</th><th>상태</th><th>변경</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="9" style="text-align:center;color:var(--ink-soft);padding:30px">접수된 문의가 없습니다.</td></tr>'}</tbody></table>
+  </div>
+  <script>
+  (function(){
+    // 인라인 상태 변경
+    document.querySelectorAll('.rs-sel').forEach(function(sel){
+      sel.addEventListener('change',async function(){
+        var id=this.getAttribute('data-id'),v=this.value,self=this;
+        self.disabled=true;
+        try{
+          var r=await fetch('/admin/reservations/'+id+'/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:v})});
+          if(r.ok){location.reload();}else{alert('변경 실패');self.disabled=false;}
+        }catch(e){alert('오류가 발생했습니다.');self.disabled=false;}
+      });
+    });
+    // CSV 내보내기 (현재 화면 테이블 기준)
+    document.getElementById('rsCsv').addEventListener('click',function(){
+      var rows=[['ID','성함','연락처','희망진료','희망일시','내용','접수일','상태']];
+      document.querySelectorAll('tbody tr[data-id]').forEach(function(tr){
+        var t=tr.querySelectorAll('td');
+        rows.push([t[0].innerText,t[1].innerText,t[2].innerText,t[3].innerText,t[4].innerText,t[5].innerText.replace(/\\n/g,' '),t[6].innerText,t[7].innerText]);
+      });
+      var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\\n');
+      var blob=new Blob(['\\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+      var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+      a.download='이솔치과_예약문의_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+    });
+  })();
+  </script>`));
+});
+
+// 예약 상태 변경 API
+admin.post('/reservations/:id/status', async (c) => {
+  if (!(await requireAdmin(c))) return c.json({ ok: false }, 403);
+  const id = c.req.param('id');
+  const { status } = await c.req.json<{ status: string }>();
+  if (!RES_STATUS[status]) return c.json({ ok: false, error: 'invalid status' }, 400);
+  await c.env.DB!.prepare('UPDATE reservations SET status = ? WHERE id = ?').bind(status, id).run();
+  return c.json({ ok: true });
 });
 
 function esc(s: string): string {

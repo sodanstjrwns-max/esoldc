@@ -47,7 +47,18 @@
 
 ### 콘텐츠/관리
 - 관리자 로그인/콘텐츠 관리 (`/admin`) — 공지 팝업, 콘텐츠 편집
+- **예약 관리 대시보드** (`/admin/reservations`) — 접수 목록, 상태별 통계(신규/연락완료/예약확정/보류/완료), 인라인 상태 변경, CSV 내보내기
 - 회원 로그인/회원가입
+
+### 전환(예약) 최적화
+- **온라인 예약 폼**: 전화번호 자동 포맷(010-0000-0000), 실시간 검증, 제출 중 로딩/중복방지, 성공/실패 피드백
+- **예약 진행 안내 3단계** (문의→연락→방문) + HowTo 구조화데이터
+- **모바일 스티키 CTA 바**: 화면 하단 고정 [전화 상담 | 예약 문의] — 모바일 전환 동선 강화
+- **예약 알림**: Resend 이메일 + D1/R2 저장 (환경변수 설정 시)
+
+### 측정 (Analytics)
+- **GA4 연동**: 환경변수 `GA_MEASUREMENT_ID` 설정 시 자동 활성 (미설정 시 비활성 — 안전)
+- **전환 이벤트 자동 추적**: 전화 클릭(generate_lead/phone), 예약 제출(generate_lead/form), 길찾기 클릭, 채널 클릭 → 광고비 효율(전환당 비용) 측정 기반
 
 ### SEO / AEO (AI 검색 최적화)
 - **전역 구조화데이터** `@graph`: Organization / WebSite / Dentist (@id 연결)
@@ -73,7 +84,7 @@
 |--------|-----------|
 | 병원정보/진료/의료진/지역 | `src/data/clinic.ts` (정적, 신청서 원문 기반) |
 | 지역 자동완성 | `src/data/regions.ts` |
-| 공지 팝업 / 콘텐츠 / 회원 / 예약문의 | Cloudflare **D1** (`isoldent-production`) |
+| 공지 팝업 / 콘텐츠 / 회원 / 예약문의(상태포함) | Cloudflare **D1** (`isoldent-production`) |
 | 이미지 등 바이너리 | Cloudflare **R2** (`isoldent-bucket`) |
 
 **핵심 데이터 모델**
@@ -95,6 +106,25 @@
 
 ### 의료진/진료항목 추가
 - `src/data/clinic.ts`의 `DOCTORS` / `TREATMENTS` 배열 수정 후 재배포
+
+### GA4 측정 설정 (광고 효율 측정)
+프로덕션에 GA4 측정 ID를 등록하면 전환 추적이 자동 활성화됩니다.
+```bash
+npx wrangler pages secret put GA_MEASUREMENT_ID --project-name isoldent
+# 입력: G-XXXXXXXXXX (Google Analytics 측정 ID)
+```
+- 미설정 시 GA 스크립트가 출력되지 않아 사이트에 영향 없음(안전)
+
+### 예약 이메일 알림 설정 (선택)
+```bash
+npx wrangler pages secret put RESEND_API_KEY --project-name isoldent
+npx wrangler pages secret put NOTIFICATION_EMAIL --project-name isoldent
+```
+
+### 예약 관리
+- `/admin` 로그인 → 예약문의 → 접수 목록 확인
+- 각 예약의 상태를 드롭다운으로 변경(신규→연락완료→예약확정 등)
+- CSV 내보내기로 엑셀 관리 가능
 
 ### ⚠️ 의료광고법 준수 (필수)
 - 최상급 표현 금지 (최고/유일/1위 등)
