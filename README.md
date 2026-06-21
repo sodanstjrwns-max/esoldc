@@ -33,7 +33,7 @@
 | 경로 | 설명 |
 |------|------|
 | `/` | 홈 — 스토리텔링 히어로, 핵심진료, 병원 강점, 의료진, CTA, 공지 팝업 |
-| `/about` | 병원 소개 (미션/비전/장비/강점) |
+| `/mission` | 병원 소개 (미션/비전/장비/강점) |
 | `/treatments` | 진료안내 허브 (핵심진료 + 전체진료 목록) |
 | `/treatments/:slug` | 진료 상세 (MedicalProcedure/HowTo 구조화데이터) |
 | `/doctors` | 의료진 목록 (전문의 5인) |
@@ -43,8 +43,7 @@
 | `/faq` | 자주 묻는 질문 (FAQPage 구조화데이터) |
 | `/glossary` | 치과 용어사전 (검색 기능, DefinedTermSet) |
 | `/area` | 지역별 진료 안내 허브 (CollectionPage + FAQ) |
-| `/area/:slug` | 지역별 안내 (마석/화도/남양주 등 12개 지역) |
-| `/area/:area-:treatment` | 지역×진료 매트릭스 (36개 조합) |
+| `/area/:area-:treatment` | 지역×진료 매트릭스 (12지역 × 3핵심진료 = 36개 조합, 예: `/area/dasan-implant`) |
 
 ### 콘텐츠/관리
 - 관리자 로그인/콘텐츠 관리 (`/admin`) — 공지 팝업, 콘텐츠 편집
