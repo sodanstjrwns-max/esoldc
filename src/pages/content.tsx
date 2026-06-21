@@ -240,9 +240,38 @@ export function BlogListPage(posts: any[]) {
 // ============================================================
 // 블로그 상세
 // ============================================================
+// 본문 HTML에서 읽기시간·목차(TOC) 추출 + h2/h3에 id 부여
+function analyzePost(htmlStr: string): { html: string; readMin: number; toc: { id: string; text: string; level: number }[] } {
+  const raw = htmlStr || '';
+  // 읽기시간: 태그 제거 후 공백 제외 글자수 / 분당 500자
+  const plain = raw.replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, '');
+  const readMin = Math.max(1, Math.round(plain.length / 500));
+  // 목차: h2/h3 추출하며 id 부여
+  const toc: { id: string; text: string; level: number }[] = [];
+  let idx = 0;
+  const withIds = raw.replace(/<(h[23])([^>]*)>([\s\S]*?)<\/\1>/gi, (m, tag, attrs, inner) => {
+    idx++;
+    const text = inner.replace(/<[^>]+>/g, '').trim();
+    if (!text) return m;
+    const id = 'sec-' + idx;
+    toc.push({ id, text, level: tag.toLowerCase() === 'h2' ? 2 : 3 });
+    // 기존 id가 있으면 유지, 없으면 추가
+    if (/\sid=/.test(attrs)) return m;
+    return `<${tag}${attrs} id="${id}">${inner}</${tag}>`;
+  });
+  return { html: withIds, readMin, toc };
+}
+
 export function BlogDetailPage(p: any, related: any[]) {
   const doctor = DOCTORS.find(d => d.slug === p.author_slug);
   const relList = related.map(r => `<a href="/blog/${esc(r.slug)}"><i class="fas fa-angle-right"></i> ${esc(r.title)}</a>`).join('');
+  const { html: bodyHtml, readMin, toc } = analyzePost(p.content_html || '');
+  const tocHtml = toc.length >= 2
+    ? `<nav class="post-toc reveal" aria-label="목차">
+        <div class="toc-head"><i class="fas fa-list-ul"></i> 목차</div>
+        <ol>${toc.map(t => `<li class="lv${t.level}"><a href="#${t.id}">${esc(t.text)}</a></li>`).join('')}</ol>
+       </nav>`
+    : '';
   return html`
   ${raw(PAGE_HERO(`<a href="/blog" style="color:rgba(250,248,244,.45)">블로그</a> / 글`, esc(p.title), p.excerpt ? esc(p.excerpt) : ''))}
   <style>
@@ -250,13 +279,27 @@ export function BlogDetailPage(p: any, related: any[]) {
     .post-meta{display:flex;gap:16px;align-items:center;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:34px;font-size:.88rem;color:var(--ink-soft)}
     .post-meta i{color:var(--gold);margin-right:5px}
     .post-body{line-height:1.9;font-size:1.04rem}
-    .post-body h2{font-size:1.55rem;margin:1.6em 0 .6em;padding-bottom:.35em;border-bottom:2px solid var(--gold-soft)}
-    .post-body h3{font-size:1.22rem;margin:1.3em 0 .5em}
+    .post-body h2{font-size:1.55rem;margin:1.6em 0 .6em;padding-bottom:.35em;border-bottom:2px solid var(--gold-soft);scroll-margin-top:90px}
+    .post-body h3{font-size:1.22rem;margin:1.3em 0 .5em;scroll-margin-top:90px}
+    .post-body h4{font-size:1.08rem;margin:1.1em 0 .4em;color:var(--gold-3)}
     .post-body p{margin:.7em 0}
-    .post-body img{max-width:100%;border-radius:14px;margin:14px 0;border:1px solid var(--line)}
+    .post-body a{color:var(--gold-3);text-decoration:underline;text-underline-offset:3px}
+    .post-body img{max-width:100%;border-radius:14px;border:1px solid var(--line)}
+    .post-body figure{margin:1.6em 0;text-align:center}
+    .post-body figure img{margin:0 auto;display:block;box-shadow:0 10px 30px rgba(62,44,31,.12)}
+    .post-body figure figcaption{margin-top:10px;font-size:.88rem;color:var(--ink-soft);font-style:italic}
     .post-body ul,.post-body ol{padding-left:1.4em;margin:.7em 0}
     .post-body li{margin:.3em 0}
-    .post-body blockquote{border-left:3px solid var(--gold);background:var(--gold-soft);padding:14px 20px;border-radius:0 12px 12px 0;margin:1em 0;color:var(--navy)}
+    .post-body hr{border:none;border-top:2px dashed var(--line);margin:2em 0}
+    .post-body blockquote{border-left:3px solid var(--gold);background:var(--gold-soft);padding:14px 20px;border-radius:0 12px 12px 0;margin:1em 0;color:var(--navy);font-style:italic}
+    .post-toc{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:18px 24px;margin-bottom:34px}
+    .post-toc .toc-head{font-weight:800;color:var(--navy);margin-bottom:10px;font-size:.95rem}
+    .post-toc .toc-head i{color:var(--gold);margin-right:7px}
+    .post-toc ol{list-style:none;padding:0;margin:0;counter-reset:toc}
+    .post-toc li{margin:5px 0}
+    .post-toc li.lv3{padding-left:18px}
+    .post-toc a{color:var(--ink-soft);font-size:.92rem;font-weight:600;transition:.15s}
+    .post-toc a:hover{color:var(--gold-3)}
     .post-author{display:flex;gap:18px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px 28px;margin:44px 0 0}
     .post-author .av{width:58px;height:58px;border-radius:50%;background:var(--gold-grad);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;flex-shrink:0}
     .rel-posts{margin-top:36px;background:var(--gold-soft);border-radius:var(--radius-lg);padding:24px 28px}
@@ -269,8 +312,10 @@ export function BlogDetailPage(p: any, related: any[]) {
       ${doctor ? raw(`<span><i class="fas fa-user-md"></i><a href="/doctors/${doctor.slug}" style="font-weight:700;color:var(--navy)">${doctor.name} ${doctor.role}</a></span>`) : ''}
       <span><i class="fas fa-calendar"></i>${(p.created_at || '').slice(0, 10)}</span>
       <span><i class="fas fa-eye"></i>조회 ${p.views}</span>
+      <span><i class="fas fa-clock"></i>읽기 ${readMin}분</span>
     </div>
-    <article class="post-body reveal">${raw(p.content_html || '')}</article>
+    ${tocHtml ? raw(tocHtml) : ''}
+    <article class="post-body reveal">${raw(bodyHtml)}</article>
     ${doctor ? raw(`
     <div class="post-author reveal">
       <div class="av"><i class="fas fa-user-md"></i></div>

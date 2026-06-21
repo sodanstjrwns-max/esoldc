@@ -4,6 +4,7 @@
 import { Hono } from 'hono';
 import { adminShell, requireAdmin, esc } from './admin';
 import { DOCTORS, TREATMENTS } from '../data/clinic';
+import { editorToolbar, editorBody, seoPanel } from '../lib/editor';
 
 type Bindings = { DB?: D1Database; R2?: R2Bucket; ADMIN_PASSWORD?: string };
 
@@ -234,91 +235,74 @@ adminContent.get('/posts/:id', async (c) => {
 
 function postForm(x: any): string {
   const isEdit = !!x;
+  const startHtml = x ? x.content_html : '';
   return `
   <h1>${isEdit ? '글 수정' : '새 글 작성'}</h1>
-  <p class="sub">제목(h2)·소제목(h3) 버튼으로 구조화하고, 이미지는 본문에 드래그하여 삽입하세요.</p>
+  <p class="sub">대제목(H2)·중제목(H3)으로 구조화하고, 사진은 툴바·드래그앤드롭·붙여넣기로 본문 중간에 넣으세요. 사진을 넣으면 SEO용 설명(alt)을 바로 입력할 수 있어요.</p>
   <div class="card">
     <div class="row2">
-      <div><label>제목 *</label><input type="text" id="f-title" value="${x ? esc(x.title) : ''}" placeholder="글 제목"></div>
+      <div><label>제목 * <span class="ctr" id="ct-title"></span></label><input type="text" id="f-title" value="${x ? esc(x.title) : ''}" placeholder="검색에 잘 걸리는 제목 (15~30자 권장)"></div>
       <div><label>URL 슬러그 *</label><input type="text" id="f-slug" value="${x ? esc(x.slug) : ''}" placeholder="예: implant-care-tips (영문/숫자/하이픈)"></div>
     </div>
     <div class="row2">
       <div><label>작성자(원장) *</label>
         <select id="f-author">${DOCTORS.map(d => `<option value="${d.slug}" ${x && x.author_slug === d.slug ? 'selected' : ''}>${d.name} ${d.role}</option>`).join('')}</select></div>
-      <div><label>썸네일</label>
+      <div><label>대표 썸네일</label>
         <div style="display:flex;gap:8px;align-items:center">
-          <input type="text" id="f-thumb" value="${x && x.thumbnail ? esc(x.thumbnail) : ''}" placeholder="본문 이미지 자동 사용 또는 업로드" readonly style="flex:1">
+          <input type="text" id="f-thumb" value="${x && x.thumbnail ? esc(x.thumbnail) : ''}" placeholder="첫 본문 이미지 자동 사용 또는 직접 업로드" readonly style="flex:1">
           <button class="btn btn-o btn-sm" onclick="document.getElementById('thumb-file').click()">업로드</button>
           <input type="file" id="thumb-file" accept="image/*" style="display:none" onchange="uploadThumb(this)">
         </div></div>
     </div>
-    <label>요약 (검색결과·목록에 표시)</label>
-    <input type="text" id="f-excerpt" value="${x ? esc(x.excerpt) : ''}" placeholder="한두 문장 요약">
+    <label>요약 / 메타설명 (검색결과에 표시) <span class="ctr" id="ct-excerpt"></span></label>
+    <input type="text" id="f-excerpt" value="${x ? esc(x.excerpt) : ''}" placeholder="검색 사용자가 가장 먼저 읽는 한두 문장 (50~120자 권장)">
     <label>본문 *</label>
-    <div class="editor-bar">
-      <button onclick="fmt('formatBlock','h2')">H2 제목</button>
-      <button onclick="fmt('formatBlock','h3')">H3 소제목</button>
-      <button onclick="fmt('formatBlock','p')">본문</button>
-      <button onclick="fmt('bold')"><b>B</b></button>
-      <button onclick="fmt('italic')"><i>I</i></button>
-      <button onclick="fmt('underline')"><u>U</u></button>
-      <button onclick="fmt('insertUnorderedList')">• 목록</button>
-      <button onclick="fmt('insertOrderedList')">1. 목록</button>
-      <button onclick="insertQuote()">❝ 인용</button>
-      <button onclick="document.getElementById('body-img').click()">🖼 사진 삽입</button>
-      <input type="file" id="body-img" accept="image/*" multiple style="display:none" onchange="insertImgs(this.files)">
+    <div class="rte-wrap">
+      ${editorToolbar({ id: 'editor', full: true })}
+      ${editorBody({ id: 'editor', html: startHtml, placeholder: '여기에 글을 작성하세요. 사진은 툴바🖼·드래그앤드롭·붙여넣기로 본문 중간에 넣을 수 있어요.' })}
     </div>
-    <div class="editor-body" id="editor" contenteditable="true">${x ? x.content_html : '<p>여기에 내용을 작성하세요...</p>'}</div>
-    <p class="drop-hint"><i class="fas fa-hand-pointer"></i> 이미지 파일을 본문에 끌어다 놓으면 자동 업로드되어 삽입됩니다. (다중 선택 가능)</p>
+    <p class="drop-hint"><i class="fas fa-hand-pointer"></i> 사진을 본문에 끌어다 놓거나 복사-붙여넣기하면 자동 업로드·리사이즈됩니다. 사진 클릭 시 정렬·캡션·삭제 메뉴가 떠요.</p>
     <div class="row2" style="margin-top:18px;align-items:center">
       <div><label style="margin:0"><input type="checkbox" id="f-pub" ${!x || x.published ? 'checked' : ''} style="width:auto;margin-right:8px;accent-color:var(--gold)">사이트에 공개</label></div>
       <div style="text-align:right"><button class="btn btn-p" onclick="savePost(${isEdit ? x.id : 'null'})"><i class="fas fa-save"></i> ${isEdit ? '수정 저장' : '발행하기'}</button></div>
     </div>
     <div class="msg" id="m"></div>
   </div>
+
+  ${seoPanel({ titleId: 'f-title', descId: 'f-excerpt', slugId: 'f-slug', bodyId: 'editor' })}
+
   <script>
-  function fmt(cmd,val){document.execCommand(cmd,false,val||null);document.getElementById('editor').focus();}
-  function insertQuote(){document.execCommand('formatBlock',false,'blockquote');}
-  async function uploadFile(f){
-    var fd=new FormData();fd.append('file',f);
-    var r=await fetch('/admin/api/upload',{method:'POST',body:fd});
-    return await r.json();
+  function syncSerp(){
+    rteSerp(
+      document.getElementById('f-title').value.trim(),
+      document.getElementById('f-slug').value.trim(),
+      document.getElementById('f-excerpt').value.trim()
+    );
   }
-  async function insertImgs(files){
-    var ed=document.getElementById('editor');
-    for(var i=0;i<files.length;i++){
-      var j=await uploadFile(files[i]);
-      if(j.ok){
-        var img=document.createElement('img');img.src='/api/img/'+j.key;img.alt=files[i].name;
-        ed.appendChild(img);
-        if(!document.getElementById('f-thumb').value)document.getElementById('f-thumb').value=j.key;
-      }
-    }
-  }
-  async function uploadThumb(input){
+  window.uploadThumb = async function(input){
     if(!input.files[0])return;
-    var j=await uploadFile(input.files[0]);
+    var fd=new FormData();fd.append('file',input.files[0]);
+    var r=await fetch('/admin/api/upload',{method:'POST',body:fd});var j=await r.json();
     if(j.ok)document.getElementById('f-thumb').value=j.key;
-  }
-  // 드래그앤드롭
-  (function(){
-    var ed=document.getElementById('editor');
-    ed.addEventListener('dragover',function(e){e.preventDefault();ed.classList.add('dragover');});
-    ed.addEventListener('dragleave',function(){ed.classList.remove('dragover');});
-    ed.addEventListener('drop',async function(e){
-      e.preventDefault();ed.classList.remove('dragover');
-      var files=Array.prototype.filter.call(e.dataTransfer.files,function(f){return f.type.indexOf('image/')===0;});
-      if(files.length)await insertImgs(files);
+  };
+  // 모든 스크립트(EDITOR_JS) 로드 후 초기화
+  document.addEventListener('DOMContentLoaded', function(){
+    rteInit({ editorId:'editor', thumbId:'f-thumb', titleId:'f-title', descId:'f-excerpt', onChange:syncSerp });
+    rteCounter('f-title','ct-title',10,40);
+    rteCounter('f-excerpt','ct-excerpt',30,120);
+    document.getElementById('f-title').addEventListener('input',syncSerp);
+    document.getElementById('f-slug').addEventListener('input',syncSerp);
+    document.getElementById('f-excerpt').addEventListener('input',syncSerp);
+    document.getElementById('f-title').addEventListener('blur',function(){
+      var s=document.getElementById('f-slug');
+      if(!s.value.trim()){
+        s.value=this.value.trim().toLowerCase().replace(/[^a-z0-9가-힣\\s-]/g,'').replace(/\\s+/g,'-').slice(0,60)||('post-'+Date.now());
+        syncSerp();
+      }
     });
-  })();
-  // 제목 → 슬러그 자동 제안
-  document.getElementById('f-title').addEventListener('blur',function(){
-    var s=document.getElementById('f-slug');
-    if(!s.value.trim()){
-      s.value=this.value.trim().toLowerCase().replace(/[^a-z0-9가-힣\\s-]/g,'').replace(/\\s+/g,'-').slice(0,60)||('post-'+Date.now());
-    }
+    syncSerp();
   });
-  async function savePost(id){
+  window.savePost = async function(id){
     var m=document.getElementById('m');
     var data={
       title:document.getElementById('f-title').value.trim(),
@@ -335,7 +319,7 @@ function postForm(x: any): string {
     var j=await r.json();
     if(j.ok){m.className='msg ok';m.textContent='저장되었습니다!';setTimeout(function(){location.href='/admin/posts';},700);}
     else{m.className='msg err';m.textContent=j.error||'저장 실패';}
-  }
+  };
   </script>`;
 }
 
@@ -430,12 +414,10 @@ function noticeForm(x: any): string {
       <input type="file" id="n-file" accept="image/*" style="display:none" onchange="uploadN(this)">
     </div>
     <label>내용 *</label>
-    <div class="editor-bar">
-      <button onclick="fmt('formatBlock','h3')">소제목</button>
-      <button onclick="fmt('bold')"><b>B</b></button>
-      <button onclick="fmt('insertUnorderedList')">• 목록</button>
+    <div class="rte-wrap">
+      ${editorToolbar({ id: 'editor', full: true })}
+      ${editorBody({ id: 'editor', html: x ? x.content_html : '', placeholder: '공지 내용을 작성하세요. 사진도 본문에 넣을 수 있어요.', minHeight: 220 })}
     </div>
-    <div class="editor-body" id="editor" contenteditable="true" style="min-height:200px" oninput="syncPreview()">${x ? x.content_html : '<p>공지 내용을 작성하세요...</p>'}</div>
     <div class="row2" style="margin-top:18px;align-items:center">
       <label style="margin:0"><input type="checkbox" id="f-pin" ${x && x.is_pinned ? 'checked' : ''} style="width:auto;margin-right:8px;accent-color:var(--gold)">📌 대장 공지로 고정</label>
       <label style="margin:0"><input type="checkbox" id="f-pub" ${!x || x.published ? 'checked' : ''} style="width:auto;margin-right:8px;accent-color:var(--gold)">사이트에 공개</label>
@@ -502,7 +484,6 @@ function noticeForm(x: any): string {
   <div class="msg" id="m"></div>
 
   <script>
-  function fmt(cmd,val){document.execCommand(cmd,false,val||null);document.getElementById('editor').focus();syncPreview();}
   function togglePopupBox(){document.getElementById('popup-box').style.display=document.getElementById('f-popup').checked?'block':'none';}
   function syncPreview(){
     var pop=document.getElementById('pv-popup');
@@ -544,7 +525,10 @@ function noticeForm(x: any): string {
     if(j.ok){m.className='msg ok';m.textContent='저장되었습니다!';setTimeout(function(){location.href='/admin/notices';},700);}
     else{m.className='msg err';m.textContent=j.error||'저장 실패';}
   }
-  syncPreview();
+  document.addEventListener('DOMContentLoaded', function(){
+    rteInit({ editorId:'editor', onChange:syncPreview });
+    syncPreview();
+  });
   </script>`;
 }
 

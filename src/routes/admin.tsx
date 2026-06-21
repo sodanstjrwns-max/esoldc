@@ -7,6 +7,7 @@ import { html, raw } from 'hono/html';
 import { createSession, setSessionCookie, destroySession, getSession, adminPassword } from '../lib/auth';
 import { DOCTORS, TREATMENTS, CLINIC } from '../data/clinic';
 import { searchRegions } from '../data/regions';
+import { EDITOR_CSS, EDITOR_MODALS, EDITOR_JS } from '../lib/editor';
 
 type Bindings = { DB?: D1Database; R2?: R2Bucket; ADMIN_PASSWORD?: string };
 
@@ -107,6 +108,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
 .pv-btn-x{font-size:.74rem;color:var(--ink-soft);text-decoration:underline;cursor:default}
 .pv-btn-go{font-size:.8rem;font-weight:700;color:#fff;background:var(--navy);padding:8px 14px;border-radius:10px}
 @media(max-width:760px){.row2,.row3{grid-template-columns:1fr}.adm-top nav{font-size:.8rem}}
+${EDITOR_CSS}
 `;
 
 function adminShell(title: string, active: string, body: string) {
@@ -131,6 +133,8 @@ function adminShell(title: string, active: string, body: string) {
   <button class="out" onclick="fetch('/api/auth/logout',{method:'POST'}).then(()=>location.href='/admin')">로그아웃</button>
 </header>
 <div class="adm-wrap">${raw(body)}</div>
+${raw(EDITOR_MODALS)}
+${raw(EDITOR_JS)}
 </body></html>`;
 }
 
