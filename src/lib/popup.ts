@@ -40,7 +40,8 @@ export async function fetchActivePopup(db: D1Database | undefined): Promise<Popu
 }
 
 const POPUP_CSS = `
-.hp-overlay{position:fixed;inset:0;z-index:9000;background:rgba(35,25,16,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .35s ease}
+.hp-overlay{position:fixed;inset:0;z-index:9000;background:rgba(35,25,16,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .35s ease;font-family:var(--display,'Pretendard','Apple SD Gothic Neo',system-ui,sans-serif)}
+.hp-overlay button,.hp-overlay input{font-family:inherit}
 .hp-overlay.show{opacity:1}
 .hp-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(40,25,12,.4);width:340px;max-width:100%;max-height:88vh;display:flex;flex-direction:column;position:relative;transform:translateY(24px) scale(.97);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
 .hp-card.sm{width:300px}.hp-card.lg{width:420px}
