@@ -865,6 +865,14 @@ export function Layout(meta: SeoMeta, body: any) {
   ${footer()}
   ${meta.extraBody ? raw(meta.extraBody) : ''}
   <script>${raw(INTERACTION_JS)}</script>
+  <script>
+    /* PWA: Service Worker 등록 (홈 화면 설치·재방문 캐싱). 로드 완료 후 비차단 등록 */
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', function(){
+        navigator.serviceWorker.register('/sw.js').catch(function(){});
+      });
+    }
+  </script>
   ${raw(conversionTrackingSnippet())}
 </body>
 </html>`;

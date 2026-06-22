@@ -26,7 +26,7 @@ export function CasesListPage(cases: any[], loggedIn: boolean) {
     return `
     <a href="/cases/${x.id}" class="case-card reveal">
       <div class="cc-img">
-        ${thumb ? `<img src="/api/img/${thumb}" alt="${esc(x.title)} 치료 전" loading="lazy">` : `<div class="cc-noimg"><i class="fas fa-tooth"></i></div>`}
+        ${thumb ? `<img src="/api/img/${thumb}" alt="${esc(x.title)} 치료 전" loading="lazy" decoding="async">` : `<div class="cc-noimg"><i class="fas fa-tooth"></i></div>`}
         <span class="cc-cat">${esc(catName(x.category))}</span>
       </div>
       <div class="cc-body">
@@ -87,8 +87,8 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
       <div class="ba-block reveal">
         <h3 class="ba-title">${label}</h3>
         <div class="ba-slider" id="${id}">
-          <img src="/api/img/${after}" alt="${label} 치료 후" class="ba-after" draggable="false">
-          <div class="ba-before-wrap"><img src="/api/img/${before}" alt="${label} 치료 전" draggable="false"></div>
+          <img src="/api/img/${after}" alt="${label} 치료 후" class="ba-after" draggable="false" loading="lazy" decoding="async">
+          <div class="ba-before-wrap"><img src="/api/img/${before}" alt="${label} 치료 전" draggable="false" loading="lazy" decoding="async"></div>
           <div class="ba-handle"><span><i class="fas fa-arrows-alt-h"></i></span></div>
           <span class="ba-lbl ba-lbl-b">BEFORE</span><span class="ba-lbl ba-lbl-a">AFTER</span>
         </div>
@@ -111,7 +111,7 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
   const relCards = related.map(r => {
     const thumb = r.img_oral_before || r.img_pano_before;
     return `<a href="/cases/${r.id}" class="rel-case">
-      ${thumb ? `<img src="/api/img/${thumb}" alt="${esc(r.title)}" loading="lazy">` : '<div class="rel-noimg"><i class="fas fa-tooth"></i></div>'}
+      ${thumb ? `<img src="/api/img/${thumb}" alt="${esc(r.title)}" loading="lazy" decoding="async">` : '<div class="rel-noimg"><i class="fas fa-tooth"></i></div>'}
       <div><strong>${esc(r.title)}</strong><span>${esc(catName(r.category))}</span></div></a>`;
   }).join('');
 
@@ -194,7 +194,7 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
 export function BlogListPage(posts: any[]) {
   const cards = posts.map(p => `
   <a href="/blog/${esc(p.slug)}" class="blog-card reveal">
-    <div class="bc-img">${p.thumbnail ? `<img src="/api/img/${p.thumbnail}" alt="${esc(p.title)}" loading="lazy">` : '<div class="bc-noimg"><i class="fas fa-feather-alt"></i></div>'}</div>
+    <div class="bc-img">${p.thumbnail ? `<img src="/api/img/${p.thumbnail}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : '<div class="bc-noimg"><i class="fas fa-feather-alt"></i></div>'}</div>
     <div class="bc-body">
       <h3>${esc(p.title)}</h3>
       ${p.excerpt ? `<p>${esc(p.excerpt)}</p>` : ''}

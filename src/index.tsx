@@ -29,6 +29,7 @@ import { authApi } from './routes/auth';
 import { admin } from './routes/admin';
 import { adminContent } from './routes/admin-content';
 import { INDEXNOW_KEY } from './lib/indexnow';
+import { SERVICE_WORKER_JS } from './lib/sw';
 import { getSession } from './lib/auth';
 import { searchRegions } from './data/regions';
 import { setGaId } from './lib/analytics';
@@ -671,6 +672,15 @@ function buildUrlset(urls: SUrl[], now: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset ${ns}>\n${body}\n</urlset>`;
 }
 const xmlResp = (c: any, xml: string) => c.text(xml, 200, { 'Content-Type': 'application/xml; charset=UTF-8', 'Cache-Control': 'public, max-age=3600' });
+
+// 📲 PWA Service Worker — 루트 scope('/') 확보 위해 Hono에서 직접 서빙
+app.get('/sw.js', (c) =>
+  c.text(SERVICE_WORKER_JS, 200, {
+    'Content-Type': 'application/javascript; charset=UTF-8',
+    'Cache-Control': 'public, max-age=0, must-revalidate',
+    'Service-Worker-Allowed': '/',
+  }),
+);
 
 // 🔑 IndexNow 키 파일 — 도메인 소유 증명 (콘텐츠 발행 시 즉시 색인 요청에 사용)
 app.get(`/${INDEXNOW_KEY}.txt`, (c) =>

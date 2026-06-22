@@ -1,16 +1,57 @@
 {
   "name": "이솔치과의원",
   "short_name": "이솔치과",
-  "description": "남양주 마석, 3대가 함께 다니는 우리 가족 치과 주치의. 기분 좋게 진료를 마칠 때까지.",
-  "lang": "ko-KR",
-  "start_url": "/",
+  "description": "남양주 마석, 편안하게 찾아오실 수 있는 동네 치과. 임플란트·치아교정·소아치과를 중심으로 전 연령 진료를 제공합니다.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#F7F0E1",
   "theme_color": "#5A463A",
+  "categories": ["medical", "health"],
   "icons": [
-    { "src": "/static/img/favicon-32.png", "sizes": "32x32", "type": "image/png" },
-    { "src": "/static/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "/static/img/apple-touch-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "/static/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "오시는 길",
+      "short_name": "오시는 길",
+      "description": "병원 위치와 길찾기 안내",
+      "url": "/directions?source=pwa",
+      "icons": [{ "src": "/static/img/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "진료 안내",
+      "short_name": "진료안내",
+      "description": "진료 과목과 치료 정보",
+      "url": "/treatments?source=pwa",
+      "icons": [{ "src": "/static/img/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "자주 묻는 질문",
+      "short_name": "FAQ",
+      "description": "자주 묻는 질문 모음",
+      "url": "/faq?source=pwa",
+      "icons": [{ "src": "/static/img/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
