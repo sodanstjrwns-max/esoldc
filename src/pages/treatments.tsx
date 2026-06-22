@@ -34,7 +34,8 @@ const TREAT_CSS = `
 .t-toc li{counter-increment:step;position:relative;padding:10px 10px 10px 46px;border-radius:var(--radius);transition:background .25s}
 .t-toc li::before{content:counter(step);position:absolute;left:8px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--gold-grad);color:#fff;font-size:.82rem;font-weight:700;display:grid;place-items:center}
 .t-toc li:not(:last-child)::after{content:'';position:absolute;left:21px;top:calc(50% + 17px);width:2px;height:calc(100% - 14px);background:var(--gold-soft)}
-.t-toc a{color:var(--ink);font-weight:600;font-size:.98rem;display:block}
+.t-toc a{color:var(--ink);font-weight:600;font-size:.98rem;display:flex;align-items:center;min-height:24px}
+@media(max-width:760px){.t-toc li{padding-top:13px;padding-bottom:13px}.t-toc a{min-height:28px}}
 .t-toc li:hover{background:var(--bg-soft)}.t-toc li:hover a{color:var(--gold-3)}
 /* 섹션 번호 배지 */
 .t-section .sec-num{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--gold-soft);color:var(--gold-3);font-size:.85rem;font-weight:700;margin-right:12px;vertical-align:2px;font-family:var(--serif)}
