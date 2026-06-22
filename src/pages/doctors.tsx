@@ -32,8 +32,8 @@ const DOC_CSS = `
 .dd-spec{font-size:1.18rem;color:var(--navy-3);font-weight:700;margin-bottom:28px;font-family:var(--serif)}
 .dd-bio{font-size:1.08rem;line-height:1.95;color:var(--ink-soft);margin-bottom:38px}
 .dd-block{margin-bottom:38px}
-.dd-block h3{font-size:1.22rem;color:var(--navy);margin-bottom:16px;padding-left:16px;position:relative;font-family:var(--serif)}
-.dd-block h3::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--gold);border-radius:2px}
+.dd-block h2{font-size:1.22rem;color:var(--navy);margin-bottom:16px;padding-left:16px;position:relative;font-family:var(--serif);letter-spacing:-.01em}
+.dd-block h2::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--gold);border-radius:2px}
 .dd-cred{list-style:none;padding:0;margin:0}
 .dd-cred li{padding:12px 0 12px 30px;position:relative;color:var(--ink-soft);border-bottom:1px solid var(--line)}
 .dd-cred li::before{content:'\\f00c';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;left:0;color:var(--gold)}
@@ -102,7 +102,7 @@ export function DoctorDetailPage(d: Doctor) {
           <p class="dd-bio">${d.bio}</p>
 
           <div class="dd-block">
-            <h3>약력 및 소속</h3>
+            <h2>약력 및 소속</h2>
             <ul class="dd-cred">
               ${raw(d.credentials.map(c => `<li>${c}</li>`).join(''))}
             </ul>
@@ -110,7 +110,7 @@ export function DoctorDetailPage(d: Doctor) {
 
           ${treats.length ? html`
           <div class="dd-block">
-            <h3>${d.name} ${d.role} 담당 진료</h3>
+            <h2>${d.name} ${d.role} 담당 진료</h2>
             <div class="dd-treat">
               ${raw(treats.map(t => `<a href="/treatments/${t.slug}"><i class="fas ${t.icon}" style="margin-right:6px"></i>${t.name}</a>`).join(''))}
             </div>

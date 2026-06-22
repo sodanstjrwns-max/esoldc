@@ -185,7 +185,7 @@ export function PricingPage() {
       </div>
       <div class="reveal reveal-d1" style="text-align:center;padding:48px;background:var(--bg-soft);border-radius:var(--radius-lg)">
         <i class="fas fa-comments" style="font-size:2.5rem;color:var(--gold);margin-bottom:16px"></i>
-        <h3 style="font-size:1.4rem;margin-bottom:10px">비용이 궁금하신가요?</h3>
+        <h2 style="font-size:1.4rem;margin-bottom:10px">비용이 궁금하신가요?</h2>
         <p style="color:var(--ink-soft);margin-bottom:24px">부담 없이 전화로 문의해 주세요. 친절하게 안내해 드리겠습니다.</p>
         <a href="tel:${CLINIC.tel}" class="btn btn-primary"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
       </div>
@@ -218,7 +218,7 @@ export function ReservationPage() {
     .res-step{position:relative;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px 24px;text-align:center}
     .res-step .rs-num{width:46px;height:46px;margin:0 auto 16px;border-radius:50%;display:grid;place-items:center;
       background:linear-gradient(135deg,#A6772F,#8A5F26);color:#fff;font-weight:800;font-size:1.15rem}
-    .res-step h4{font-size:1.08rem;margin-bottom:8px}
+    .res-step h3{font-size:1.08rem;margin-bottom:8px}
     .res-step p{color:var(--ink-soft);font-size:.9rem;line-height:1.65}
     .res-step .rs-ico{color:var(--gold);font-size:1.3rem;margin-bottom:10px}
     @media(max-width:740px){.res-steps{grid-template-columns:1fr;gap:14px}}
@@ -254,19 +254,19 @@ export function ReservationPage() {
         <div class="res-step reveal">
           <div class="rs-num">1</div>
           <div class="rs-ico"><i class="fas fa-pen-to-square"></i></div>
-          <h4>문의 남기기</h4>
+          <h3>문의 남기기</h3>
           <p>아래 폼에 성함·연락처와 궁금한 점을 남겨주세요. 전화 문의도 가능합니다.</p>
         </div>
         <div class="res-step reveal reveal-d1">
           <div class="rs-num">2</div>
           <div class="rs-ico"><i class="fas fa-phone-volume"></i></div>
-          <h4>확인 연락</h4>
+          <h3>확인 연락</h3>
           <p>접수 내용을 확인한 뒤, 진료시간 내에 직접 연락드려 일정을 조율합니다.</p>
         </div>
         <div class="res-step reveal reveal-d2">
           <div class="rs-num">3</div>
           <div class="rs-ico"><i class="fas fa-calendar-check"></i></div>
-          <h4>방문 상담</h4>
+          <h3>방문 상담</h3>
           <p>예약된 시간에 내원하시면, 구강 상태를 살펴보고 충분히 설명드립니다.</p>
         </div>
       </div>

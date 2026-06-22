@@ -63,6 +63,7 @@ export function CasesListPage(cases: any[], loggedIn: boolean) {
   </style>
   <section class="section">
     <div class="wrap">
+      <h2 class="section-list-title">치료 사례 목록</h2>
       ${loggedIn ? '' : raw(`<div class="case-lock-note reveal"><i class="fas fa-lock"></i><div>치료 <strong>후(애프터)</strong> 사진은 의료법 준수를 위해 <a href="/login" style="color:var(--gold-3);font-weight:700;text-decoration:underline">로그인</a> 후 열람하실 수 있습니다. 아직 회원이 아니시라면 <a href="/signup" style="color:var(--gold-3);font-weight:700;text-decoration:underline">회원가입</a> 해주세요.</div></div>`)}
       ${cases.length
         ? raw(`<div class="case-grid">${cards}</div>`)
@@ -217,6 +218,7 @@ export function BlogListPage(posts: any[]) {
     .bc-meta i{color:var(--gold);margin-right:4px}
   </style>
   <section class="section"><div class="wrap">
+    <h2 class="section-list-title">블로그 글 목록</h2>
     ${posts.length
       ? raw(`<div class="blog-grid">${cards}</div>`)
       : raw(`<div style="text-align:center;padding:70px 20px;color:var(--ink-soft)"><i class="fas fa-feather-alt" style="font-size:2.4rem;color:var(--gold);margin-bottom:18px;display:block"></i>첫 글을 준비 중입니다. 곧 유익한 구강 건강 정보로 찾아뵙겠습니다.</div>`)}

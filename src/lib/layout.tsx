@@ -124,6 +124,7 @@ a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
 section{position:relative}
+.section-list-title{font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:22px;padding-left:14px;border-left:3px solid var(--gold);line-height:1.3;letter-spacing:-.01em}
 
 /* ── eyebrow (미니멀 모노 라벨 — 2026 에디토리얼) ── */
 .eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);background:none;padding:0}
@@ -190,7 +191,7 @@ section{position:relative}
 .site-footer::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,154,82,.5),transparent)}
 .footer-grid{display:grid;grid-template-columns:1.7fr 1fr 1fr 1.2fr;gap:44px;position:relative}
 .footer-brand{font-size:1.4rem;font-weight:800;margin-bottom:14px;color:var(--inv)}
-.footer-grid h4{color:var(--inv);font-size:1rem;margin-bottom:14px}
+.footer-grid .footer-col-title{color:var(--inv);font-size:1rem;font-weight:700;margin-bottom:14px}
 .footer-grid a{color:var(--inv-soft);font-size:.95rem;display:block;padding:6px 0;transition:color .2s}
 .footer-grid a:hover{color:var(--gold-2)}
 .footer-biz{font-size:.85rem;color:var(--inv-faint);line-height:1.9;margin-top:16px}
@@ -709,12 +710,12 @@ function footer() {
           </div>
         </div>
         <div>
-          <h4>진료안내</h4>
+          <div class="footer-col-title">진료안내</div>
           ${raw(CORE_TREATMENTS.map(t => `<a href="/treatments/${t.slug}">${t.name}</a>`).join(''))}
           <a href="/treatments">전체 진료 보기</a>
         </div>
         <div>
-          <h4>병원안내</h4>
+          <div class="footer-col-title">병원안내</div>
           <a href="/mission">병원소개</a>
           <a href="/doctors">의료진</a>
           <a href="/cases">비포&애프터</a>
@@ -725,7 +726,7 @@ function footer() {
           <a href="/pricing">비용안내</a>
         </div>
         <div>
-          <h4>찾아오시는 길</h4>
+          <div class="footer-col-title">찾아오시는 길</div>
           <a href="/directions">${CLINIC.addressShort}</a>
           <a href="tel:${CLINIC.tel}">${CLINIC.tel}</a>
           <a href="/area">지역별 진료 안내</a>

@@ -54,6 +54,7 @@ export function GlossaryListPage() {
   <style>${raw(GLOSSARY_CSS)}</style>
   <section class="section">
     <div class="wrap">
+      <h2 class="section-list-title">용어 목록</h2>
       <div class="gl-toolbar">
         <div class="gl-search">
           <i class="fas fa-search"></i>
@@ -127,7 +128,7 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
     .gd-treat{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
     .gd-treat a{background:var(--gold-soft);border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px 24px;display:block;transition:.3s}
     .gd-treat a:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-    .gd-treat h4{font-size:1rem;margin-bottom:4px}
+    .gd-treat .gd-treat-name{display:block;font-size:1rem;font-weight:700;margin-bottom:4px;color:var(--ink)}
     .gd-treat p{font-size:.82rem;color:var(--ink-soft)}
     .gd-rel{display:flex;gap:10px;flex-wrap:wrap}
     .gd-rel a{padding:9px 18px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:.88rem;transition:.25s}
@@ -144,7 +145,7 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
       ${relTreatments.length ? raw(`
       <h2 class="gd-sub"><i class="fas fa-stethoscope"></i>관련 진료 보기</h2>
       <div class="gd-treat">
-        ${relTreatments.map(t => `<a href="/treatments/${t.slug}"><h4>${esc(t.name)}</h4><p>${esc(t.short)}</p></a>`).join('')}
+        ${relTreatments.map(t => `<a href="/treatments/${t.slug}"><strong class="gd-treat-name">${esc(t.name)}</strong><p>${esc(t.short)}</p></a>`).join('')}
       </div>`) : ''}
 
       ${related.length ? raw(`

@@ -171,7 +171,7 @@ export function HomePage() {
     .equip-card:hover{transform:translateY(-6px)}
     .equip-card .eq-ic{width:54px;height:54px;border-radius:50%;background:var(--bg-card);border:1px solid var(--gold-soft);color:var(--gold-3);display:grid;place-items:center;font-size:1.2rem;margin-bottom:20px;transition:all .4s var(--ease);box-shadow:0 0 0 5px rgba(166,119,47,.05)}
     .equip-card:hover .eq-ic{background:var(--navy);color:var(--gold-2);border-color:var(--navy);box-shadow:0 0 0 7px rgba(62,44,31,.08);transform:rotate(-8deg)}
-    .equip-card h4{font-size:1.08rem;margin-bottom:9px;line-height:1.3}
+    .equip-card h3{font-size:1.08rem;margin-bottom:9px;line-height:1.3}
     .equip-card p{font-size:.9rem;color:var(--ink-soft);line-height:1.62;margin:0;word-break:keep-all}
     .equip-note{margin-top:38px;font-size:.92rem;color:var(--ink-faint);display:flex;align-items:center;gap:9px}
     .equip-note i{color:var(--gold)}
@@ -188,7 +188,7 @@ export function HomePage() {
     .team-photo::after{content:'';position:absolute;inset:7px;border-radius:154px 154px 11px 11px;border:1px solid rgba(250,245,236,.5);pointer-events:none;z-index:2}
     .team-photo img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
     .team-card:hover .team-photo img{transform:scale(1.05)}
-    .team-card h4{font-size:1.12rem;margin-bottom:3px}
+    .team-card h3{font-size:1.12rem;margin-bottom:3px}
     .team-card .role{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:5px}
     .team-card .spec{font-size:.85rem;color:var(--ink-soft)}
 
@@ -266,7 +266,7 @@ export function HomePage() {
       background:linear-gradient(135deg,#A6772F,#7A511F);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);position:relative}
     .jy-ic::after{content:attr(data-n);position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;
       background:var(--inv);color:var(--navy);font-family:var(--grotesk);font-weight:700;font-size:.78rem;display:grid;place-items:center;border:2px solid var(--navy)}
-    .jy-step h4{color:var(--inv);font-size:1.12rem;margin-bottom:8px;font-family:var(--serif)}
+    .jy-step h3{color:var(--inv);font-size:1.12rem;margin-bottom:8px;font-family:var(--serif)}
     .jy-step p{color:var(--inv-soft);font-size:.88rem;line-height:1.65;margin:0}
     .jy-step .jy-tag{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-2);opacity:.85}
     .jy-foot{margin-top:48px;text-align:center}
@@ -277,7 +277,7 @@ export function HomePage() {
       .jy-step{display:grid;grid-template-columns:66px 1fr;gap:18px;text-align:left;padding:18px 0;align-items:start;position:relative}
       .jy-step:not(:last-child)::before{content:'';position:absolute;left:32px;top:66px;bottom:-18px;width:2px;background:rgba(201,154,82,.4)}
       .jy-ic{margin:0}
-      .jy-step h4{margin-top:4px}
+      .jy-step h3{margin-top:4px}
     }
 
     /* ====================== B3: 신뢰 · 리뷰 안내 ====================== */
@@ -290,7 +290,7 @@ export function HomePage() {
     .review-cta{margin-top:24px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius-lg);padding:32px 30px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:space-between}
     .review-cta .rc-left{display:flex;align-items:center;gap:18px}
     .review-cta .rc-ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:1.5rem;color:#fff;background:#03C75A;flex:none}
-    .review-cta h4{font-size:1.18rem;margin-bottom:4px}
+    .review-cta h3{font-size:1.18rem;margin-bottom:4px}
     .review-cta p{color:var(--ink-soft);font-size:.92rem;margin:0;line-height:1.6}
     @media(max-width:680px){.trust-stats{grid-template-columns:1fr}.trust-stats .ts{border-right:none;border-bottom:1px solid var(--line)}.trust-stats .ts:last-child{border-bottom:none}.review-cta{flex-direction:column;align-items:flex-start;text-align:left}}
   </style>
@@ -504,7 +504,7 @@ export function HomePage() {
         ${raw(CLINIC.equipment.map((e, i) => `
           <div class="equip-card" data-reveal data-reveal-d="${(i % 5) + 1}">
             <div class="eq-ic"><i class="fas ${['fa-x-ray','fa-cube','fa-magnifying-glass','fa-face-smile','fa-child-reaching'][i] || 'fa-tooth'}"></i></div>
-            <h4>${e.name}</h4>
+            <h3>${e.name}</h3>
             <p>${e.desc}</p>
           </div>`).join(''))}
       </div>
@@ -536,7 +536,7 @@ export function HomePage() {
         ${raw(DOCTORS.map((d, i) => `
           <a href="/doctors/${d.slug}" class="team-card" data-reveal data-reveal-d="${(i % 5) + 1}">
             <div class="team-photo"><img src="${d.photo}" alt="${d.name} ${d.role}" loading="lazy" decoding="async" width="300" height="400"></div>
-            <h4>${d.name}</h4>
+            <h3>${d.name}</h3>
             <div class="role">${d.role}</div>
             <div class="spec">${d.specialty}</div>
           </a>`).join(''))}
@@ -562,31 +562,31 @@ export function HomePage() {
           <span class="jy-line" aria-hidden="true"></span>
           <div class="jy-step">
             <div class="jy-ic" data-n="1"><i class="fas fa-hand-holding-heart"></i></div>
-            <h4>문의 · 예약</h4>
+            <h3>문의 · 예약</h3>
             <p>전화나 온라인으로 편하게 문의하세요. 어떤 점이 궁금하신지부터 듣습니다.</p>
             <span class="jy-tag">Contact</span>
           </div>
           <div class="jy-step">
             <div class="jy-ic" data-n="2"><i class="fas fa-comments"></i></div>
-            <h4>상담 · 경청</h4>
+            <h3>상담 · 경청</h3>
             <p>증상과 걱정, 원하시는 방향을 충분히 여쭙고 함께 이야기 나눕니다.</p>
             <span class="jy-tag">Consult</span>
           </div>
           <div class="jy-step">
             <div class="jy-ic" data-n="3"><i class="fas fa-magnifying-glass-chart"></i></div>
-            <h4>정밀 진단</h4>
+            <h3>정밀 진단</h3>
             <p>CT·구강스캐너 등으로 보이지 않는 부분까지 살펴 상태를 설명드립니다.</p>
             <span class="jy-tag">Diagnosis</span>
           </div>
           <div class="jy-step">
             <div class="jy-ic" data-n="4"><i class="fas fa-tooth"></i></div>
-            <h4>맞춤 진료</h4>
+            <h3>맞춤 진료</h3>
             <p>설명드린 계획에 동의하신 뒤, 각 분야 전문의가 진료를 진행합니다.</p>
             <span class="jy-tag">Treatment</span>
           </div>
           <div class="jy-step">
             <div class="jy-ic" data-n="5"><i class="fas fa-heart-circle-check"></i></div>
-            <h4>사후 관리</h4>
+            <h3>사후 관리</h3>
             <p>치료가 끝난 뒤에도 정기 점검으로 건강한 상태를 함께 지켜갑니다.</p>
             <span class="jy-tag">Aftercare</span>
           </div>
@@ -633,7 +633,7 @@ export function HomePage() {
         <div class="rc-left">
           <div class="rc-ic"><i class="fas fa-comment-dots"></i></div>
           <div>
-            <h4>실제 방문자 리뷰는 네이버에서 확인하세요</h4>
+            <h3>실제 방문자 리뷰는 네이버에서 확인하세요</h3>
             <p>의료법에 따라 치료 후기는 사이트에 직접 게시하지 않습니다.<br>대신 실제 방문자분들이 남긴 후기를 네이버 플레이스에서 보실 수 있습니다.</p>
           </div>
         </div>
@@ -645,7 +645,7 @@ export function HomePage() {
         <div class="rc-left">
           <div class="rc-ic" style="background:var(--gold-grad);background:linear-gradient(135deg,#A6772F,#7A511F)"><i class="fas fa-images"></i></div>
           <div>
-            <h4>치료 전후, 직접 비교해 보실 수 있습니다</h4>
+            <h3>치료 전후, 직접 비교해 보실 수 있습니다</h3>
             <p>동의를 받은 실제 진료 사례를 ‘전후 비교 슬라이더’로 살펴보실 수 있습니다.<br>치료 후 사진은 의료법에 따라 회원 열람으로 제공됩니다.</p>
           </div>
         </div>
