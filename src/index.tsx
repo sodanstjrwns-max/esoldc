@@ -373,7 +373,7 @@ app.get('/notices', async (c) => {
   }
   return c.html(Layout({
     title: `공지사항 | ${CLINIC.name}`,
-    description: `${CLINIC.name} 공지사항. 진료 일정 변경, 병원 소식을 안내해 드립니다.`,
+    description: `${CLINIC.name} 공지사항 안내. 진료 일정 변경, 휴진·정기휴무, 새 소식 등 ${CLINIC.region} ${CLINIC.district} 마석 이솔치과의 최신 병원 소식을 확인하실 수 있습니다.`,
     path: '/notices',
     noindex: notices.length === 0,
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notices' }])],
