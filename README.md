@@ -165,5 +165,21 @@ npm run db:migrate:local         # 로컬 SQLite 적용
 
 - **플랫폼**: Cloudflare Pages
 - **상태**: ✅ Active
-- **기술스택**: Hono + TypeScript + Cloudflare D1/R2 + Vite
-- **최종 업데이트**: 2026-06-21 (납품 버전 — SEO/AEO/지역SEO/성능/접근성 슈퍼 업그레이드)
+- **기술스택**: Hono + TypeScript + Cloudflare D1/R2 + Vite + PWA
+- **최종 업데이트**: 2026-06-22 (납품 버전 — 전방위 최종 점검 통과)
+
+---
+
+## 9. 납품 전 전방위 최종 점검 결과 (2026-06-22)
+
+| # | 점검 항목 | 결과 |
+|---|-----------|------|
+| 1 | 빌드 무결성 + TypeScript 타입체크 | ✅ 타입에러 0개 / 빌드 성공 (896 kB) |
+| 2 | 전체 라우트 HTTP 상태 (38개) | ✅ 전부 200, 내부 링크 4xx/5xx 0건 |
+| 3 | SEO·메타·JSON-LD 구조화데이터 | ✅ 페이지별 고유 메타, @graph(Organization/WebSite/Dentist) + FAQPage 127개 #q-N 앵커 전부 유효 |
+| 4 | PWA / Service Worker / manifest | ✅ /sw.js 200(scope /), manifest·아이콘 5종 정상 |
+| 5 | 모바일·반응형·오버플로 (4뷰포트×6페이지) | ✅ 가로 오버플로 0건 |
+| 6 | 의료광고법 컴플라이언스 | ✅ 과장·효능보장·최상급 표현 0건 (권장/도움/개인차 톤 일관) |
+| 7 | 데이터 무결성 (연락처/주소/의료진/깨진문자) | ✅ 전화·주소 일관, 의료진 5명 일관, U+FFFD 0건 |
+| 8 | 보안헤더 / 링크 / 접근성 | ✅ HSTS·CSP류 헤더 적용, img alt 누락 0, rel=noopener 보완 완료 |
+| 9 | 최종 배포 + 커밋 | ✅ isoldc.kr 프로덕션 200 검증 완료 |

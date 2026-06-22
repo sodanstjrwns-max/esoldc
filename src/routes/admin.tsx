@@ -192,7 +192,7 @@ document.getElementById('af').addEventListener('submit',async function(e){
             <div style="font-size:.88rem;color:var(--ink-soft);margin-top:2px">"${esc(activePopup.title)}" · ${activePopup.popup_start || '즉시'} ~ ${activePopup.popup_end || '무기한'}</div>
           </div>
           <a href="/admin/notices/${activePopup.id}" class="btn btn-o btn-sm">편집</a>
-          <a href="/" target="_blank" class="btn btn-g btn-sm"><i class="fas fa-eye"></i> 확인</a>
+          <a href="/" target="_blank" rel="noopener" class="btn btn-g btn-sm"><i class="fas fa-eye"></i> 확인</a>
         </div>
       </div>`
     : `<div class="card" style="border:1px dashed var(--line)">
@@ -223,7 +223,7 @@ document.getElementById('af').addEventListener('submit',async function(e){
       <a href="/admin/cases/new" class="btn btn-g"><i class="fas fa-plus"></i> 비포&애프터 등록</a>
       <a href="/admin/posts/new" class="btn btn-g"><i class="fas fa-pen"></i> 블로그 작성</a>
       <a href="/admin/notices/new" class="btn btn-g"><i class="fas fa-bullhorn"></i> 공지 작성</a>
-      <a href="/" class="btn btn-o" target="_blank"><i class="fas fa-external-link-alt"></i> 사이트 보기</a>
+      <a href="/" class="btn btn-o" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> 사이트 보기</a>
       <button type="button" id="indexnowBtn" class="btn btn-o"><i class="fas fa-magnifying-glass-location"></i> 검색엔진 색인 요청</button>
     </div>
     <p style="margin:10px 0 0;font-size:.8rem;color:#8a7d6e;line-height:1.5">
