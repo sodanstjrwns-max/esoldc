@@ -33,12 +33,15 @@ export const CLINIC = {
   hoursNote: '2026년 6월 22일 새 공간에서 진료를 시작합니다. 진료시간은 전화로 확인 부탁드립니다.',
   reopenDate: '2026-06-22',
 
-  // --- 사업자 정보 (푸터·§H) ---
+  // --- 사업자 정보 (푸터·§H) — 사업자등록증 사본(2026.6.22 발급) 반영 ---
   business: {
     company: '이솔치과의원',
     owner: '고경우',
-    bizNo: '상담 시 안내', // 신청서 미제공 → 창작 금지
-    openDate: '2017',
+    bizNo: '213-13-01527',       // 사업자등록번호 (등록증 확인)
+    openDate: '2017-11-06',      // 개업연월일 (등록증 확인)
+    bizType: '보건업',            // 업태
+    bizItem: '치과의원',          // 종목
+    taxType: '일반과세자',        // 과세 유형
   },
 
   // --- SNS / 채널 (6/3 시트) ---
@@ -544,3 +547,110 @@ export const getTreatmentsForDoctor = (slug: string) => {
   if (!doc) return [];
   return doc.treatments.map(getTreatment).filter(Boolean) as Treatment[];
 };
+
+// ============================================================
+// 비급여 진료비용 안내 (수가표) — 병원 제공 기준표 반영
+// ⚠️ 의료법 준수: 게시 기준이며 개인 구강 상태·진료 범위·재료에 따라
+//    실제 비용은 달라질 수 있음. '미용 치료'는 부가세 과세 대상.
+// ============================================================
+export type PriceItem = { name: string; price: number; unit?: string };
+export type PriceGroup = { cat: string; icon: string; taxable?: boolean; note?: string; items: PriceItem[] };
+
+export const PRICING: PriceGroup[] = [
+  {
+    cat: '임플란트', icon: 'fa-screwdriver-wrench',
+    items: [
+      { name: '오스템 임플란트 SOI', price: 980000 },
+      { name: '오스템 임플란트 (SA)', price: 780000 },
+      { name: '네오 임플란트', price: 680000 },
+      { name: '메가젠 임플란트', price: 580000 },
+      { name: '단순 뼈이식', price: 300000 },
+      { name: '복잡 뼈이식', price: 500000 },
+      { name: '상악동 거상술 (Crestal)', price: 500000 },
+      { name: '상악동 거상술 (Lateral)', price: 1000000 },
+      { name: '보철 추가 (폰틱 / 재제작)', price: 400000 },
+    ],
+  },
+  {
+    cat: '보철', icon: 'fa-crown',
+    items: [
+      { name: 'PFM 크라운', price: 400000 },
+      { name: '지르코니아 (구치부)', price: 450000 },
+      { name: 'E-max 올세라믹 (전치부)', price: 500000 },
+      { name: '지르코니아 (전치부)', price: 500000 },
+      { name: '메탈 크라운', price: 350000 },
+    ],
+  },
+  {
+    cat: '틀니', icon: 'fa-teeth',
+    items: [
+      { name: '부분 틀니', price: 1300000 },
+      { name: '전체 틀니', price: 1500000 },
+      { name: '틀니 수리', price: 100000 },
+      { name: '틀니 개상(裏装)', price: 300000 },
+      { name: '임시 틀니', price: 300000 },
+      { name: 'Wire Temporary', price: 100000 },
+      { name: '케라토 (오버덴처 시)', price: 200000 },
+    ],
+  },
+  {
+    cat: '보존 (충치·신경)', icon: 'fa-tooth',
+    items: [
+      { name: '레진 (단순)', price: 80000 },
+      { name: '레진 (앞니)', price: 100000 },
+      { name: '레진 (CA)', price: 60000 },
+      { name: '치간 이개 (Diastema, 부위당)', price: 150000 },
+      { name: '세라믹 인레이', price: 230000 },
+      { name: '레진 코어', price: 50000 },
+      { name: '포스트', price: 150000 },
+    ],
+  },
+  {
+    cat: '소아', icon: 'fa-child-reaching',
+    items: [
+      { name: '소아 레진', price: 80000 },
+      { name: '소아 레진 (인접면)', price: 100000 },
+      { name: 'SS 크라운', price: 120000 },
+      { name: 'Band(Crown) & Loop', price: 150000 },
+      { name: '치아 홈메우기', price: 30000 },
+      { name: '불소 도포', price: 30000 },
+      { name: 'MTA (유치)', price: 30000 },
+      { name: 'Lingual Arch', price: 250000 },
+    ],
+  },
+  {
+    cat: '교정', icon: 'fa-grip-lines',
+    items: [
+      { name: '교정 진단', price: 20000 },
+      { name: '세라믹 클리피씨', price: 2500000 },
+      { name: '메탈 클리피씨', price: 2300000 },
+      { name: '전치부 부분교정', price: 1300000 },
+      { name: '구치부 부분교정', price: 800000 },
+      { name: '스크류', price: 100000 },
+      { name: '유지장치', price: 300000 },
+      { name: 'MARPE', price: 500000 },
+      { name: '헤드기어 · 페이스마스크', price: 2000000 },
+      { name: '엑티베이터', price: 700000 },
+      { name: '인비절라인 퍼스트 (18개월)', price: 4500000 },
+      { name: '인비절라인 Lite (2년)', price: 4500000 },
+      { name: '인비절라인 Comprehensive (3~5년)', price: 6500000 },
+    ],
+  },
+  {
+    cat: '기타', icon: 'fa-notes-medical',
+    items: [
+      { name: '이갈이 장치', price: 500000 },
+      { name: 'PDRN (2회)', price: 50000 },
+      { name: '턱 보톡스', price: 150000 },
+    ],
+  },
+  {
+    cat: '미용', icon: 'fa-wand-magic-sparkles', taxable: true,
+    note: '미용 목적 진료는 부가가치세 과세 대상으로, 표기 금액에 부가세(10%)가 별도로 부과됩니다.',
+    items: [
+      { name: '실활치 미백', price: 50000 },
+      { name: '전문가 미백 (2회, 1일)', price: 200000 },
+      { name: '라미네이트', price: 400000 },
+    ],
+  },
+];

@@ -224,8 +224,8 @@ app.get('/faq', (c) => {
 
 app.get('/pricing', (c) => {
   return c.html(Layout({
-    title: `비용 안내 | ${CLINIC.name}`,
-    description: `${CLINIC.name} 진료 비용 안내. 비급여 진료비는 병원 게시 기준에 따르며, 정확한 비용은 내원 상담 시 안내해 드립니다.`,
+    title: `비급여 진료비용 안내 | ${CLINIC.name}`,
+    description: `${CLINIC.name} 비급여 진료비용 게시 안내. 임플란트·교정·보철·틀니·소아·미용 등 주요 진료비 기준표를 투명하게 안내합니다. 실제 비용은 구강 상태와 진료 범위에 따라 달라지며 내원 상담 시 확정됩니다. (${CLINIC.region} ${CLINIC.district} 마석)`,
     path: '/pricing',
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비용안내', path: '/pricing' }])],
   }, PricingPage()));

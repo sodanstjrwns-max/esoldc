@@ -706,7 +706,8 @@ function footer() {
             상호 : ${CLINIC.business.company} &nbsp;|&nbsp; 대표자 : ${CLINIC.business.owner}<br>
             주소 : ${CLINIC.address}<br>
             대표전화 : ${CLINIC.tel}<br>
-            사업자등록번호 : ${CLINIC.business.bizNo}
+            사업자등록번호 : ${CLINIC.business.bizNo}<br>
+            업태 : ${CLINIC.business.bizType} &nbsp;|&nbsp; 종목 : ${CLINIC.business.bizItem}
           </div>
         </div>
         <div>

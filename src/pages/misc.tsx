@@ -1,5 +1,7 @@
 import { html, raw } from 'hono/html';
-import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatment, type Treatment, type NearbyArea } from '../data/clinic';
+import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatment, PRICING, type Treatment, type NearbyArea } from '../data/clinic';
+
+const esc = (s: any): string => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const PAGE_HERO = (crumb: string, title: string, sub: string) => `
 <section style="background:var(--navy);color:var(--inv);padding:104px 0 80px;position:relative;overflow:hidden">
@@ -174,20 +176,82 @@ export function FaqPage() {
   `;
 }
 
-// ============ 비용 안내 ============
+// ============ 비용 안내 (비급여 진료비용 게시) ============
+const won = (n: number) => n.toLocaleString('ko-KR');
+
 export function PricingPage() {
-  return html`
-  ${raw(PAGE_HERO('비용안내', '비용 안내', '정확한 비급여 진료비는 내원 상담 시 안내해 드립니다.'))}
-  <section class="section">
-    <div class="wrap" style="max-width:780px">
-      <div class="reveal" style="background:var(--gold-soft);border-left:4px solid var(--gold);padding:28px 32px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:36px">
-        <p style="font-size:1.1rem;line-height:1.8;color:var(--ink)">진료 비용은 환자분의 구강 상태, 진료 범위, 사용되는 재료 등에 따라 달라집니다. 의료법에 따라 비급여 진료비는 병원에 게시된 기준을 따르며, <strong>정확한 비용은 정밀 진단 후 충분한 상담을 통해 안내</strong>해 드립니다.</p>
+  const nav = PRICING.map(g => `<a href="#price-${encodeURIComponent(g.cat)}" class="price-nav-chip"><i class="fas ${g.icon}"></i> ${esc(g.cat)}</a>`).join('');
+
+  const tables = PRICING.map(g => `
+    <section class="price-group reveal" id="price-${encodeURIComponent(g.cat)}">
+      <h2 class="price-cat"><i class="fas ${g.icon}"></i> ${esc(g.cat)} 진료비${g.taxable ? '<span class="price-tax-badge">부가세 별도</span>' : ''}</h2>
+      ${g.note ? `<p class="price-cat-note"><i class="fas fa-circle-info"></i> ${esc(g.note)}</p>` : ''}
+      <div class="price-table-wrap">
+        <table class="price-table">
+          <thead><tr><th scope="col">항목</th><th scope="col">비용</th></tr></thead>
+          <tbody>
+            ${g.items.map(it => `<tr><td>${esc(it.name)}</td><td class="price-val">${won(it.price)}<span class="price-unit">원${g.taxable ? ' (+VAT)' : ''}</span></td></tr>`).join('')}
+          </tbody>
+        </table>
       </div>
-      <div class="reveal reveal-d1" style="text-align:center;padding:48px;background:var(--bg-soft);border-radius:var(--radius-lg)">
-        <i class="fas fa-comments" style="font-size:2.5rem;color:var(--gold);margin-bottom:16px"></i>
-        <h2 style="font-size:1.4rem;margin-bottom:10px">비용이 궁금하신가요?</h2>
-        <p style="color:var(--ink-soft);margin-bottom:24px">부담 없이 전화로 문의해 주세요. 친절하게 안내해 드리겠습니다.</p>
-        <a href="tel:${CLINIC.tel}" class="btn btn-primary"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
+    </section>`).join('');
+
+  return html`
+  ${raw(PAGE_HERO('비용안내', '비급여 진료비용 안내', '주요 비급여 진료비를 투명하게 안내해 드립니다. 실제 비용은 구강 상태와 진료 범위에 따라 달라질 수 있습니다.'))}
+  <style>
+    .price-intro{background:var(--gold-soft);border-left:4px solid var(--gold);padding:26px 30px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:30px}
+    .price-intro p{font-size:1.04rem;line-height:1.85;color:var(--ink)}
+    .price-nav{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:40px;position:sticky;top:72px;background:var(--bg);padding:14px 0;z-index:5}
+    .price-nav-chip{display:inline-flex;align-items:center;gap:7px;padding:9px 17px;border:1px solid var(--line);border-radius:99px;background:#fff;font-size:.88rem;font-weight:600;color:var(--ink);transition:.25s;white-space:nowrap}
+    .price-nav-chip:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .price-nav-chip i{color:var(--gold);font-size:.9em}
+    .price-nav-chip:hover i{color:var(--gold-2)}
+    .price-group{margin-bottom:44px;scroll-margin-top:140px}
+    .price-cat{display:flex;align-items:center;gap:11px;font-size:1.3rem;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--gold-soft);letter-spacing:-.01em}
+    .price-cat i{color:var(--gold)}
+    .price-tax-badge{font-size:.7rem;font-weight:700;color:var(--gold-3);background:var(--gold-soft);border:1px solid var(--gold);border-radius:99px;padding:3px 11px;margin-left:4px;letter-spacing:0}
+    .price-cat-note{font-size:.88rem;color:var(--ink-soft);background:var(--bg-soft);border-radius:12px;padding:12px 18px;margin-bottom:16px;line-height:1.6}
+    .price-cat-note i{color:var(--gold);margin-right:5px}
+    .price-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius-lg)}
+    .price-table{width:100%;border-collapse:collapse;background:#fff}
+    .price-table th{text-align:left;font-size:.82rem;font-weight:700;color:var(--ink-soft);background:var(--bg-soft);padding:14px 22px;letter-spacing:.02em}
+    .price-table th:last-child{text-align:right}
+    .price-table td{padding:15px 22px;border-top:1px solid var(--line);font-size:.98rem;color:var(--ink)}
+    .price-table tbody tr:hover{background:var(--gold-soft)}
+    .price-val{text-align:right;font-weight:700;font-family:var(--mono),inherit;color:var(--navy);white-space:nowrap}
+    .price-unit{font-size:.78rem;font-weight:500;color:var(--ink-soft);margin-left:3px}
+    .price-cta{text-align:center;padding:46px 30px;background:var(--navy);color:#fff;border-radius:var(--radius-lg);margin-top:8px}
+    .price-cta h2{color:#fff;font-size:1.5rem;margin-bottom:10px}
+    .price-cta p{color:rgba(255,255,255,.78);margin-bottom:24px;line-height:1.7}
+    .price-disclaimer{font-size:.82rem;color:var(--ink-soft);line-height:1.8;margin-top:34px;padding:22px 26px;background:var(--bg-soft);border-radius:var(--radius);border:1px solid var(--line)}
+    .price-disclaimer strong{color:var(--ink)}
+    @media(max-width:640px){.price-nav{position:static}.price-table th,.price-table td{padding:13px 16px}.price-cat{font-size:1.15rem}}
+  </style>
+  <section class="section">
+    <div class="wrap" style="max-width:860px">
+      <div class="price-intro reveal">
+        <p>아래는 ${esc(CLINIC.name)}의 <strong>주요 비급여 진료비 게시 기준</strong>입니다. 실제 비용은 환자분의 구강 상태, 진료 범위, 사용 재료에 따라 달라질 수 있으며, <strong>정밀 진단 후 충분한 상담</strong>을 통해 최종 안내해 드립니다.</p>
+      </div>
+
+      <nav class="price-nav" aria-label="진료 분류 바로가기">
+        ${raw(nav)}
+      </nav>
+
+      ${raw(tables)}
+
+      <div class="price-disclaimer reveal">
+        <strong>비용 안내 유의사항</strong><br>
+        · 본 비용은 <strong>비급여 진료비 게시 기준</strong>이며, 개인의 구강 상태·진료 범위·사용 재료에 따라 실제 비용은 달라질 수 있습니다.<br>
+        · 건강보험이 적용되는 급여 항목(스케일링 등)은 별도 기준에 따릅니다.<br>
+        · ‘미용’ 분류 진료는 부가가치세(10%) 과세 대상으로, 표기 금액에 부가세가 별도 부과됩니다.<br>
+        · 모든 의료 행위에는 부작용 및 위험이 따를 수 있으므로, 정확한 진단과 비용은 반드시 내원 상담을 통해 확인해 주시기 바랍니다.
+      </div>
+
+      <div class="price-cta reveal" style="margin-top:34px">
+        <h2>비용이 궁금하신가요?</h2>
+        <p>부담 없이 전화로 문의해 주세요. 진료 계획과 함께 친절하게 안내해 드리겠습니다.</p>
+        <a href="tel:${CLINIC.tel}" class="btn btn-accent" style="margin-right:8px"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
+        <a href="/reservation" class="btn btn-primary"><i class="fas fa-calendar-check"></i> 예약 문의</a>
       </div>
     </div>
   </section>

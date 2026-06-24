@@ -145,7 +145,8 @@ export function siteGraph() {
         availableLanguage: { '@type': 'Language', name: 'Korean', alternateName: 'ko' },
         ...(openingHoursSpec() ? { openingHoursSpecification: openingHoursSpec() } : {}),
         sameAs: clinicSameAs(),
-        foundingDate: String(CLINIC.established),
+        foundingDate: CLINIC.business.openDate,
+        taxID: CLINIC.business.bizNo,
       },
     ],
   };
@@ -200,7 +201,8 @@ export function localBusinessSchema() {
     paymentAccepted: '현금, 카드',
     areaServed: NEARBY_AREAS.map(a => ({ '@type': 'City', name: a.full })),
     sameAs: clinicSameAs(),
-    foundingDate: String(CLINIC.established),
+    foundingDate: CLINIC.business.openDate,
+    taxID: CLINIC.business.bizNo,
     url: SITE_URL,
   };
 }
