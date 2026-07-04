@@ -26,6 +26,13 @@ export function MissionPage() {
     .m-story{max-width:760px;margin:0 auto}
     .m-story p{font-size:1.15rem;line-height:2;color:var(--ink-soft);margin-bottom:24px}
     .m-story .big{font-size:1.6rem;font-weight:800;color:var(--navy);line-height:1.5;margin:40px 0}
+    .m-photo{border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);margin:36px 0}
+    .m-photo img{display:block;width:100%;height:auto}
+    .m-photo figcaption{padding:14px 20px;background:#fff;font-size:.88rem;color:var(--ink-soft);border-top:1px solid var(--line)}
+    .m-duo{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:36px 0}
+    .m-duo figure{margin:0;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);border:1px solid var(--line)}
+    .m-duo img{display:block;width:100%;height:100%;object-fit:cover;aspect-ratio:3/2}
+    @media(max-width:680px){.m-duo{grid-template-columns:1fr}}
     .m-values{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
     .m-val{padding:36px;background:#fff;border-radius:var(--radius-lg);border:1px solid var(--line);text-align:center;transition:all .4s var(--ease)}
     .m-val:hover{transform:translateY(-8px);box-shadow:var(--shadow)}
@@ -52,6 +59,26 @@ export function MissionPage() {
       <p class="big reveal">"지역 안에서 자리 잘 잡은 치과,<br>가장 편하게 떠올릴 수 있는 치과가 되는 것."</p>
       <p class="reveal">그래서 우리는 쫓기듯 진료하지 않고, 하지 않아도 되는 치료를 먼저 권하지 않습니다. 비용이 걱정이신 분께는 비용에 맞는 계획을, 통증이 두려우신 분께는 통증을 줄이는 방향을 함께 찾습니다. 각 분야 전문의가 상주하기에(임플란트 제외) 가능한 일입니다.</p>
       <p class="reveal">그리고 우리가 바라는 마지막 장면은 하나입니다. 병원에 들어오시는 순간부터 치료를 마치고 집으로 돌아가시는 순간까지, “편안하고 세심하게 배려받았다”는 기분으로 문을 나서시는 것. 그 한 가지를 위해 오늘도 작은 부분까지 살핍니다.</p>
+      <figure class="m-photo reveal">
+        <img src="/static/img/mission-wall.webp" alt="이솔치과의원 미션 월 — 아이의 첫 치과 경험부터 조부모님의 노년 구강관리까지, 온 가족이 편안하게 믿고 다닐 수 있는 평생 주치의 치과를 지향합니다" loading="lazy" decoding="async" width="1024" height="683">
+        <figcaption>진료실 벽에 새긴 이솔의 약속 — “온 가족이 편안하게 믿고 다닐 수 있는 평생 주치의 치과”</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap m-story">
+      <div class="section-head reveal" style="text-align:left;margin:0 0 36px;max-width:none">
+        <span class="eyebrow">Interview</span>
+        <h2 style="font-size:2rem;margin-top:14px">대표원장이 직접 전하는 이야기</h2>
+      </div>
+      <div class="reveal" style="border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);background:#000">
+        <video controls preload="metadata" playsinline poster="/static/img/interview-poster.webp" style="display:block;width:100%;aspect-ratio:16/9" aria-label="이솔치과의원 대표원장 고경우 인터뷰 영상">
+          <source src="/static/media/interview.mp4" type="video/mp4">
+          브라우저가 영상 재생을 지원하지 않습니다.
+        </video>
+      </div>
+      <p class="reveal" style="font-size:.9rem;color:var(--ink-soft);margin-top:14px;text-align:center">치과가 두려운 마음까지 살피는 진료 — 이솔치과가 지향하는 방향을 담은 1분 영상입니다. (한글 자막 포함)</p>
     </div>
   </section>
 
@@ -66,6 +93,10 @@ export function MissionPage() {
       <p class="big reveal">"오래 다닐 수 있는 치과,<br>치료가 끝난 뒤에도 함께 챙기는 치과."</p>
       <p class="reveal">치료가 끝난 것이 관계의 끝은 아니었습니다. 그 어르신은 8년이 지난 지금도 정기 점검차 내원하고 계십니다. 표정도, 말씀도 처음 오셨을 때와는 사뭇 달라지셨고, 이제는 가족과 함께 찾아주시기도 합니다.</p>
       <p class="reveal">한 번의 치료로 끝나는 관계가 아니라, 오랜 시간 곁에서 구강 건강을 함께 살피는 것 — 우리가 ‘가족 주치의’라는 말을 쓰는 이유가 바로 이런 시간들 속에 있습니다.</p>
+      <div class="m-duo reveal">
+        <figure><img src="/static/img/surgery-ko-1.webp" alt="이솔치과의원 고경우 대표원장의 임플란트 진료 모습" loading="lazy" decoding="async" width="1024" height="683"></figure>
+        <figure><img src="/static/img/surgery-byun.webp" alt="치과보철과 전문의 변진수 원장의 정밀 보철 진료 모습" loading="lazy" decoding="async" width="1024" height="683"></figure>
+      </div>
       <p class="reveal" style="font-size:.85rem;color:var(--ink-soft);margin-top:18px">※ 위 내용은 실제 진료 경험을 바탕으로 개인정보가 드러나지 않도록 재구성한 글이며, 치료 결과는 환자분의 상태와 조건에 따라 다를 수 있습니다.</p>
     </div>
   </section>
@@ -120,7 +151,7 @@ export function DirectionsPage() {
           <div class="row"><div class="ri"><i class="fas fa-map-marker-alt"></i></div><div><div class="rt">주소</div><div class="rd">${CLINIC.address}</div></div></div>
           <div class="row"><div class="ri"><i class="fas fa-phone"></i></div><div><div class="rt">대표전화</div><div class="rd"><a href="tel:${CLINIC.tel}" style="color:var(--gold);font-weight:700">${CLINIC.tel}</a></div></div></div>
           <div class="row"><div class="ri"><i class="fas fa-subway"></i></div><div><div class="rt">대중교통</div><div class="rd">경춘선 마석역 인근 · 마석로 25, 4층</div></div></div>
-          <div class="row"><div class="ri"><i class="fas fa-car"></i></div><div><div class="rt">주차</div><div class="rd">자세한 주차 안내는 전화로 문의해 주세요.</div></div></div>
+          <div class="row"><div class="ri"><i class="fas fa-car"></i></div><div><div class="rt">주차</div><div class="rd">당일 진료 시 <b style="color:var(--gold)">3시간 무료주차</b> (제휴 주차장·건물 주차장) · 자세한 안내는 전화로 문의해 주세요.</div></div></div>
           <a href="https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:24px"><i class="fas fa-map"></i> 네이버 지도로 보기</a>
         </div>
         <div class="reveal reveal-d1">
@@ -137,6 +168,20 @@ export function DirectionsPage() {
           </table>
           <p style="font-size:.85rem;color:var(--ink-soft);margin-top:14px">※ ${CLINIC.hoursNote}</p>
         </div>
+      </div>
+      <div class="reveal" style="margin-top:52px">
+        <h3 style="font-size:1.3rem;margin-bottom:18px"><i class="fas fa-square-parking" style="color:var(--gold);margin-right:8px"></i>주차 안내</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+          <figure style="margin:0;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow-sm);background:#fff">
+            <img src="/static/img/parking-outdoor.webp" alt="이솔치과의원 제휴 야외 주차장 입구 — 당일 진료 시 3시간 무료주차 안내판" loading="lazy" decoding="async" width="1024" height="683" style="display:block;width:100%;aspect-ratio:3/2;object-fit:cover">
+            <figcaption style="padding:12px 18px;font-size:.88rem;color:var(--ink-soft)">제휴 야외 주차장 — 당일 진료 시 3시간 무료주차</figcaption>
+          </figure>
+          <figure style="margin:0;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow-sm);background:#fff">
+            <img src="/static/img/parking-building.webp" alt="이솔치과의원 건물 내 주차장 — 장애인 주차구역이 마련된 3층 주차 공간" loading="lazy" decoding="async" width="1024" height="683" style="display:block;width:100%;aspect-ratio:3/2;object-fit:cover">
+            <figcaption style="padding:12px 18px;font-size:.88rem;color:var(--ink-soft)">건물 내 주차장 — 장애인 주차구역 구비</figcaption>
+          </figure>
+        </div>
+        <p style="font-size:.85rem;color:var(--ink-soft);margin-top:14px">※ 주차장 운영 상황에 따라 이용 가능 여부가 달라질 수 있으니, 방문 전 전화로 확인해 주시면 더 정확합니다.</p>
       </div>
     </div>
   </section>

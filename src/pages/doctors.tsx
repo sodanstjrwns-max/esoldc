@@ -56,6 +56,10 @@ export function DoctorsListPage() {
   </section>
   <section class="section">
     <div class="wrap">
+      <figure class="reveal" style="margin:0 0 52px;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow)">
+        <img src="/static/img/doctors-group.webp" alt="이솔치과의원 5인 의료진 — 변진수 보철과원장, 장유진 교정과원장, 고경우 대표원장, 박진아 소아치과원장, 강세원 통합과원장" loading="lazy" decoding="async" width="1024" height="683" style="display:block;width:100%">
+        <figcaption style="padding:14px 20px;background:#fff;font-size:.9rem;color:var(--ink-soft);border-top:1px solid var(--line)">다섯 명의 원장이 한 명의 환자를 함께 봅니다 — 이솔치과의원 의료진</figcaption>
+      </figure>
       <h2 style="text-align:center;font-size:clamp(1.5rem,3vw,2rem);margin-bottom:8px">${CLINIC.region} 마석 이솔치과 의료진</h2>
       <p style="text-align:center;color:#7a6f60;margin-bottom:32px">임플란트·치아교정·소아치과 등 분야별 진료를 담당하는 의료진입니다.</p>
       <div class="doc-grid">

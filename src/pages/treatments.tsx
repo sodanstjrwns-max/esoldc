@@ -130,12 +130,23 @@ export function TreatmentsListPage() {
   `;
 }
 
+// --- 진료별 실제 현장 사진 (진료 상세 상단 비주얼) ---
+const TREAT_PHOTOS: Record<string, { src: string; alt: string; cap: string }> = {
+  implant: { src: '/static/img/surgery-ko-1.webp', alt: '이솔치과의원 고경우 대표원장의 임플란트 수술 진료 모습', cap: '고경우 대표원장의 임플란트 진료 — 독립 진료실에서 소독포를 갖추고 진행합니다.' },
+  orthodontics: { src: '/static/img/scanner-treatment.webp', alt: '구강스캐너로 치아 상태를 정밀 스캔하는 이솔치과의원 진료 모습', cap: '구강스캐너 정밀 스캔 — 본뜨기 부담을 줄이고 치아 상태를 화면으로 함께 확인합니다.' },
+  pediatric: { src: '/static/img/pediatric-care.webp', alt: '소아치과 전문의가 인형을 안은 아이를 편안하게 진료하는 모습', cap: '아이의 눈높이에 맞춘 소아 진료 — 무섭지 않은 첫 치과 경험을 만들어 갑니다.' },
+  prosthetics: { src: '/static/img/surgery-byun.webp', alt: '치과보철과 전문의 변진수 원장의 정밀 보철 진료 모습', cap: '보철과 전문의 변진수 원장의 정밀 보철 진료 모습입니다.' },
+  periodontics: { src: '/static/img/treatment-area.webp', alt: '이솔치과의원의 밝고 정돈된 진료 공간', cap: '밝고 정돈된 진료 공간에서 잇몸 건강을 꼼꼼히 살핍니다.' },
+  general: { src: '/static/img/scanner-close.webp', alt: '구강스캐너로 구강 내부를 확인하는 진료 장면', cap: '정밀 장비로 충치·신경 상태를 확인하고, 꼭 필요한 치료만 계획합니다.' },
+};
+
 // --- 진료 상세 페이지 ---
 // relTerms: 이 진료와 연결된 용어사전 용어(양방향 인링크). index.tsx에서 주입.
 export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] = []) {
   const docs = getDoctorsForTreatment(t.slug);
   const related = TREATMENTS.filter(x => x.slug !== t.slug).slice(0, 5);
   const areaLinks = t.isCore ? NEARBY_AREAS.slice(0, 8) : [];
+  const photo = TREAT_PHOTOS[t.slug];
 
   return html`
   <style>${raw(TREAT_CSS)}</style>
@@ -150,6 +161,12 @@ export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] =
 
   <section class="section">
     <div class="wrap t-body">
+      ${photo ? html`
+      <figure class="reveal" style="margin:0 0 32px;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:#fff">
+        <img src="${photo.src}" alt="${photo.alt}" loading="lazy" decoding="async" width="1024" height="683" style="display:block;width:100%;aspect-ratio:16/9;object-fit:cover">
+        <figcaption style="padding:13px 20px;font-size:.88rem;color:var(--ink-soft)">${photo.cap}</figcaption>
+      </figure>` : ''}
+
       <div class="t-intro reveal aeo-summary-lead">${raw(formatIntro(t.intro))}</div>
 
       <!-- AEO 핵심 요약 (AI 답변 인용 타깃 · speakable) -->

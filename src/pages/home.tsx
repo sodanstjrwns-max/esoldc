@@ -119,6 +119,23 @@ export function HomePage() {
     .intro-sign{margin-top:32px;padding-top:26px;border-top:1px solid var(--line);font-weight:700;color:var(--navy);font-size:1.05rem}
     .intro-sign span{display:block;font-size:.94rem;color:var(--ink-faint);font-weight:500;margin-top:5px;font-style:normal}
 
+    /* ====================== 원장 인터뷰 영상 ====================== */
+    .itv{background:linear-gradient(165deg,var(--navy) 0%,var(--navy-2) 100%);color:var(--inv);position:relative;overflow:hidden}
+    .itv::before{content:'';position:absolute;top:-140px;left:50%;transform:translateX(-50%);width:760px;height:520px;background:radial-gradient(closest-side,rgba(201,154,82,.18),transparent 70%);pointer-events:none}
+    .itv .sec-head h2{color:var(--inv)}
+    .itv .sec-head p{color:var(--inv-soft)}
+    .itv .chapter-lbl .ch-name{color:var(--inv-faint)}
+    .itv-frame{position:relative;max-width:920px;margin:0 auto;border-radius:var(--radius-xl);overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.42);border:1px solid rgba(201,154,82,.28)}
+    .itv-frame::after{content:'';position:absolute;inset:9px;border-radius:calc(var(--radius-xl) - 8px);border:1px solid rgba(250,245,236,.28);pointer-events:none;z-index:2}
+    .itv-frame video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+    .itv-cap{max-width:920px;margin:22px auto 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .itv-cap .ic-l{display:flex;align-items:center;gap:14px}
+    .itv-cap .ic-avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid rgba(201,154,82,.5);flex:none}
+    .itv-cap .ic-avatar img{width:100%;height:100%;object-fit:cover;object-position:top}
+    .itv-cap b{display:block;color:var(--inv);font-size:1.02rem}
+    .itv-cap span{color:var(--inv-faint);font-size:.86rem}
+    .itv-cap .ic-note{font-family:var(--mono);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-2)}
+
     /* ====================== 핵심 진료 (2026: 에디토리얼 넘버드 리스트) ====================== */
     .core-list{border-top:1px solid var(--ink);margin-top:8px}
     .core-row{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:40px;align-items:center;padding:40px 8px;border-bottom:1px solid var(--line);transition:padding .5s var(--ease),background .4s var(--ease)}
@@ -178,6 +195,16 @@ export function HomePage() {
     /* VMG: 장비 섹션 치아 라인 드로잉 (배경 장식 — 스크롤 진입 시 펜으로 그려짐) */
     .equip-tooth{position:absolute;right:-30px;top:60px;width:min(320px,30vw);color:var(--gold);opacity:.34;pointer-events:none;z-index:0}
     @media(max-width:880px){.equip-tooth{display:none}}
+
+    /* ====================== 공간 갤러리 ====================== */
+    .space-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:210px;gap:14px}
+    .space-item{position:relative;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);background:var(--bg-soft)}
+    .space-item img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+    .space-item:hover img{transform:scale(1.06)}
+    .space-item .sp-lbl{position:absolute;left:14px;bottom:12px;z-index:2;background:rgba(41,28,18,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--inv);font-size:.78rem;font-weight:600;padding:7px 14px;border-radius:var(--radius-pill);letter-spacing:.02em;border:1px solid rgba(250,245,236,.18)}
+    .space-item.wide{grid-column:span 2}
+    .space-item.tall{grid-row:span 2}
+    @media(max-width:880px){.space-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:170px}.space-item.wide{grid-column:span 2}.space-item.tall{grid-row:span 1}}
 
     /* ====================== 의료진 ====================== */
     .team-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
@@ -320,7 +347,7 @@ export function HomePage() {
           <div class="fm"><b><span data-count="5" data-suffix="인">0</span></b><span>상주 의료진</span></div>
         </div>
         <div class="arch-frame" data-parallax="10">
-          <img src="/static/img/clinic-reception.webp" alt="이솔치과의원 내부 전경" loading="eager" decoding="async" width="1280" height="752" fetchpriority="high">
+          <img src="/static/img/lobby-lounge.webp" alt="이솔치과의원 대기실 라운지 전경 — 밝고 여유로운 소파형 대기 공간" loading="eager" decoding="async" width="1024" height="683" fetchpriority="high">
           <div class="tag"><span class="dot"></span><span><b>진료 안내</b> <span>· 진료시간은 전화로 확인해 주세요</span></span></div>
         </div>
         <div class="hero-flank fl-r">
@@ -379,7 +406,32 @@ export function HomePage() {
         </div>
       </div>
       <div class="intro-img" data-reveal data-reveal-d="2">
-        <img src="/static/img/clinic-consult.webp" alt="이솔치과의원 진료 상담 공간" loading="lazy" decoding="async" width="900" height="1200">
+        <img src="/static/img/surgery-ko-2.webp" alt="이솔치과의원 대표원장 고경우 — 임플란트 진료에 집중하는 모습" loading="lazy" decoding="async" width="1024" height="683">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 원장 인터뷰 영상 ============ -->
+  <section class="sec itv" id="ch-interview">
+    <span class="kicker-v">INTERVIEW</span>
+    <div class="wrap">
+      <div class="sec-head center" data-reveal>
+        <span class="chapter-lbl" style="justify-content:center"><span class="ch-no">인터뷰</span><span class="ch-line"></span><span class="ch-name">From the Director</span></span>
+        <h2 data-line><span>대표원장이 <span class="nb"><em>직접</em> 전하는 이야기</span></span></h2>
+        <p>치과가 두려운 마음까지 살피는 진료 — 이솔치과가 지향하는 방향을 1분 영상으로 만나보세요.</p>
+      </div>
+      <div class="itv-frame" data-reveal data-reveal-d="2">
+        <video controls preload="metadata" playsinline poster="/static/img/interview-poster.webp" aria-label="이솔치과의원 대표원장 고경우 인터뷰 영상">
+          <source src="/static/media/interview.mp4" type="video/mp4">
+          브라우저가 영상 재생을 지원하지 않습니다. <a href="/static/media/interview.mp4">영상 다운로드</a>
+        </video>
+      </div>
+      <div class="itv-cap" data-reveal data-reveal-d="3">
+        <div class="ic-l">
+          <div class="ic-avatar"><img src="/static/img/doctor-ko-kyungwoo.webp" alt="고경우 대표원장" loading="lazy" decoding="async" width="52" height="52"></div>
+          <div><b>고경우 대표원장</b><span>“기분 좋게 진료를 마칠 때까지, 그 여정을 함께합니다.”</span></div>
+        </div>
+        <span class="ic-note">Interview · 01:02 · 한글 자막</span>
       </div>
     </div>
   </section>
@@ -511,6 +563,31 @@ export function HomePage() {
       <div class="equip-note" data-reveal>
         <i class="fas fa-circle-info"></i>
         <span>장비 보유 현황은 진료 환경 개선에 따라 달라질 수 있으며, 자세한 사항은 내원 시 안내드립니다.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 공간 갤러리 ============ -->
+  <section class="sec" id="ch-space">
+    <span class="kicker-v">OUR SPACE</span>
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="chapter-lbl"><span class="ch-no">우리의 공간</span><span class="ch-line"></span><span class="ch-name">Our Space</span></span>
+        <h2 data-line><span>편안함을 <span class="nb"><em>설계한</em> 공간</span></span></h2>
+        <p>아이의 첫 치과 경험부터 어르신의 편안한 진료까지 — 공간 하나하나에 배려를 담았습니다.</p>
+      </div>
+      <div class="space-grid" data-reveal>
+        <div class="space-item wide"><img src="/static/img/lobby-lounge.webp" alt="이솔치과의원 대기실 라운지" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-couch" style="margin-right:6px"></i>대기실 라운지</span></div>
+        <div class="space-item"><img src="/static/img/pediatric-sign.webp" alt="소아진료센터 입구" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-child" style="margin-right:6px"></i>소아진료센터</span></div>
+        <div class="space-item"><img src="/static/img/kids-corridor.webp" alt="아이들을 위한 숲 테마 소아 진료 공간" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-tree" style="margin-right:6px"></i>키즈 존</span></div>
+        <div class="space-item"><img src="/static/img/pediatric-zone.webp" alt="소아 전용 진료실 — 노란 유니트체어" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-tooth" style="margin-right:6px"></i>소아 전용 진료실</span></div>
+        <div class="space-item"><img src="/static/img/treatment-area.webp" alt="밝고 정돈된 일반 진료 공간" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-teeth" style="margin-right:6px"></i>진료 공간</span></div>
+        <div class="space-item"><img src="/static/img/private-room.webp" alt="독립된 수술 진료실" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-door-closed" style="margin-right:6px"></i>독립 진료실</span></div>
+        <div class="space-item"><img src="/static/img/xray-ct.webp" alt="3D CT 정밀 촬영실" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-x-ray" style="margin-right:6px"></i>3D CT 촬영실</span></div>
+        <div class="space-item wide"><img src="/static/img/corridor.webp" alt="진료실로 이어지는 밝은 복도" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-route" style="margin-right:6px"></i>진료실 복도</span></div>
+      </div>
+      <div data-reveal style="margin-top:32px;text-align:center">
+        <a href="/mission" class="btn btn-ghost">병원 소개 더 보기 <i class="fas fa-arrow-right"></i></a>
       </div>
     </div>
   </section>

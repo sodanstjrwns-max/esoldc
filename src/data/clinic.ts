@@ -133,7 +133,7 @@ export const DOCTORS: Doctor[] = [
       '前 스카이플란트치과 대표원장',
       '前 일산스타28치과 보철과 원장',
     ],
-    photo: '/static/img/doctor-placeholder.svg',
+    photo: '/static/img/doctor-ko-kyungwoo.webp',
   },
   {
     slug: 'jang-yujin',
@@ -154,7 +154,7 @@ export const DOCTORS: Doctor[] = [
       '대한턱관절교합학회 정회원',
       '한국성인치과교정연구회 회원',
     ],
-    photo: '/static/img/doctor-placeholder.svg',
+    photo: '/static/img/doctor-jang-yujin.webp',
   },
   {
     slug: 'park-jina',
@@ -176,7 +176,7 @@ export const DOCTORS: Doctor[] = [
       '아동심리상담사 1급',
       '아동발달전문지도사 1급',
     ],
-    photo: '/static/img/doctor-placeholder.svg',
+    photo: '/static/img/doctor-park-jina.webp',
   },
   {
     slug: 'byun-jinsoo',
@@ -201,7 +201,7 @@ export const DOCTORS: Doctor[] = [
       'University of Pennsylvania microendodontic training course',
       'GW&MBT clinical orthodontic training course',
     ],
-    photo: '/static/img/doctor-placeholder.svg',
+    photo: '/static/img/doctor-byun-jinsoo.webp',
   },
   {
     slug: 'kang-sewon',
@@ -222,7 +222,7 @@ export const DOCTORS: Doctor[] = [
       'Dentium implant course · Osstem AIC course',
       'Osstem implant master course faculty',
     ],
-    photo: '/static/img/doctor-placeholder.svg',
+    photo: '/static/img/doctor-kang-sewon.webp',
   },
 ];
 
