@@ -6,6 +6,7 @@ import { adminShell, requireAdmin, esc } from './admin';
 import { DOCTORS, TREATMENTS } from '../data/clinic';
 import { editorToolbar, editorBody, seoPanel } from '../lib/editor';
 import { pingContent } from '../lib/indexnow';
+import { POST_CATEGORIES } from '../pages/content';
 
 type Bindings = { DB?: D1Database; R2?: R2Bucket; ADMIN_PASSWORD?: string };
 
@@ -248,21 +249,34 @@ function postForm(x: any): string {
     <div class="row2">
       <div><label>작성자(원장) *</label>
         <select id="f-author">${DOCTORS.map(d => `<option value="${d.slug}" ${x && x.author_slug === d.slug ? 'selected' : ''}>${d.name} ${d.role}</option>`).join('')}</select></div>
+      <div><label>카테고리 <span style="font-weight:400;color:var(--ink-soft);font-size:.8rem">— 진료 카테고리를 고르면 해당 진료 페이지와 자동 연결(SEO)</span></label>
+        <select id="f-cat"><option value="">선택 안 함</option>${POST_CATEGORIES.map(cat => `<option value="${cat.slug}" ${x && x.category === cat.slug ? 'selected' : ''}>${cat.name}</option>`).join('')}</select></div>
+    </div>
+    <div class="row2">
       <div><label>대표 썸네일</label>
         <div style="display:flex;gap:8px;align-items:center">
           <input type="text" id="f-thumb" value="${x && x.thumbnail ? esc(x.thumbnail) : ''}" placeholder="첫 본문 이미지 자동 사용 또는 직접 업로드" readonly style="flex:1">
           <button class="btn btn-o btn-sm" onclick="document.getElementById('thumb-file').click()">업로드</button>
           <input type="file" id="thumb-file" accept="image/*" style="display:none" onchange="uploadThumb(this)">
         </div></div>
+      <div><label>태그 <span style="font-weight:400;color:var(--ink-soft);font-size:.8rem">— 쉼표로 구분 (검색 키워드)</span></label>
+        <input type="text" id="f-tags" value="${x && x.tags ? esc(x.tags) : ''}" placeholder="예: 임플란트 비용, 임플란트 과정, 남양주 임플란트"></div>
     </div>
     <label>요약 / 메타설명 (검색결과에 표시) <span class="ctr" id="ct-excerpt"></span></label>
     <input type="text" id="f-excerpt" value="${x ? esc(x.excerpt) : ''}" placeholder="검색 사용자가 가장 먼저 읽는 한두 문장 (50~120자 권장)">
+    <label>핵심 요약 (AI 검색 인용 타깃) <span class="ctr" id="ct-summary"></span> <span style="font-weight:400;color:var(--ink-soft);font-size:.8rem">— 글 전체를 2~3문장으로. 글 상단 "핵심 요약" 박스에 노출되고 AI 검색(챗GPT·퍼플렉시티)이 우선 인용합니다</span></label>
+    <textarea id="f-summary" rows="3" placeholder="예: 임플란트는 상실된 치아 뿌리를 대체하는 치료입니다. 골 상태에 따라 치료 기간은 3~6개월 정도이며, 정확한 계획은 CT 진단 후 결정됩니다.">${x && x.summary ? esc(x.summary) : ''}</textarea>
     <label>본문 *</label>
     <div class="rte-wrap">
       ${editorToolbar({ id: 'editor', full: true })}
       ${editorBody({ id: 'editor', html: startHtml, placeholder: '여기에 글을 작성하세요. 사진은 툴바🖼·드래그앤드롭·붙여넣기로 본문 중간에 넣을 수 있어요.' })}
     </div>
     <p class="drop-hint"><i class="fas fa-hand-pointer"></i> 사진을 본문에 끌어다 놓거나 복사-붙여넣기하면 자동 업로드·리사이즈됩니다. 사진 클릭 시 정렬·캡션·삭제 메뉴가 떠요.</p>
+
+    <label style="margin-top:20px">자주 묻는 질문 (FAQ) <span style="font-weight:400;color:var(--ink-soft);font-size:.8rem">— 2개 이상 넣으면 구글 검색결과에 Q&A가 함께 표시될 수 있어요(FAQ 리치결과)</span></label>
+    <div id="faq-list"></div>
+    <button class="btn btn-o btn-sm" type="button" onclick="addFaq()" style="margin-top:6px"><i class="fas fa-plus"></i> 질문 추가</button>
+
     <div class="row2" style="margin-top:18px;align-items:center">
       <div><label style="margin:0"><input type="checkbox" id="f-pub" ${!x || x.published ? 'checked' : ''} style="width:auto;margin-right:8px;accent-color:var(--gold)">사이트에 공개</label></div>
       <div style="text-align:right"><button class="btn btn-p" onclick="savePost(${isEdit ? x.id : 'null'})"><i class="fas fa-save"></i> ${isEdit ? '수정 저장' : '발행하기'}</button></div>
@@ -286,11 +300,35 @@ function postForm(x: any): string {
     var r=await fetch('/admin/api/upload',{method:'POST',body:fd});var j=await r.json();
     if(j.ok)document.getElementById('f-thumb').value=j.key;
   };
+  // ---- FAQ 빌더 ----
+  var FAQ_INIT = ${JSON.stringify((() => { try { const f = JSON.parse(x?.faq_json || '[]'); return Array.isArray(f) ? f : []; } catch { return []; } })())};
+  window.addFaq = function(q, a){
+    var list=document.getElementById('faq-list');
+    var row=document.createElement('div');
+    row.className='faq-row';
+    row.style.cssText='display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:start';
+    row.innerHTML='<input type="text" class="fq" placeholder="질문 (예: 임플란트 치료 기간은 얼마나 걸리나요?)">'
+      +'<input type="text" class="fa" placeholder="답변 (개인차·상담 필요 표현 권장)">'
+      +'<button class="btn btn-d btn-sm" type="button" onclick="this.parentNode.remove()"><i class="fas fa-times"></i></button>';
+    list.appendChild(row);
+    if(typeof q==='string')row.querySelector('.fq').value=q;
+    if(typeof a==='string')row.querySelector('.fa').value=a;
+  };
+  function collectFaqs(){
+    var out=[];
+    document.querySelectorAll('#faq-list .faq-row').forEach(function(r){
+      var q=r.querySelector('.fq').value.trim(),a=r.querySelector('.fa').value.trim();
+      if(q&&a)out.push({q:q,a:a});
+    });
+    return out;
+  }
   // 모든 스크립트(EDITOR_JS) 로드 후 초기화
   document.addEventListener('DOMContentLoaded', function(){
     rteInit({ editorId:'editor', thumbId:'f-thumb', titleId:'f-title', descId:'f-excerpt', onChange:syncSerp });
     rteCounter('f-title','ct-title',10,40);
     rteCounter('f-excerpt','ct-excerpt',30,120);
+    rteCounter('f-summary','ct-summary',40,220);
+    FAQ_INIT.forEach(function(f){addFaq(f.q,f.a)});
     document.getElementById('f-title').addEventListener('input',syncSerp);
     document.getElementById('f-slug').addEventListener('input',syncSerp);
     document.getElementById('f-excerpt').addEventListener('input',syncSerp);
@@ -310,6 +348,10 @@ function postForm(x: any): string {
       slug:document.getElementById('f-slug').value.trim(),
       excerpt:document.getElementById('f-excerpt').value.trim(),
       author_slug:document.getElementById('f-author').value,
+      category:document.getElementById('f-cat').value,
+      summary:document.getElementById('f-summary').value.trim(),
+      tags:document.getElementById('f-tags').value.trim(),
+      faq_json:JSON.stringify(collectFaqs()),
       thumbnail:document.getElementById('f-thumb').value||null,
       content_html:document.getElementById('editor').innerHTML,
       published:document.getElementById('f-pub').checked?1:0
@@ -598,8 +640,9 @@ adminContent.post('/api/posts', async (c) => {
   const b = await c.req.json();
   const dup = await c.env.DB!.prepare('SELECT id FROM posts WHERE slug = ?').bind(b.slug).first();
   if (dup) return c.json({ ok: false, error: '이미 사용 중인 슬러그입니다.' }, 409);
-  await c.env.DB!.prepare(`INSERT INTO posts (slug, title, content_html, excerpt, thumbnail, author_slug, published) VALUES (?,?,?,?,?,?,?)`)
-    .bind(b.slug, b.title, b.content_html || '', b.excerpt || '', b.thumbnail ?? null, b.author_slug || '', b.published ? 1 : 0).run();
+  await c.env.DB!.prepare(`INSERT INTO posts (slug, title, content_html, excerpt, thumbnail, author_slug, category, summary, faq_json, tags, published) VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
+    .bind(b.slug, b.title, b.content_html || '', b.excerpt || '', b.thumbnail ?? null, b.author_slug || '',
+      b.category || '', b.summary || '', b.faq_json || '', b.tags || '', b.published ? 1 : 0).run();
   // 🔔 공개 발행 시 검색엔진에 즉시 색인 요청
   if (b.published && b.slug) {
     await pingContent('blog', b.slug, c.executionCtx?.waitUntil?.bind(c.executionCtx));
@@ -609,8 +652,9 @@ adminContent.post('/api/posts', async (c) => {
 adminContent.put('/api/posts/:id', async (c) => {
   if (!(await requireAdmin(c))) return c.json({ ok: false }, 403);
   const b = await c.req.json();
-  await c.env.DB!.prepare(`UPDATE posts SET slug=?, title=?, content_html=?, excerpt=?, thumbnail=?, author_slug=?, published=?, updated_at=datetime('now') WHERE id=?`)
-    .bind(b.slug, b.title, b.content_html || '', b.excerpt || '', b.thumbnail ?? null, b.author_slug || '', b.published ? 1 : 0, c.req.param('id')).run();
+  await c.env.DB!.prepare(`UPDATE posts SET slug=?, title=?, content_html=?, excerpt=?, thumbnail=?, author_slug=?, category=?, summary=?, faq_json=?, tags=?, published=?, updated_at=datetime('now') WHERE id=?`)
+    .bind(b.slug, b.title, b.content_html || '', b.excerpt || '', b.thumbnail ?? null, b.author_slug || '',
+      b.category || '', b.summary || '', b.faq_json || '', b.tags || '', b.published ? 1 : 0, c.req.param('id')).run();
   // 🔔 공개 상태로 수정 시 재색인 요청
   if (b.published && b.slug) {
     await pingContent('blog', b.slug, c.executionCtx?.waitUntil?.bind(c.executionCtx));

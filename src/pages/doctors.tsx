@@ -79,7 +79,9 @@ export function DoctorsListPage() {
   `;
 }
 
-export function DoctorDetailPage(d: Doctor) {
+const escD = (s: string) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+export function DoctorDetailPage(d: Doctor, myPosts: any[] = []) {
   const treats = getTreatmentsForDoctor(d.slug);
   return html`
   <style>${raw(DOC_CSS)}</style>
@@ -118,6 +120,15 @@ export function DoctorDetailPage(d: Doctor) {
             <div class="dd-treat">
               ${raw(treats.map(t => `<a href="/treatments/${t.slug}"><i class="fas ${t.icon}" style="margin-right:6px"></i>${t.name}</a>`).join(''))}
             </div>
+          </div>` : ''}
+
+          ${myPosts.length ? html`
+          <div class="dd-block">
+            <h2>${d.name} ${d.role}이 직접 쓴 칼럼</h2>
+            <ul class="dd-cred" style="list-style:none;padding:0">
+              ${raw(myPosts.map(p => `<li style="margin-bottom:8px"><a href="/blog/${escD(p.slug)}" style="color:var(--navy);font-weight:600"><i class="fas fa-feather-alt" style="color:var(--gold);margin-right:8px"></i>${escD(p.title)}</a> <span style="font-size:.8rem;color:var(--ink-soft)">${(p.created_at || '').slice(0, 10)}</span></li>`).join(''))}
+            </ul>
+            <p style="margin-top:10px;font-size:.85rem"><a href="/blog" style="color:var(--gold-3);font-weight:700">칼럼 전체 보기 <i class="fas fa-arrow-right" style="font-size:.8em"></i></a></p>
           </div>` : ''}
         </div>
       </div>

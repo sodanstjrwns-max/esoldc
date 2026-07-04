@@ -453,9 +453,35 @@ export function articleSchema(opts: {
   title: string; desc: string; path: string; author: string;
   published: string; modified?: string; image?: string;
   type?: 'BlogPosting' | 'MedicalWebPage' | 'Article';
+  /** 저자 원장 slug — Physician @id로 연결 (E-E-A-T: 의료인 저자 명시) */
+  authorSlug?: string;
+  /** 칼럼 카테고리(진료 slug 또는 표시명) → articleSection */
+  section?: string;
+  /** 태그/키워드 목록 → keywords */
+  keywords?: string[];
+  /** 본문 글자수(공백 제외) → wordCount */
+  wordCount?: number;
+  /** 관련 진료 엔티티 경로 (예: /treatments/implant) → about/mentions 연결 */
+  aboutPath?: string;
+  aboutName?: string;
 }) {
   const url = `${SITE_URL}${opts.path}`;
   const imgUrl = opts.image || `${SITE_URL}/static/img/og.png`;
+  // 저자: 원장 slug가 있으면 Physician 노드(@id)로 연결 + 검증된 프로필 정보 내장
+  const doc = opts.authorSlug ? DOCTORS.find(d => d.slug === opts.authorSlug) : undefined;
+  const author = doc
+    ? {
+        '@type': ['Person', 'Physician'],
+        '@id': `${SITE_URL}/doctors/${doc.slug}#person`,
+        name: doc.name,
+        jobTitle: doc.role,
+        url: `${SITE_URL}/doctors/${doc.slug}`,
+        image: `${SITE_URL}${doc.photo}`,
+        medicalSpecialty: doc.specialty,
+        worksFor: { '@id': CLINIC_ID },
+        ...(doc.isSpecialist ? { honorificSuffix: '치과 전문의' } : {}),
+      }
+    : { '@type': 'Person', name: opts.author };
   return {
     '@context': 'https://schema.org',
     '@type': opts.type || 'BlogPosting',
@@ -473,8 +499,14 @@ export function articleSchema(opts: {
     isPartOf: { '@id': WEBSITE_ID },
     datePublished: opts.published,
     dateModified: opts.modified || opts.published,
-    author: { '@type': 'Person', name: opts.author },
+    author,
     publisher: { '@id': ORG_ID },
+    ...(opts.section ? { articleSection: opts.section } : {}),
+    ...(opts.keywords?.length ? { keywords: opts.keywords.join(', ') } : {}),
+    ...(opts.wordCount ? { wordCount: opts.wordCount } : {}),
+    ...(opts.aboutPath ? {
+      about: { '@type': 'MedicalProcedure', '@id': `${SITE_URL}${opts.aboutPath}#procedure`, name: opts.aboutName || '', url: `${SITE_URL}${opts.aboutPath}` },
+    } : {}),
     speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.aeo-summary'] },
   };
 }

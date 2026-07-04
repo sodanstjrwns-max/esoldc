@@ -192,20 +192,51 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
 // ============================================================
 // 블로그 목록
 // ============================================================
+// 칼럼 카테고리 정의 — 진료 slug와 일치시키면 진료 페이지와 자동 인링크
+export const POST_CATEGORIES: { slug: string; name: string }[] = [
+  { slug: 'implant', name: '임플란트' },
+  { slug: 'orthodontics', name: '치아교정' },
+  { slug: 'pediatric', name: '소아치과' },
+  { slug: 'prosthetics', name: '보철치료' },
+  { slug: 'periodontics', name: '잇몸치료' },
+  { slug: 'general', name: '일반진료' },
+  { slug: 'health', name: '구강 건강' },
+  { slug: 'clinic', name: '병원 이야기' },
+];
+export function categoryName(slug: string): string {
+  return POST_CATEGORIES.find(x => x.slug === slug)?.name || '';
+}
+
 export function BlogListPage(posts: any[]) {
   const cards = posts.map(p => `
-  <a href="/blog/${esc(p.slug)}" class="blog-card reveal">
+  <a href="/blog/${esc(p.slug)}" class="blog-card reveal" data-cat="${esc(p.category || '')}">
     <div class="bc-img">${p.thumbnail ? `<img src="/api/img/${p.thumbnail}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : '<div class="bc-noimg"><i class="fas fa-feather-alt"></i></div>'}</div>
     <div class="bc-body">
+      ${p.category ? `<span class="bc-cat">${esc(categoryName(p.category))}</span>` : ''}
       <h3>${esc(p.title)}</h3>
       ${p.excerpt ? `<p>${esc(p.excerpt)}</p>` : ''}
       <div class="bc-meta"><span><i class="fas fa-user-md"></i> ${esc(docName(p.author_slug))} 원장</span><span>${(p.created_at || '').slice(0, 10)}</span><span><i class="fas fa-eye"></i> ${p.views}</span></div>
     </div>
   </a>`).join('');
+  // 카테고리 필터 칩 — 실제 글이 있는 카테고리만 노출
+  const usedCats = POST_CATEGORIES.filter(cat => posts.some(p => p.category === cat.slug));
+  const chips = usedCats.length >= 2
+    ? `<div class="blog-cats" role="group" aria-label="칼럼 카테고리 필터">
+        <button class="cat-chip active" data-cat="" type="button">전체 <span>${posts.length}</span></button>
+        ${usedCats.map(cat => `<button class="cat-chip" data-cat="${cat.slug}" type="button">${cat.name} <span>${posts.filter(p => p.category === cat.slug).length}</span></button>`).join('')}
+       </div>`
+    : '';
   return html`
-  ${raw(PAGE_HERO('블로그', '치과 건강 이야기', '이솔치과 원장들이 직접 쓰는 구강 건강 정보와 병원 이야기입니다.'))}
+  ${raw(PAGE_HERO('원장 칼럼', '치과 건강 이야기', '이솔치과 원장들이 직접 쓰는 구강 건강 정보와 병원 이야기입니다.'))}
   <style>
+    .blog-cats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+    .cat-chip{border:1.5px solid var(--line);background:#fff;border-radius:100px;padding:9px 18px;font-size:.9rem;font-weight:700;color:var(--ink-soft);cursor:pointer;transition:.2s;font-family:inherit}
+    .cat-chip span{font-size:.78rem;color:var(--gold-3);margin-left:2px}
+    .cat-chip:hover{border-color:var(--gold)}
+    .cat-chip.active{background:var(--navy);border-color:var(--navy);color:#fff}
+    .cat-chip.active span{color:var(--gold)}
     .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px}
+    .bc-cat{display:inline-block;font-size:.72rem;font-weight:800;color:var(--gold-3);background:var(--gold-soft);border-radius:100px;padding:3px 12px;margin-bottom:9px}
     .blog-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:transform .35s var(--ease),box-shadow .35s var(--ease);display:block}
     .blog-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
     .bc-img{aspect-ratio:16/9;background:var(--gold-soft);overflow:hidden}
@@ -218,11 +249,22 @@ export function BlogListPage(posts: any[]) {
     .bc-meta i{color:var(--gold);margin-right:4px}
   </style>
   <section class="section"><div class="wrap">
-    <h2 class="section-list-title">블로그 글 목록</h2>
+    <h2 class="section-list-title">칼럼 글 목록</h2>
+    ${raw(chips)}
     ${posts.length
-      ? raw(`<div class="blog-grid">${cards}</div>`)
+      ? raw(`<div class="blog-grid" id="blog-grid">${cards}</div>`)
       : raw(`<div style="text-align:center;padding:70px 20px;color:var(--ink-soft)"><i class="fas fa-feather-alt" style="font-size:2.4rem;color:var(--gold);margin-bottom:18px;display:block"></i>첫 글을 준비 중입니다. 곧 유익한 구강 건강 정보로 찾아뵙겠습니다.</div>`)}
-  </div></section>`;
+  </div></section>
+  ${chips ? raw(`<script>
+  (function(){
+    var chips=document.querySelectorAll('.cat-chip'),cards=document.querySelectorAll('#blog-grid .blog-card');
+    chips.forEach(function(ch){ch.addEventListener('click',function(){
+      chips.forEach(function(x){x.classList.remove('active')});ch.classList.add('active');
+      var cat=ch.getAttribute('data-cat');
+      cards.forEach(function(cd){cd.style.display=(!cat||cd.getAttribute('data-cat')===cat)?'':'none'});
+    });});
+  })();
+  </script>`) : ''}`;
 }
 
 // ============================================================
@@ -250,8 +292,15 @@ function analyzePost(htmlStr: string): { html: string; readMin: number; toc: { i
   return { html: withIds, readMin, toc };
 }
 
-export function BlogDetailPage(p: any, related: any[]) {
+export function BlogDetailPage(
+  p: any,
+  related: any[],
+  extra?: { relTreatment?: any; faqs?: { q: string; a: string }[]; tags?: string[] },
+) {
   const doctor = DOCTORS.find(d => d.slug === p.author_slug);
+  const relTreatment = extra?.relTreatment;
+  const faqs = extra?.faqs || [];
+  const tags = extra?.tags || [];
   const relList = related.map(r => `<a href="/blog/${esc(r.slug)}"><i class="fas fa-angle-right"></i> ${esc(r.title)}</a>`).join('');
   const { html: bodyHtml, readMin, toc } = analyzePost(p.content_html || '');
   const tocHtml = toc.length >= 2
@@ -294,6 +343,22 @@ export function BlogDetailPage(p: any, related: any[]) {
     .rel-posts a{display:block;padding:8px 0;font-weight:600;font-size:.92rem;color:var(--navy)}
     .rel-posts a:hover{color:var(--gold-3)}
     .rel-posts i{color:var(--gold);margin-right:6px}
+    .aeo-summary{background:linear-gradient(135deg,var(--gold-soft),#fff);border:1.5px solid var(--gold);border-radius:14px;padding:20px 26px;margin-bottom:30px}
+    .aeo-summary .as-head{font-weight:800;color:var(--navy);font-size:.95rem;margin-bottom:8px}
+    .aeo-summary .as-head i{color:var(--gold);margin-right:7px}
+    .aeo-summary p{margin:0;font-size:.98rem;line-height:1.75;color:var(--ink)}
+    .post-faq{margin-top:44px}
+    .post-faq h2{font-size:1.35rem;margin-bottom:16px;padding-bottom:.35em;border-bottom:2px solid var(--gold-soft)}
+    .post-faq details{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+    .post-faq summary{padding:16px 20px;font-weight:700;cursor:pointer;color:var(--navy);list-style:none;display:flex;gap:10px;align-items:baseline}
+    .post-faq summary::before{content:'Q.';color:var(--gold-3);font-weight:800;flex:none}
+    .post-faq details[open] summary{border-bottom:1px solid var(--line)}
+    .post-faq .fa-body{padding:16px 20px;font-size:.95rem;line-height:1.8;color:var(--ink-soft)}
+    .post-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:30px}
+    .post-tags span{font-size:.8rem;font-weight:700;color:var(--gold-3);background:var(--gold-soft);border-radius:100px;padding:5px 14px}
+    .post-treat{margin-top:36px;background:#fff;border:1.5px solid var(--gold);border-radius:var(--radius-lg);padding:22px 26px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .post-treat .pt-txt strong{display:block;color:var(--navy);margin-bottom:4px}
+    .post-treat .pt-txt span{font-size:.86rem;color:var(--ink-soft)}
   </style>
   <section class="section"><div class="wrap post-wrap">
     <div class="post-meta reveal">
@@ -302,13 +367,36 @@ export function BlogDetailPage(p: any, related: any[]) {
       <span><i class="fas fa-eye"></i>조회 ${p.views}</span>
       <span><i class="fas fa-clock"></i>읽기 ${readMin}분</span>
     </div>
+    ${p.summary ? raw(`
+    <div class="aeo-summary reveal">
+      <div class="as-head"><i class="fas fa-lightbulb"></i>핵심 요약</div>
+      <p>${esc(p.summary)}</p>
+    </div>`) : ''}
     ${tocHtml ? raw(tocHtml) : ''}
     <article class="post-body reveal">${raw(bodyHtml)}</article>
+    ${faqs.length ? raw(`
+    <section class="post-faq reveal" aria-label="자주 묻는 질문">
+      <h2><i class="fas fa-circle-question" style="color:var(--gold);margin-right:8px"></i>자주 묻는 질문</h2>
+      ${faqs.map((f, i) => `
+      <details ${i === 0 ? 'open' : ''} id="q-${i + 1}">
+        <summary>${esc(f.q)}</summary>
+        <div class="fa-body">${esc(f.a)}</div>
+      </details>`).join('')}
+    </section>`) : ''}
+    ${tags.length ? raw(`<div class="post-tags" aria-label="태그">${tags.map(t => `<span>#${esc(t)}</span>`).join('')}</div>`) : ''}
+    ${relTreatment ? raw(`
+    <div class="post-treat reveal">
+      <div class="pt-txt">
+        <strong><i class="fas fa-tooth" style="color:var(--gold);margin-right:7px"></i>${esc(relTreatment.name)} 진료가 궁금하신가요?</strong>
+        <span>${esc(relTreatment.short || '')}</span>
+      </div>
+      <a href="/treatments/${esc(relTreatment.slug)}" class="btn btn-accent" style="flex:none">${esc(relTreatment.name)} 진료 안내 <i class="fas fa-arrow-right"></i></a>
+    </div>`) : ''}
     ${doctor ? raw(`
     <div class="post-author reveal">
-      <div class="av"><i class="fas fa-user-md"></i></div>
+      ${doctor.photo ? `<img src="${doctor.photo}" alt="${doctor.name} ${doctor.role}" width="58" height="58" loading="lazy" decoding="async" style="width:58px;height:58px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;border:2px solid var(--gold)">` : `<div class="av"><i class="fas fa-user-md"></i></div>`}
       <div>
-        <div style="font-weight:800">${doctor.name} ${doctor.role}</div>
+        <div style="font-weight:800">${doctor.name} ${doctor.role}${doctor.isSpecialist ? ' <span style="font-size:.75rem;font-weight:800;color:var(--gold-3);background:var(--gold-soft);border-radius:100px;padding:2px 10px;vertical-align:2px">전문의</span>' : ''}</div>
         <div style="font-size:.85rem;color:var(--ink-soft);margin-top:4px">${doctor.specialty} · <a href="/doctors/${doctor.slug}" style="color:var(--gold-3);font-weight:700;text-decoration:underline;text-underline-offset:3px">원장 소개 보기</a></div>
       </div>
     </div>`) : ''}

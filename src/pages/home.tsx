@@ -12,7 +12,10 @@ const BRIDGE_ORN = `
 // ── VMG: 4점 반짝이 스파크 ──
 const SPARK = (cls: string) => `<svg class="${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0 L14.4 9.6 L24 12 L14.4 14.4 L12 24 L9.6 14.4 L0 12 L9.6 9.6 Z"/></svg>`;
 
-export function HomePage() {
+const escH2 = (s: string) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const docNameH = (slug: string) => DOCTORS.find(d => d.slug === slug)?.name || '';
+
+export function HomePage(latestPosts: any[] = []) {
   return html`
   <style>
     /* ====================== HERO v7 "Book Cover" (페이블: 책의 표지) ====================== */
@@ -731,6 +734,32 @@ export function HomePage() {
       <p style="text-align:center;font-size:.82rem;color:var(--ink-faint);margin-top:18px">※ 모든 진료 결과는 개인의 구강 상태에 따라 차이가 있을 수 있습니다.</p>
     </div>
   </section>
+
+  <!-- ============ 원장 칼럼 (최신 3) — 신선도 신호 + 칼럼 인링크 ============ -->
+  ${latestPosts.length ? raw(`
+  <section class="sec" id="ch-column">
+    <div class="wrap">
+      <div style="text-align:center;margin-bottom:44px" data-reveal>
+        <span class="eyebrow" style="display:block;margin-bottom:12px">Column · 원장이 직접 씁니다</span>
+        <h2 style="font-size:clamp(1.5rem,3.4vw,2.1rem)">원장 칼럼 — 치과 건강 이야기</h2>
+        <p style="color:var(--ink-soft);margin-top:10px;font-size:.95rem">검색으로는 알 수 없는 이야기를, 진료하는 원장이 직접 정리했습니다.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1000px;margin:0 auto" data-reveal>
+        ${latestPosts.map(p => `
+        <a href="/blog/${escH2(p.slug)}" style="display:block;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:transform .3s,box-shadow .3s" onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='0 14px 34px rgba(62,44,31,.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <div style="aspect-ratio:16/9;background:var(--gold-soft);overflow:hidden">${p.thumbnail ? `<img src="/api/img/${escH2(p.thumbnail)}" alt="${escH2(p.title)}" loading="lazy" decoding="async" width="400" height="225" style="width:100%;height:100%;object-fit:cover">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gold)"><i class="fas fa-feather-alt"></i></div>`}</div>
+          <div style="padding:20px 22px">
+            <h3 style="font-size:1.05rem;line-height:1.5;margin-bottom:8px;color:var(--navy)">${escH2(p.title)}</h3>
+            ${p.excerpt ? `<p style="font-size:.86rem;color:var(--ink-soft);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escH2(p.excerpt)}</p>` : ''}
+            <div style="font-size:.78rem;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:10px"><i class="fas fa-user-md" style="color:var(--gold);margin-right:5px"></i>${escH2(docNameH(p.author_slug))} 원장 · ${(p.created_at || '').slice(0, 10)}</div>
+          </div>
+        </a>`).join('')}
+      </div>
+      <div style="text-align:center;margin-top:34px" data-reveal>
+        <a href="/blog" class="btn btn-line">칼럼 전체 보기 <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>`) : ''}
 
   <!-- ============ BRIDGE → EPILOGUE ============ -->
   <div class="bridge" data-reveal>

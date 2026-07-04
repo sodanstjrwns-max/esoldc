@@ -75,6 +75,15 @@ app.route('/admin', adminContent);
 // ============================================================================
 app.get('/', async (c) => {
   const popup = renderPopup(await fetchActivePopup(c.env.DB));
+  // 최신 원장 칼럼 3개 — 홈 인링크 (신선도 신호 + 칼럼 발견성)
+  let latestPosts: any[] = [];
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT slug, title, excerpt, thumbnail, author_slug, category, created_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 3').all();
+      latestPosts = results as any[];
+    } catch {}
+  }
   return c.html(Layout({
     title: `${CLINIC.name} | 남양주 마석 임플란트·교정·소아치과`,
     description: `남양주 마석 ${CLINIC.name}. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과. 임플란트·치아교정·소아치과 전 연령 통합 진료. 기분 좋게 진료를 마칠 때까지.`,
@@ -111,7 +120,7 @@ app.get('/', async (c) => {
       },
     ],
     extraBody: popup,
-  }, HomePage()));
+  }, HomePage(latestPosts)));
 });
 
 // ============================================================================
@@ -142,9 +151,19 @@ app.get('/doctors', (c) => {
   }, DoctorsListPage()));
 });
 
-app.get('/doctors/:slug', (c) => {
+app.get('/doctors/:slug', async (c) => {
   const d = getDoctor(c.req.param('slug'));
   if (!d) return c.notFound();
+  // 이 원장이 쓴 칼럼 → 저자 권위 페이지(E-E-A-T: author → works 연결)
+  let myPosts: any[] = [];
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT slug, title, created_at FROM posts WHERE published = 1 AND author_slug = ? ORDER BY id DESC LIMIT 5',
+      ).bind(d.slug).all();
+      myPosts = results as any[];
+    } catch {}
+  }
   return c.html(Layout({
     title: `${d.name} ${d.role} | ${d.specialty} - ${CLINIC.name}`,
     description: `${CLINIC.name} ${d.role} ${d.name}. ${d.specialty} 진료. ${d.bio.slice(0, 90)}`,
@@ -154,7 +173,7 @@ app.get('/doctors/:slug', (c) => {
       personSchema(d),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '의료진', path: '/doctors' }, { name: d.name, path: `/doctors/${d.slug}` }]),
     ],
-  }, DoctorDetailPage(d)));
+  }, DoctorDetailPage(d, myPosts)));
 });
 
 // ============================================================================
@@ -172,7 +191,7 @@ app.get('/treatments', (c) => {
   }, TreatmentsListPage()));
 });
 
-app.get('/treatments/:slug', (c) => {
+app.get('/treatments/:slug', async (c) => {
   const t = getTreatment(c.req.param('slug'));
   if (!t) return c.notFound();
   // 양방향 인링크: 이 진료(slug)를 rel에 포함하는 용어 → 심층(longDef) 우선, 최대 12개
@@ -181,6 +200,16 @@ app.get('/treatments/:slug', (c) => {
     .sort((a, b) => (b.longDef ? 1 : 0) - (a.longDef ? 1 : 0))
     .slice(0, 12)
     .map(g => ({ term: g.term }));
+  // 이 진료 카테고리의 원장 칼럼 → 진료 페이지에서 칼럼으로 인링크 (링크 그물 강화)
+  let relPosts: any[] = [];
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT slug, title, excerpt, author_slug, created_at FROM posts WHERE published = 1 AND category = ? ORDER BY id DESC LIMIT 3',
+      ).bind(t.slug).all();
+      relPosts = results as any[];
+    } catch {}
+  }
   return c.html(Layout({
     title: t.metaTitle,
     description: t.metaDesc,
@@ -193,7 +222,7 @@ app.get('/treatments/:slug', (c) => {
       faqSchema(t.faqs, `/treatments/${t.slug}`),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }, { name: t.name, path: `/treatments/${t.slug}` }]),
     ],
-  }, TreatmentDetailPage(t, relTerms)));
+  }, TreatmentDetailPage(t, relTerms, relPosts)));
 });
 
 // ============================================================================
@@ -328,17 +357,38 @@ app.get('/blog', async (c) => {
   if (c.env.DB) {
     try {
       const { results } = await c.env.DB.prepare(
-        'SELECT slug, title, excerpt, thumbnail, author_slug, views, created_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 200').all();
+        'SELECT slug, title, excerpt, thumbnail, author_slug, category, tags, views, created_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 200').all();
       posts = results as any[];
     } catch {}
   }
   return c.html(Layout({
-    title: `치과 건강 블로그 | ${CLINIC.name}`,
-    description: `${CLINIC.name} 원장들이 직접 쓰는 구강 건강 정보와 병원 이야기. 임플란트·교정·소아치과 상식.`,
+    title: `원장 칼럼 | ${CLINIC.name} — 남양주 마석 치과 건강 이야기`,
+    description: `${CLINIC.name} 원장들이 직접 쓰는 구강 건강 칼럼. 임플란트·치아교정·소아치과 등 진료 분야별 전문의가 검증한 치과 상식과 남양주 마석 병원 이야기.`,
     path: '/blog',
     // 글이 0개면 색인 제외 (준비 중 빈 페이지가 thin-content로 평가받지 않도록)
     noindex: posts.length === 0,
-    jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '블로그', path: '/blog' }])],
+    jsonLd: [
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '원장 칼럼', path: '/blog' }]),
+      // 칼럼 허브: Blog 엔티티 (저작 주체=병원, AEO에서 "이 병원이 발행하는 칼럼"으로 인식)
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Blog',
+        '@id': `${SITE_URL}/blog#blog`,
+        name: `${CLINIC.name} 원장 칼럼`,
+        url: `${SITE_URL}/blog`,
+        description: `${CLINIC.name} 원장들이 직접 작성하는 구강 건강 정보 칼럼`,
+        inLanguage: 'ko-KR',
+        publisher: { '@id': `${SITE_URL}/#organization` },
+        blogPost: posts.slice(0, 20).map((p: any) => ({
+          '@type': 'BlogPosting',
+          '@id': `${SITE_URL}/blog/${p.slug}#article`,
+          headline: p.title,
+          url: `${SITE_URL}/blog/${p.slug}`,
+          datePublished: p.created_at,
+          author: { '@id': `${SITE_URL}/doctors/${p.author_slug}#person` },
+        })),
+      },
+    ],
   }, BlogListPage(posts)));
 });
 
@@ -349,28 +399,47 @@ app.get('/blog/:slug', async (c) => {
   const p = await db.prepare('SELECT * FROM posts WHERE slug = ? AND published = 1').bind(slug).first<any>();
   if (!p) return c.notFound();
   await db.prepare('UPDATE posts SET views = views + 1 WHERE id = ?').bind(p.id).run();
+  // 관련 글: 같은 카테고리 우선 → 부족하면 최신순으로 채움
   const { results: related } = await db.prepare(
-    'SELECT slug, title FROM posts WHERE published = 1 AND id != ? ORDER BY id DESC LIMIT 5').bind(p.id).all();
+    `SELECT slug, title FROM posts WHERE published = 1 AND id != ?
+     ORDER BY (CASE WHEN category = ? AND category != '' THEN 0 ELSE 1 END), id DESC LIMIT 5`,
+  ).bind(p.id, p.category || '').all();
+  // ── SEO 신호 계산 ──
+  const relTreatment = TREATMENTS.find(t => t.slug === p.category);
+  const plainLen = (p.content_html || '').replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, '').length;
+  const tags: string[] = (p.tags || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+  let faqs: { q: string; a: string }[] = [];
+  try { faqs = JSON.parse(p.faq_json || '[]'); } catch {}
+  faqs = Array.isArray(faqs) ? faqs.filter(f => f && f.q && f.a) : [];
+  const desc = p.excerpt || `${CLINIC.name} 원장 칼럼 - ${p.title}`;
+  const jsonLd: any[] = [
+    articleSchema({
+      type: 'BlogPosting',
+      title: p.title,
+      desc,
+      path: `/blog/${slug}`,
+      author: DOCTORS.find(d => d.slug === p.author_slug)?.name || CLINIC.name,
+      authorSlug: p.author_slug || undefined,
+      published: p.created_at,
+      modified: p.updated_at || p.created_at,
+      image: p.thumbnail ? `${SITE_URL}/api/img/${p.thumbnail}` : undefined,
+      section: relTreatment?.name || (p.category === 'health' ? '구강 건강' : p.category === 'clinic' ? '병원 이야기' : undefined),
+      keywords: tags.length ? tags : undefined,
+      wordCount: plainLen || undefined,
+      aboutPath: relTreatment ? `/treatments/${relTreatment.slug}` : undefined,
+      aboutName: relTreatment?.name,
+    }),
+    breadcrumbSchema([{ name: '홈', path: '/' }, { name: '원장 칼럼', path: '/blog' }, { name: p.title, path: `/blog/${slug}` }]),
+  ];
+  if (faqs.length) jsonLd.push(faqSchema(faqs, `/blog/${slug}`));
   return c.html(Layout({
-    title: `${p.title} | ${CLINIC.name} 블로그`,
-    description: p.excerpt || `${CLINIC.name} 블로그 - ${p.title}`,
+    title: `${p.title} | ${CLINIC.name} 원장 칼럼`,
+    description: desc,
     path: `/blog/${slug}`,
     type: 'article',
     ogImage: p.thumbnail ? `${SITE_URL}/api/img/${p.thumbnail}` : undefined,
-    jsonLd: [
-      articleSchema({
-        type: 'BlogPosting',
-        title: p.title,
-        desc: p.excerpt || `${CLINIC.name} 블로그 - ${p.title}`,
-        path: `/blog/${slug}`,
-        author: DOCTORS.find(d => d.slug === p.author_slug)?.name || CLINIC.name,
-        published: p.created_at,
-        modified: p.updated_at || p.created_at,
-        image: p.thumbnail ? `${SITE_URL}/api/img/${p.thumbnail}` : undefined,
-      }),
-      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '블로그', path: '/blog' }, { name: p.title, path: `/blog/${slug}` }]),
-    ],
-  }, BlogDetailPage(p, related as any[])));
+    jsonLd,
+  }, BlogDetailPage(p, related as any[], { relTreatment, faqs, tags })));
 });
 
 // ============================================================================
@@ -671,7 +740,7 @@ app.post('/api/reservation', async (c) => {
 // XML 이스케이프 (loc/caption 안전)
 const xmlEsc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 const NOW = () => new Date().toISOString().split('T')[0];
-type SUrl = { loc: string; pri: string; freq?: string; img?: { url: string; cap: string }[] };
+type SUrl = { loc: string; pri: string; freq?: string; img?: { url: string; cap: string }[]; lastmod?: string };
 function buildUrlset(urls: SUrl[], now: string): string {
   const hasImg = urls.some(u => u.img?.length);
   const ns = hasImg
@@ -681,7 +750,7 @@ function buildUrlset(urls: SUrl[], now: string): string {
     const imgs = (u.img || []).map(im =>
       `\n    <image:image><image:loc>${xmlEsc(SITE_URL + im.url)}</image:loc><image:caption>${xmlEsc(im.cap)}</image:caption></image:image>`
     ).join('');
-    return `  <url><loc>${xmlEsc(SITE_URL + u.loc)}</loc><lastmod>${now}</lastmod>${u.freq ? `<changefreq>${u.freq}</changefreq>` : ''}<priority>${u.pri}</priority>${imgs}</url>`;
+    return `  <url><loc>${xmlEsc(SITE_URL + u.loc)}</loc><lastmod>${u.lastmod || now}</lastmod>${u.freq ? `<changefreq>${u.freq}</changefreq>` : ''}<priority>${u.pri}</priority>${imgs}</url>`;
   }).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset ${ns}>\n${body}\n</urlset>`;
 }
@@ -774,14 +843,18 @@ app.get('/sitemap-content.xml', async (c) => {
   if (c.env.DB) {
     try {
       const [posts, cases, notices] = await Promise.all([
-        c.env.DB.prepare('SELECT slug FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
+        c.env.DB.prepare('SELECT slug, created_at, updated_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
         c.env.DB.prepare('SELECT id FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
         c.env.DB.prepare('SELECT id FROM notices WHERE published = 1 ORDER BY id DESC LIMIT 500').all().catch(() => ({ results: [] })),
       ]);
       blogN = (posts.results as any[]).length;
       caseN = (cases.results as any[]).length;
       noticeN = ((notices as any).results as any[]).length;
-      for (const p of posts.results as any[]) urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', freq: 'monthly' });
+      for (const p of posts.results as any[]) {
+        // 실제 발행/수정일 → lastmod (검색엔진 재크롤링 유도 정확도↑)
+        const lm = String(p.updated_at || p.created_at || '').slice(0, 10) || undefined;
+        urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', freq: 'monthly', lastmod: lm });
+      }
       for (const x of cases.results as any[]) urls.push({ loc: `/cases/${x.id}`, pri: '0.6', freq: 'monthly' });
       for (const n of (notices as any).results as any[]) urls.push({ loc: `/notices/${n.id}`, pri: '0.5', freq: 'monthly' });
     } catch {}
@@ -791,6 +864,47 @@ app.get('/sitemap-content.xml', async (c) => {
   if (caseN > 0) urls.unshift({ loc: '/cases', pri: '0.7', freq: 'weekly' });
   if (noticeN > 0) urls.unshift({ loc: '/notices', pri: '0.6', freq: 'weekly' });
   return xmlResp(c, buildUrlset(urls, NOW()));
+});
+
+// 📡 RSS 2.0 피드 — 원장 칼럼 (구독·AI 크롤러 발견성 + 네이버 서치어드바이저 RSS 제출용)
+app.get('/rss.xml', async (c) => {
+  let posts: any[] = [];
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT slug, title, excerpt, summary, author_slug, category, created_at, updated_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 50').all();
+      posts = results as any[];
+    } catch {}
+  }
+  const toRfc822 = (s: string) => {
+    const d = new Date(String(s || '').replace(' ', 'T') + (String(s || '').includes('Z') ? '' : 'Z'));
+    return isNaN(d.getTime()) ? new Date().toUTCString() : d.toUTCString();
+  };
+  const items = posts.map(p => {
+    const author = DOCTORS.find(d => d.slug === p.author_slug);
+    return `  <item>
+    <title>${xmlEsc(p.title)}</title>
+    <link>${SITE_URL}/blog/${xmlEsc(p.slug)}</link>
+    <guid isPermaLink="true">${SITE_URL}/blog/${xmlEsc(p.slug)}</guid>
+    <description>${xmlEsc(p.summary || p.excerpt || p.title)}</description>
+    ${author ? `<dc:creator>${xmlEsc(author.name)} ${xmlEsc(author.role)}</dc:creator>` : ''}
+    ${p.category ? `<category>${xmlEsc(p.category)}</category>` : ''}
+    <pubDate>${toRfc822(p.created_at)}</pubDate>
+  </item>`;
+  }).join('\n');
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>${xmlEsc(CLINIC.name)} 원장 칼럼</title>
+  <link>${SITE_URL}/blog</link>
+  <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml"/>
+  <description>${xmlEsc(CLINIC.name)} 원장들이 직접 쓰는 구강 건강 칼럼 — 임플란트·치아교정·소아치과</description>
+  <language>ko-KR</language>
+  <lastBuildDate>${posts.length ? toRfc822(posts[0].created_at) : new Date().toUTCString()}</lastBuildDate>
+${items}
+</channel>
+</rss>`;
+  return c.text(rss, 200, { 'Content-Type': 'application/rss+xml; charset=UTF-8', 'Cache-Control': 'public, max-age=1800' });
 });
 
 app.get('/robots.txt', (c) => {
@@ -861,9 +975,25 @@ Sitemap: ${SITE_URL}/sitemap.xml
 # LLM 가이드: ${SITE_URL}/llms.txt , ${SITE_URL}/llms-full.txt`, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=3600' });
 });
 
-app.get('/llms.txt', (c) => {
+app.get('/llms.txt', async (c) => {
   const longTerms = GLOSSARY_SORTED.filter(t => t.longDef);
   const specialists = DOCTORS.filter(d => d.isSpecialist);
+  // 최신 원장 칼럼 — AI가 "이 병원 원장들이 발행하는 콘텐츠"를 발견·인용하도록
+  let recentPosts: any[] = [];
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT slug, title, summary, excerpt, author_slug, created_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 20').all();
+      recentPosts = results as any[];
+    } catch {}
+  }
+  const columnSection = recentPosts.length
+    ? `\n## 원장 칼럼 (의료인이 직접 작성, RSS: ${SITE_URL}/rss.xml)\n${recentPosts.map(p => {
+        const doc = DOCTORS.find(d => d.slug === p.author_slug);
+        const gist = (p.summary || p.excerpt || '').slice(0, 160);
+        return `- [${p.title}](${SITE_URL}/blog/${p.slug})${doc ? ` — ${doc.name} ${doc.role}` : ''} (${String(p.created_at || '').slice(0, 10)})${gist ? `: ${gist}` : ''}`;
+      }).join('\n')}\n`
+    : '';
   return c.text(`# ${CLINIC.name} (${CLINIC.nameEn})
 
 > 경기 남양주시 화도읍 마석에 위치한 지역 치과의원(${CLINIC.establishedLabel}). 임플란트(대표원장 담당)를 제외한 교정·소아·보철·통합 각 분야 전문의가 상주하며, 소아부터 노년층까지 가족 단위로 다닐 수 있는 치과를 지향합니다. 진료 철학은 "${CLINIC.slogan}"입니다.
@@ -916,10 +1046,12 @@ ${NEARBY_AREAS.map(a => `- ${a.name}(${a.full}) — ${a.access} 진료: ${CORE_T
 - 오시는길: ${SITE_URL}/directions
 - 예약문의: ${SITE_URL}/reservation
 
+${columnSection}
 ## AI 답변엔진 안내 (AEO)
 - 전체 컨텍스트(용어 ${longTerms.length}개 심층 요약 포함): ${SITE_URL}/llms-full.txt
 - 각 진료/용어/지역 페이지 상단에는 "핵심 요약" 블록(speakable)이 있어 인용에 적합합니다.
-- 구조화 데이터(JSON-LD): Dentist/MedicalBusiness, MedicalProcedure, HowTo, FAQPage, Physician, Service, BreadcrumbList 제공.
+- 원장 칼럼 각 글에는 "핵심 요약"(2~3문장)과 FAQ가 있어 답변 인용에 최적화되어 있습니다.
+- 구조화 데이터(JSON-LD): Dentist/MedicalBusiness, MedicalProcedure, HowTo, FAQPage, Physician, BlogPosting(저자=Physician), Service, BreadcrumbList 제공.
 
 ## 인용 시 주의 (의료광고법 준수)
 - 본 사이트는 치료 효과를 보장하거나 단정하지 않습니다. 모든 진료 결과는 개인 상태에 따라 차이가 있을 수 있습니다.

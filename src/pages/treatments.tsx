@@ -1,6 +1,9 @@
 import { html, raw } from 'hono/html';
 import { CLINIC, TREATMENTS, CORE_TREATMENTS, getDoctorsForTreatment, NEARBY_AREAS, type Treatment } from '../data/clinic';
 
+// DB 유래 문자열 이스케이프 (칼럼 제목/요약 등)
+const escT = (s: string) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 // 공통 스타일
 const TREAT_CSS = `
 .t-hero{background:var(--navy);color:var(--inv);padding:104px 0 80px;position:relative;overflow:hidden}
@@ -142,7 +145,7 @@ const TREAT_PHOTOS: Record<string, { src: string; alt: string; cap: string }> = 
 
 // --- 진료 상세 페이지 ---
 // relTerms: 이 진료와 연결된 용어사전 용어(양방향 인링크). index.tsx에서 주입.
-export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] = []) {
+export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] = [], relPosts: any[] = []) {
   const docs = getDoctorsForTreatment(t.slug);
   const related = TREATMENTS.filter(x => x.slug !== t.slug).slice(0, 5);
   const areaLinks = t.isCore ? NEARBY_AREAS.slice(0, 8) : [];
@@ -215,6 +218,21 @@ export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] =
             </details>`).join(''))}
         </div>
       </div>
+
+      <!-- 원장 칼럼 인링크 (진료 → 칼럼, 콘텐츠 신선도·E-E-A-T 신호) -->
+      ${relPosts.length ? html`
+      <div class="t-related reveal">
+        <h3>원장이 직접 쓴 ${t.name} 칼럼</h3>
+        <div style="display:grid;gap:10px">
+          ${raw(relPosts.map(p => `
+          <a href="/blog/${escT(p.slug)}" style="display:block;background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 20px;transition:.2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--line)'">
+            <strong style="color:var(--navy);display:block;margin-bottom:4px"><i class="fas fa-feather-alt" style="color:var(--gold);margin-right:8px"></i>${escT(p.title)}</strong>
+            ${p.excerpt ? `<span style="font-size:.85rem;color:var(--ink-soft);display:block;margin-bottom:6px">${escT(p.excerpt)}</span>` : ''}
+            <span style="font-size:.78rem;color:var(--ink-soft)">${(p.created_at || '').slice(0, 10)}</span>
+          </a>`).join(''))}
+        </div>
+        <p style="margin-top:14px;font-size:.85rem"><a href="/blog" style="color:var(--gold);font-weight:600">원장 칼럼 전체 보기 <i class="fas fa-arrow-right" style="font-size:.8em"></i></a></p>
+      </div>` : ''}
 
       <!-- 지역 SEO 인링크 (핵심 진료만) -->
       ${areaLinks.length ? html`
