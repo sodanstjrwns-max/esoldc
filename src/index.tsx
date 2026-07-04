@@ -776,7 +776,7 @@ app.get('/sitemap-content.xml', async (c) => {
       const [posts, cases, notices] = await Promise.all([
         c.env.DB.prepare('SELECT slug FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
         c.env.DB.prepare('SELECT id FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
-        c.env.DB.prepare('SELECT id FROM notices ORDER BY id DESC LIMIT 500').all().catch(() => ({ results: [] })),
+        c.env.DB.prepare('SELECT id FROM notices WHERE published = 1 ORDER BY id DESC LIMIT 500').all().catch(() => ({ results: [] })),
       ]);
       blogN = (posts.results as any[]).length;
       caseN = (cases.results as any[]).length;
