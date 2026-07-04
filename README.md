@@ -175,7 +175,7 @@ npm run db:migrate:local         # 로컬 SQLite 적용
 - **플랫폼**: Cloudflare Pages
 - **상태**: ✅ Active
 - **기술스택**: Hono + TypeScript + Cloudflare D1/R2 + Vite + PWA
-- **최종 업데이트**: 2026-07-04 (납품 최종 검수 완료 — 사이트맵 버그 1건 수정 후 재배포)
+- **최종 업데이트**: 2026-07-04 (납품 최종 검수 완료 — 사이트맵 583 URL 전수 200 검증, 비공개 공지 노출 버그 수정, PWA 아이콘 96% 경량화 후 재배포)
 
 ---
 
