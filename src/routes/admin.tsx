@@ -127,7 +127,7 @@ function adminShell(title: string, active: string, body: string) {
     <a href="/admin" class="${active === 'dash' ? 'on' : ''}">대시보드</a>
     <a href="/admin/members" class="${active === 'members' ? 'on' : ''}">회원</a>
     <a href="/admin/cases" class="${active === 'cases' ? 'on' : ''}">비포&애프터</a>
-    <a href="/admin/posts" class="${active === 'posts' ? 'on' : ''}">블로그</a>
+    <a href="/admin/posts" class="${active === 'posts' ? 'on' : ''}">원장 칼럼</a>
     <a href="/admin/notices" class="${active === 'notices' ? 'on' : ''}">공지사항</a>
     <a href="/admin/reservations" class="${active === 'res' ? 'on' : ''}">예약문의</a>
   </nav>
@@ -212,7 +212,7 @@ document.getElementById('af').addEventListener('submit',async function(e){
   <div class="stat-grid">
     <div class="stat"><div class="n">${members?.n ?? 0}</div><div class="l">회원 수</div></div>
     <div class="stat"><div class="n">${cases?.n ?? 0}</div><div class="l">비포&애프터 (조회 ${cases?.v ?? 0})</div></div>
-    <div class="stat"><div class="n">${posts?.n ?? 0}</div><div class="l">블로그 글 (조회 ${posts?.v ?? 0})</div></div>
+    <div class="stat"><div class="n">${posts?.n ?? 0}</div><div class="l">원장 칼럼 (조회 ${posts?.v ?? 0})</div></div>
     <div class="stat"><div class="n">${notices?.n ?? 0}</div><div class="l">공지사항 (조회 ${notices?.v ?? 0})</div></div>
     <div class="stat"><div class="n">${reservations?.n ?? 0}</div><div class="l">예약 문의</div></div>
   </div>
@@ -221,7 +221,7 @@ document.getElementById('af').addEventListener('submit',async function(e){
     <h3 style="margin-bottom:12px">빠른 작업</h3>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <a href="/admin/cases/new" class="btn btn-g"><i class="fas fa-plus"></i> 비포&애프터 등록</a>
-      <a href="/admin/posts/new" class="btn btn-g"><i class="fas fa-pen"></i> 블로그 작성</a>
+      <a href="/admin/posts/new" class="btn btn-g"><i class="fas fa-pen"></i> 원장 칼럼 작성</a>
       <a href="/admin/notices/new" class="btn btn-g"><i class="fas fa-bullhorn"></i> 공지 작성</a>
       <a href="/" class="btn btn-o" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> 사이트 보기</a>
       <button type="button" id="indexnowBtn" class="btn btn-o"><i class="fas fa-magnifying-glass-location"></i> 검색엔진 색인 요청</button>

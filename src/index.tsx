@@ -756,6 +756,9 @@ function buildUrlset(urls: SUrl[], now: string): string {
 }
 const xmlResp = (c: any, xml: string) => c.text(xml, 200, { 'Content-Type': 'application/xml; charset=UTF-8', 'Cache-Control': 'public, max-age=3600' });
 
+// 🔖 /favicon.ico — 브라우저 기본 요청 (관리자 등 파비콘 링크 없는 페이지에서 404 방지)
+app.get('/favicon.ico', (c) => c.redirect('/static/img/favicon-32.png', 301));
+
 // 📲 PWA Service Worker — 루트 scope('/') 확보 위해 Hono에서 직접 서빙
 app.get('/sw.js', (c) =>
   c.text(SERVICE_WORKER_JS, 200, {

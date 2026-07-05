@@ -197,42 +197,55 @@ function caseForm(x: any): string {
 adminContent.get('/posts', async (c) => {
   if (!(await requireAdmin(c))) return c.redirect('/admin');
   const db = c.env.DB!;
-  const { results } = await db.prepare('SELECT id, slug, title, author_slug, views, published, created_at FROM posts ORDER BY id DESC LIMIT 300').all();
+  const { results } = await db.prepare('SELECT id, slug, title, author_slug, category, summary, faq_json, tags, views, published, created_at FROM posts ORDER BY id DESC LIMIT 300').all();
+  const catName = (s: string) => POST_CATEGORIES.find(x => x.slug === s)?.name || '';
   const rows = (results as any[]).map(x => {
     const doc = DOCTORS.find(d => d.slug === x.author_slug)?.name || '-';
+    // SEO 완성도 체크: 핵심요약 / FAQ / 카테고리 / 태그 — 채울수록 검색·AI 인용에 유리
+    let faqN = 0; try { const f = JSON.parse(x.faq_json || '[]'); faqN = Array.isArray(f) ? f.length : 0; } catch {}
+    const seoChecks = [
+      { ok: !!x.summary, label: '요약' },
+      { ok: faqN >= 2, label: 'FAQ' },
+      { ok: !!x.category, label: '카테고리' },
+      { ok: !!x.tags, label: '태그' },
+    ];
+    const seoDone = seoChecks.filter(s => s.ok).length;
+    const seoBadge = `<span title="${seoChecks.map(s => `${s.ok ? '✓' : '✗'} ${s.label}`).join(' / ')}" style="font-size:.75rem;font-weight:800;border-radius:100px;padding:3px 10px;cursor:help;${seoDone === 4 ? 'background:#DCEEDC;color:#1D6B2F' : seoDone >= 2 ? 'background:var(--gold-soft);color:var(--gold)' : 'background:#F6DFDF;color:#A33'}">SEO ${seoDone}/4</span>`;
     return `<tr>
       <td>${x.id}</td><td><strong>${esc(x.title)}</strong><br><span style="font-size:.75rem;color:var(--ink-soft)">/blog/${esc(x.slug)}</span></td>
-      <td>${esc(doc)}</td><td>${x.views}</td>
+      <td>${x.category ? `<span style="font-size:.78rem;font-weight:700;color:var(--gold);background:var(--gold-soft);border-radius:100px;padding:3px 10px">${esc(catName(x.category))}</span>` : '<span style="color:var(--ink-soft);font-size:.8rem">-</span>'}</td>
+      <td>${esc(doc)}</td><td>${seoBadge}</td><td>${x.views}</td>
       <td><span class="badge ${x.published ? 'on' : 'off'}">${x.published ? '공개' : '비공개'}</span></td>
       <td style="font-size:.8rem;color:var(--ink-soft)">${(x.created_at || '').slice(0, 10)}</td>
       <td style="white-space:nowrap">
+        ${x.published ? `<a href="/blog/${esc(x.slug)}" target="_blank" rel="noopener" class="btn btn-o btn-sm" title="공개 페이지 보기"><i class="fas fa-external-link-alt"></i></a>` : ''}
         <a href="/admin/posts/${x.id}" class="btn btn-o btn-sm">수정</a>
         <button class="btn btn-d btn-sm" onclick="delItem('posts',${x.id})">삭제</button>
       </td></tr>`;
   }).join('');
-  return c.html(adminShell('블로그', 'posts', `
+  return c.html(adminShell('원장 칼럼', 'posts', `
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-    <h1>블로그</h1>
+    <h1>원장 칼럼</h1>
     <a href="/admin/posts/new" class="btn btn-g"><i class="fas fa-pen"></i> 새 글 작성</a>
   </div>
-  <p class="sub">h2/h3 태그 구조로 작성하면 SEO에 유리합니다. 사진은 드래그앤드롭으로 본문에 삽입할 수 있습니다.</p>
+  <p class="sub">칼럼 1편을 발행하면 홈·진료페이지·원장페이지·RSS·AI검색(llms.txt)에 자동 노출됩니다. <strong>SEO 4/4</strong>(요약·FAQ·카테고리·태그)를 채울수록 검색 노출에 유리해요.</p>
   <div class="card" style="overflow-x:auto">
-    <table><thead><tr><th>ID</th><th>제목</th><th>작성자</th><th>조회수</th><th>상태</th><th>작성일</th><th></th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="7" style="text-align:center;color:var(--ink-soft);padding:30px">작성된 글이 없습니다.</td></tr>'}</tbody></table>
+    <table><thead><tr><th>ID</th><th>제목</th><th>카테고리</th><th>작성자</th><th>SEO</th><th>조회수</th><th>상태</th><th>작성일</th><th></th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="9" style="text-align:center;color:var(--ink-soft);padding:30px">작성된 글이 없습니다. 첫 칼럼을 작성해 보세요!</td></tr>'}</tbody></table>
   </div>
   ${DEL_SCRIPT}`));
 });
 
 adminContent.get('/posts/new', async (c) => {
   if (!(await requireAdmin(c))) return c.redirect('/admin');
-  return c.html(adminShell('블로그 작성', 'posts', postForm(null)));
+  return c.html(adminShell('원장 칼럼 작성', 'posts', postForm(null)));
 });
 adminContent.get('/posts/:id', async (c) => {
   if (!(await requireAdmin(c))) return c.redirect('/admin');
   const db = c.env.DB!;
   const x = await db.prepare('SELECT * FROM posts WHERE id = ?').bind(c.req.param('id')).first<any>();
   if (!x) return c.redirect('/admin/posts');
-  return c.html(adminShell('블로그 수정', 'posts', postForm(x)));
+  return c.html(adminShell('원장 칼럼 수정', 'posts', postForm(x)));
 });
 
 function postForm(x: any): string {
