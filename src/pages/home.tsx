@@ -304,10 +304,12 @@ export function HomePage(latestPosts: any[] = []) {
     @media(max-width:860px){
       .jy-steps{grid-template-columns:1fr;gap:0}
       .jy-line{display:none}
-      .jy-step{display:grid;grid-template-columns:66px 1fr;gap:18px;text-align:left;padding:18px 0;align-items:start;position:relative}
-      .jy-step:not(:last-child)::before{content:'';position:absolute;left:32px;top:66px;bottom:-18px;width:2px;background:rgba(201,154,82,.4)}
-      .jy-ic{margin:0}
-      .jy-step h3{margin-top:4px}
+      .jy-step{display:grid;grid-template-columns:66px 1fr;grid-template-rows:auto auto auto;column-gap:18px;row-gap:4px;text-align:left;padding:18px 0;align-items:start;position:relative}
+      .jy-step:not(:last-child)::before{content:'';position:absolute;left:32px;top:84px;bottom:-18px;width:2px;background:rgba(201,154,82,.4)}
+      .jy-ic{margin:0;grid-column:1;grid-row:1 / span 3}
+      .jy-step h3{grid-column:2;grid-row:1;margin:4px 0 0}
+      .jy-step p{grid-column:2;grid-row:2}
+      .jy-step .jy-tag{grid-column:2;grid-row:3;justify-self:start;margin-top:6px}
     }
 
     /* ====================== B3: 신뢰 · 리뷰 안내 ====================== */
