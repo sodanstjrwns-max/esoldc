@@ -121,7 +121,7 @@ h2{font-weight:820;letter-spacing:-.048em}
 h3,h4{font-weight:700;letter-spacing:-.035em}
 ::selection{background:var(--navy);color:var(--bg)}
 a{color:inherit;text-decoration:none}
-img{max-width:100%;display:block}
+img{max-width:100%;height:auto;display:block}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
 section{position:relative}
 .section-list-title{font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:22px;padding-left:14px;border-left:3px solid var(--gold);line-height:1.3;letter-spacing:-.01em}
