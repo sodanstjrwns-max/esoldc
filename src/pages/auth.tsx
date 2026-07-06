@@ -103,6 +103,8 @@ export function SignupPage() {
 }
 
 export function LoginPage(next?: string) {
+  // next 파라미터: 내부 경로만 허용 (오픈 리다이렉트/XSS 방지) + raw로 삽입해 HTML 이스케이프로 인한 JS 문법 오류 방지
+  const safeNext = (next && /^\/(?!\/)[A-Za-z0-9_\-/?=&.%#]*$/.test(next)) ? next : '';
   return html`
   <style>${raw(AUTH_CSS)}</style>
   <section class="auth-wrap" id="login-section">
@@ -129,7 +131,7 @@ export function LoginPage(next?: string) {
       try{
         var r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
         var j=await r.json();
-        if(j.ok){msg.className='auth-msg ok';msg.textContent='로그인되었습니다!';setTimeout(function(){location.href=${JSON.stringify(next || '')}||'/';},600);}
+        if(j.ok){msg.className='auth-msg ok';msg.textContent='로그인되었습니다!';setTimeout(function(){location.href=${raw(JSON.stringify(safeNext))}||'/';},600);}
         else{msg.className='auth-msg err';msg.textContent=j.error||'이메일 또는 비밀번호를 확인해 주세요.';}
       }catch(_){msg.className='auth-msg err';msg.textContent='네트워크 오류가 발생했습니다.';}
     });
