@@ -54,7 +54,8 @@ export const CLINIC = {
     kakaoChannel: true,  // 운영 시작 (URL 취합 예정)
     // ⚠️ URL 확정 시 아래 채워 넣으면 자동으로 버튼/링크 활성화. 빈 값이면 안전하게 대체 동선 사용(창작 금지)
     kakaoChannelUrl: 'http://pf.kakao.com/_XmjGX',     // 카카오톡 채널 (운영 중)
-    naverPlaceUrl: '',       // 예: 'https://map.naver.com/p/entry/place/xxxxxxxx'
+    naverPlaceUrl: 'https://naver.me/xVBnKlzW',        // 네이버 플레이스 (지도·리뷰)
+    naverBookingUrl: 'https://naver.me/xVBnKlzW',      // 네이버 예약 바로가기 (강조 CTA)
   },
 
   // --- 검색엔진 소유 확인 (웹마스터 도구 등록용) ---

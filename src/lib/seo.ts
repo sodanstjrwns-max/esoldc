@@ -99,9 +99,16 @@ export function siteGraph() {
         address: postalAddress(),
         geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
         hasMap: [
-          `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`,
+          (CLINIC.sns as any).naverPlaceUrl || `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`,
           `https://map.kakao.com/?q=${encodeURIComponent(CLINIC.address)}`,
         ],
+        // 네이버 예약 — 검색엔진·AI에 '온라인 예약 가능' 신호
+        ...((CLINIC.sns as any).naverBookingUrl ? { potentialAction: {
+          '@type': 'ReserveAction',
+          target: { '@type': 'EntryPoint', urlTemplate: (CLINIC.sns as any).naverBookingUrl, inLanguage: 'ko-KR',
+            actionPlatform: ['http://schema.org/DesktopWebPlatform', 'http://schema.org/MobileWebPlatform'] },
+          result: { '@type': 'Reservation', name: '진료 예약' },
+        }} : {}),
         // 정직한 오픈예정 표시: 진료시간 미확정 → openingHours 대신 새 공간 오픈일만 명시
         specialOpeningHoursSpecification: {
           '@type': 'OpeningHoursSpecification',

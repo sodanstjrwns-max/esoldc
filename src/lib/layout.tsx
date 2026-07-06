@@ -205,7 +205,8 @@ section{position:relative}
 .float-cta a{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1.3rem;box-shadow:var(--shadow);transition:transform .3s var(--ease)}
 .float-cta a:hover{transform:scale(1.1)}
 .float-cta a:active{transform:scale(.94)}
-.fc-tel{background:var(--navy)}.fc-map{background:var(--navy-3)}.fc-book{background:var(--gold)}.fc-kko{background:#3C1E1E}
+.fc-tel{background:var(--navy)}.fc-map{background:var(--navy-3)}.fc-book{background:var(--gold)}.fc-kko{background:#3C1E1E}.fc-naver{background:#03C75A}
+.nv-mark{display:inline-grid;place-items:center;width:1.18em;height:1.18em;border-radius:4px;background:#fff;color:#03C75A;font-weight:900;font-style:normal;font-size:.82em;line-height:1;font-family:Arial,sans-serif}
 /* 플로팅 버튼: 라벨 툴팁(데스크탑 hover 시 좌측 노출) */
 .float-cta a{position:relative}
 .float-cta a .fc-lbl{position:absolute;right:calc(100% + 12px);top:50%;transform:translateY(-50%) translateX(6px);
@@ -217,8 +218,8 @@ section{position:relative}
 .float-cta a:hover .fc-lbl{opacity:1;transform:translateY(-50%) translateX(0)}
 /* 첫 진입 펄스(주의 환기) — 예약 버튼만, 1회성 */
 @keyframes fcPulse{0%{box-shadow:var(--shadow),0 0 0 0 rgba(166,119,47,.5)}70%{box-shadow:var(--shadow),0 0 0 14px rgba(166,119,47,0)}100%{box-shadow:var(--shadow),0 0 0 0 rgba(166,119,47,0)}}
-.float-cta .fc-book{animation:fcPulse 2.6s var(--ease) 1.4s 2}
-@media(prefers-reduced-motion:reduce){.float-cta .fc-book{animation:none}}
+.float-cta .fc-naver{animation:fcPulse 2.6s var(--ease) 1.4s 2}
+@media(prefers-reduced-motion:reduce){.float-cta .fc-naver{animation:none}}
 
 /* ── 스크롤 리빌 (data-reveal = home / .reveal = 기타 페이지 호환) ── */
 [data-reveal],.reveal{opacity:0;transform:translateY(36px);transition:opacity .9s var(--ease-soft),transform .9s var(--ease-soft)}
@@ -345,8 +346,10 @@ section{position:relative}
     min-height:54px;border-radius:12px;font-weight:800;font-size:.82rem;text-decoration:none;line-height:1.1}
   .mobile-cta-bar .mc-tel{background:var(--navy);color:#fff}
   .mobile-cta-bar .mc-kko{background:#FAE100;color:#3C1E1E}
+  .mobile-cta-bar .mc-naver{background:#03C75A;color:#fff;flex:1.25}
+  .mobile-cta-bar .mc-naver .nv-mark{font-size:.9em}
   .mobile-cta-bar .mc-book{background:var(--gold-grad);color:#fff;
-    background:linear-gradient(135deg,#A6772F,#8A5F26);flex:1.25}
+    background:linear-gradient(135deg,#A6772F,#8A5F26)}
   .mobile-cta-bar a i{font-size:1.12em}
   /* 하단 바 높이만큼 푸터 여백 확보(콘텐츠 가림 방지) */
   body{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
@@ -669,6 +672,7 @@ function header() {
       <div class="nav-cta">
         <a href="tel:${CLINIC.tel}" class="nav-tel"><i class="fas fa-phone" style="font-size:.85em"></i> ${CLINIC.tel}</a>
         <span class="nav-auth" id="navAuth"><a href="/login" class="na-link">로그인</a></span>
+        ${(CLINIC.sns as any).naverBookingUrl ? raw(`<a href="${(CLINIC.sns as any).naverBookingUrl}" target="_blank" rel="noopener" class="btn" data-cta="naver-booking" style="background:#03C75A;color:#fff;gap:7px"><span class="nv-mark">N</span> 네이버 예약</a>`) : ''}
         <a href="/reservation" class="btn btn-primary">예약 문의</a>
         <button class="burger" aria-label="메뉴 열기"><i class="fas fa-bars"></i></button>
       </div>
@@ -687,6 +691,7 @@ function header() {
     <a href="/faq">자주묻는질문</a>
     <a href="/directions">오시는길</a>
     <a href="/reservation">예약 문의</a>
+    ${(CLINIC.sns as any).naverBookingUrl ? raw(`<a href="${(CLINIC.sns as any).naverBookingUrl}" target="_blank" rel="noopener" data-cta="naver-booking" style="color:#03C75A;font-weight:800"><span class="nv-mark" style="background:#03C75A;color:#fff">N</span> 네이버 예약 바로가기</a>`) : ''}
     <a href="/login" id="mmAuth" style="font-size:1.02rem;color:var(--inv-soft)">로그인 / 회원가입</a>
     <a href="tel:${CLINIC.tel}" style="color:var(--gold-2)"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
   </div>`;
@@ -695,6 +700,7 @@ function header() {
 function footer() {
   // 카카오 채널 URL이 확정된 경우에만 카카오 버튼 활성화 (없으면 '오시는 길'로 안전 대체 — 창작/허위링크 금지)
   const kko = (CLINIC.sns.kakaoChannelUrl || '').trim();
+  const nvb = ((CLINIC.sns as any).naverBookingUrl || '').trim();
   return html`
   <footer class="site-footer">
     <div class="wrap">
@@ -754,13 +760,15 @@ function footer() {
     ${kko
       ? raw(`<a href="${kko}" class="fc-kko" target="_blank" rel="noopener" aria-label="카카오톡 상담"><i class="fas fa-comment"></i><span class="fc-lbl">카카오톡 상담</span></a>`)
       : raw(`<a href="/directions" class="fc-map" aria-label="오시는 길"><i class="fas fa-map-marker-alt"></i><span class="fc-lbl">오시는 길</span></a>`)}
+    ${nvb ? raw(`<a href="${nvb}" class="fc-naver" target="_blank" rel="noopener" data-cta="naver-booking" aria-label="네이버 예약"><span class="nv-mark">N</span><span class="fc-lbl">네이버 예약</span></a>`) : ''}
     <a href="/reservation" class="fc-book" aria-label="예약 문의"><i class="fas fa-calendar-check"></i><span class="fc-lbl">예약 문의</span></a>
   </div>
   <nav class="mobile-cta-bar" aria-label="빠른 연락">
-    <a href="tel:${CLINIC.tel}" class="mc-tel"><i class="fas fa-phone"></i><span>전화 상담</span></a>
+    <a href="tel:${CLINIC.tel}" class="mc-tel"><i class="fas fa-phone"></i><span>전화</span></a>
     ${kko
-      ? raw(`<a href="${kko}" class="mc-kko" target="_blank" rel="noopener" data-cta="kakao"><i class="fas fa-comment"></i><span>카카오톡</span></a>`)
+      ? raw(`<a href="${kko}" class="mc-kko" target="_blank" rel="noopener" data-cta="kakao"><i class="fas fa-comment"></i><span>카톡</span></a>`)
       : raw(`<a href="/directions" class="mc-kko" style="background:var(--navy-3);color:#fff"><i class="fas fa-map-marker-alt"></i><span>오시는 길</span></a>`)}
+    ${nvb ? raw(`<a href="${nvb}" class="mc-naver" target="_blank" rel="noopener" data-cta="naver-booking"><span class="nv-mark">N</span><span>네이버 예약</span></a>`) : ''}
     <a href="/reservation" class="mc-book"><i class="fas fa-calendar-check"></i><span>예약 문의</span></a>
   </nav>`;
 }

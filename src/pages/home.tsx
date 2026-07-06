@@ -343,6 +343,7 @@ export function HomePage(latestPosts: any[] = []) {
         치과는 누구에게나 조금 긴장되는 곳이지요. 그 마음까지 편안하게 살피며, 충분한 상담과 정밀한 진단으로 함께해 온 우리 동네 치과입니다.
       </p>
       <div class="hero-cta" data-reveal data-reveal-d="3">
+        ${(CLINIC.sns as any).naverBookingUrl ? raw(`<a href="${(CLINIC.sns as any).naverBookingUrl}" target="_blank" rel="noopener" class="btn" data-cta="naver-booking" style="background:#03C75A;color:#fff;gap:8px"><span class="nv-mark">N</span> 네이버 예약하기</a>`) : ''}
         <a href="/reservation" class="btn btn-accent"><i class="fas fa-calendar-check"></i> 예약 문의하기</a>
         <a href="/treatments" class="btn btn-ghost">진료 안내 보기 <i class="fas fa-arrow-right"></i></a>
       </div>
@@ -779,6 +780,7 @@ export function HomePage(latestPosts: any[] = []) {
         <p class="epi-copy">궁금한 점은 전화로 편하게 물어보세요. 온라인 예약 문의도 가능합니다. 기분 좋게 진료를 마치실 때까지, 처음부터 끝까지 함께하겠습니다.</p>
         <div class="cta-actions">
           <a href="tel:${CLINIC.tel}" class="btn btn-accent"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
+          ${(CLINIC.sns as any).naverBookingUrl ? raw(`<a href="${(CLINIC.sns as any).naverBookingUrl}" target="_blank" rel="noopener" class="btn" data-cta="naver-booking" style="background:#03C75A;color:#fff;gap:8px"><span class="nv-mark">N</span> 네이버 예약</a>`) : ''}
           <a href="/reservation" class="btn btn-line">온라인 예약 문의</a>
         </div>
         <div class="epi-sign">이솔치과의원 — <b>"${CLINIC.slogan}"</b></div>

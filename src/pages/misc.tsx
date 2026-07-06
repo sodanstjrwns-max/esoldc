@@ -307,6 +307,19 @@ export function PricingPage() {
 export function ReservationPage() {
   return html`
   ${raw(PAGE_HERO('예약문의', '진료 예약 문의', '편하신 방법으로 문의해 주시면 친절하게 안내해 드리겠습니다.'))}
+  ${(CLINIC.sns as any).naverBookingUrl ? html`
+  <section style="padding:0">
+    <div class="wrap" style="margin-top:-26px;position:relative;z-index:5">
+      <a href="${(CLINIC.sns as any).naverBookingUrl}" target="_blank" rel="noopener" data-cta="naver-booking" class="reveal"
+         style="display:flex;align-items:center;justify-content:space-between;gap:14px;background:#03C75A;color:#fff;border-radius:var(--radius-lg);padding:20px 26px;box-shadow:0 10px 30px rgba(3,199,90,.28);font-weight:800">
+        <span style="display:flex;align-items:center;gap:12px;font-size:1.06rem;line-height:1.35">
+          <span class="nv-mark" style="width:34px;height:34px;font-size:1.05rem;border-radius:8px">N</span>
+          <span>네이버예약으로 가장 빠르게 — 원하는 날짜·시간을 바로 잡으세요<br><small style="font-weight:600;opacity:.9;font-size:.82em">24시간 접수 · 즉시 예약 확정</small></span>
+        </span>
+        <span style="flex:none;background:#fff;color:#03C75A;padding:11px 22px;border-radius:99px;font-size:.92rem;white-space:nowrap">바로 예약 <i class="fas fa-arrow-right" style="font-size:.85em"></i></span>
+      </a>
+    </div>
+  </section>` : ''}
   <style>
     .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
     .res-form{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:36px}
@@ -425,6 +438,7 @@ export function ReservationPage() {
           <div class="si"><i class="fas fa-map-marker-alt"></i><div>${CLINIC.address}</div></div>
           <div class="si" style="border:none"><i class="fas fa-clock"></i><div>${raw(CLINIC.hours.map(h=>`${h.day} ${h.time}`).join('<br>'))}</div></div>
           <a href="tel:${CLINIC.tel}" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:24px"><i class="fas fa-phone"></i> 지금 전화하기</a>
+          ${(CLINIC.sns as any).naverBookingUrl ? raw(`<a href="${(CLINIC.sns as any).naverBookingUrl}" target="_blank" rel="noopener" data-cta="naver-booking" style="width:100%;justify-content:center;margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:#03C75A;color:#fff;font-weight:800;padding:14px;border-radius:12px"><span class="nv-mark">N</span> 네이버로 바로 예약하기</a>`) : ''}
           ${CLINIC.sns.kakaoChannelUrl ? raw(`<a href="${CLINIC.sns.kakaoChannelUrl}" target="_blank" rel="noopener" data-cta="kakao" style="width:100%;justify-content:center;margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:#FAE100;color:#3C1E1E;font-weight:800;padding:14px;border-radius:12px"><i class="fas fa-comment"></i> 카카오톡으로 문의하기</a>`) : ''}
         </div>
       </div>
