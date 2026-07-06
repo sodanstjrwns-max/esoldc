@@ -313,7 +313,7 @@ export function ReservationPage() {
       <a href="${(CLINIC.sns as any).naverBookingUrl}" target="_blank" rel="noopener" data-cta="naver-booking" class="reveal"
          style="display:flex;align-items:center;justify-content:space-between;gap:14px;background:#03C75A;color:#fff;border-radius:var(--radius-lg);padding:20px 26px;box-shadow:0 10px 30px rgba(3,199,90,.28);font-weight:800">
         <span style="display:flex;align-items:center;gap:12px;font-size:1.06rem;line-height:1.35">
-          <span class="nv-mark" style="width:34px;height:34px;font-size:1.05rem;border-radius:8px">N</span>
+          <span class="nv-mark" style="flex:none;width:34px;height:34px;font-size:1.05rem;border-radius:8px">N</span>
           <span>네이버예약으로 가장 빠르게 — 원하는 날짜·시간을 바로 잡으세요<br><small style="font-weight:600;opacity:.9;font-size:.82em">24시간 접수 · 즉시 예약 확정</small></span>
         </span>
         <span style="flex:none;background:#fff;color:#03C75A;padding:11px 22px;border-radius:99px;font-size:.92rem;white-space:nowrap">바로 예약 <i class="fas fa-arrow-right" style="font-size:.85em"></i></span>
