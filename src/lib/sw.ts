@@ -5,13 +5,13 @@ export const SERVICE_WORKER_JS = `/* 이솔치과의원 PWA Service Worker
    - HTML 문서(navigate): network-first → 항상 최신 정보 우선, 오프라인 시 캐시 폴백
    - 정적 자산(css/js/img/font): cache-first → 재방문 시 즉시 로딩 (체감 속도 ↑)
    의료 정보 특성상 콘텐츠 최신성을 위해 HTML은 stale 캐시를 우선하지 않음. */
-const VERSION = 'isoldent-v1';
+const VERSION = 'isoldent-v2';
 const STATIC_CACHE = 'static-' + VERSION;
 const RUNTIME_CACHE = 'runtime-' + VERSION;
 
 const PRECACHE = [
   '/',
-  '/static/img/icon-192.png',
+  '/static/img/icon-192-v2.png',
   '/static/img/favicon.svg',
   '/static/manifest.webmanifest',
 ];

@@ -13,7 +13,7 @@
   "categories": ["medical", "health"],
   "icons": [
     {
-      "src": "/static/img/icon-192.png",
+      "src": "/static/img/icon-192-v2.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
@@ -37,21 +37,21 @@
       "short_name": "오시는 길",
       "description": "병원 위치와 길찾기 안내",
       "url": "/directions?source=pwa",
-      "icons": [{ "src": "/static/img/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/static/img/icon-192-v2.png", "sizes": "192x192" }]
     },
     {
       "name": "진료 안내",
       "short_name": "진료안내",
       "description": "진료 과목과 치료 정보",
       "url": "/treatments?source=pwa",
-      "icons": [{ "src": "/static/img/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/static/img/icon-192-v2.png", "sizes": "192x192" }]
     },
     {
       "name": "자주 묻는 질문",
       "short_name": "FAQ",
       "description": "자주 묻는 질문 모음",
       "url": "/faq?source=pwa",
-      "icons": [{ "src": "/static/img/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/static/img/icon-192-v2.png", "sizes": "192x192" }]
     }
   ]
 }
