@@ -353,7 +353,7 @@ export function HomePage(latestPosts: any[] = []) {
           <div class="fm"><b><span data-count="5" data-suffix="인">0</span></b><span>상주 의료진</span></div>
         </div>
         <div class="arch-frame" data-parallax="10">
-          <img src="/static/img/lobby-lounge.webp" alt="이솔치과의원 대기실 라운지 전경 — 밝고 여유로운 소파형 대기 공간" loading="eager" decoding="async" width="1024" height="683" fetchpriority="high">
+          <img src="/static/img/lobby-lounge-v2.webp" alt="이솔치과의원 대기실 라운지 전경 — 밝고 여유로운 소파형 대기 공간" loading="eager" decoding="async" width="1024" height="683" fetchpriority="high">
           <div class="tag"><span class="dot"></span><span><b>진료 안내</b> <span>· 진료시간은 전화로 확인해 주세요</span></span></div>
         </div>
         <div class="hero-flank fl-r">
@@ -434,7 +434,7 @@ export function HomePage(latestPosts: any[] = []) {
       </div>
       <div class="itv-cap" data-reveal data-reveal-d="3">
         <div class="ic-l">
-          <div class="ic-avatar"><img src="/static/img/doctor-ko-kyungwoo.webp" alt="고경우 대표원장" loading="lazy" decoding="async" width="52" height="52"></div>
+          <div class="ic-avatar"><img src="/static/img/doctor-ko-kyungwoo-v3.webp" alt="고경우 대표원장" loading="lazy" decoding="async" width="52" height="52"></div>
           <div><b>고경우 대표원장</b><span>“기분 좋게 진료를 마칠 때까지, 그 여정을 함께합니다.”</span></div>
         </div>
         <span class="ic-note">Interview · 01:02 · 한글 자막</span>
@@ -583,13 +583,15 @@ export function HomePage(latestPosts: any[] = []) {
         <p>아이의 첫 치과 경험부터 어르신의 편안한 진료까지 — 공간 하나하나에 배려를 담았습니다.</p>
       </div>
       <div class="space-grid" data-reveal>
-        <div class="space-item wide"><img src="/static/img/lobby-lounge.webp" alt="이솔치과의원 대기실 라운지" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-couch" style="margin-right:6px"></i>대기실 라운지</span></div>
-        <div class="space-item"><img src="/static/img/pediatric-sign.webp" alt="소아진료센터 입구" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-child" style="margin-right:6px"></i>소아진료센터</span></div>
-        <div class="space-item"><img src="/static/img/kids-corridor.webp" alt="아이들을 위한 숲 테마 소아 진료 공간" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-tree" style="margin-right:6px"></i>키즈 존</span></div>
-        <div class="space-item"><img src="/static/img/pediatric-zone.webp" alt="소아 전용 진료실 — 노란 유니트체어" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-tooth" style="margin-right:6px"></i>소아 전용 진료실</span></div>
+        <div class="space-item wide"><img src="/static/img/lobby-lounge-v2.webp" alt="이솔치과의원 대기실 라운지" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-couch" style="margin-right:6px"></i>대기실 라운지</span></div>
+        <div class="space-item"><img src="/static/img/reception-desk.webp" alt="이솔치과의원 리셉션 데스크" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-bell-concierge" style="margin-right:6px"></i>리셉션</span></div>
+        <div class="space-item"><img src="/static/img/kids-corridor-v2.webp" alt="아이들을 위한 숲 테마 소아 진료 공간" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-tree" style="margin-right:6px"></i>키즈 존</span></div>
+        <div class="space-item"><img src="/static/img/pediatric-zone-v2.webp" alt="소아 전용 진료실 — 노란 유니트체어" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-tooth" style="margin-right:6px"></i>소아 전용 진료실</span></div>
+        <div class="space-item"><img src="/static/img/pediatric-room-v2.webp" alt="소아 개별 진료실" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-child" style="margin-right:6px"></i>소아 개별 진료실</span></div>
         <div class="space-item"><img src="/static/img/treatment-area.webp" alt="밝고 정돈된 일반 진료 공간" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-teeth" style="margin-right:6px"></i>진료 공간</span></div>
         <div class="space-item"><img src="/static/img/private-room.webp" alt="독립된 수술 진료실" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-door-closed" style="margin-right:6px"></i>독립 진료실</span></div>
         <div class="space-item"><img src="/static/img/xray-ct.webp" alt="3D CT 정밀 촬영실" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-x-ray" style="margin-right:6px"></i>3D CT 촬영실</span></div>
+        <div class="space-item"><img src="/static/img/lobby-lounge-tv.webp" alt="소아진료센터 앞 대기 라운지" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-tv" style="margin-right:6px"></i>패밀리 라운지</span></div>
         <div class="space-item wide"><img src="/static/img/corridor.webp" alt="진료실로 이어지는 밝은 복도" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-route" style="margin-right:6px"></i>진료실 복도</span></div>
       </div>
       <div data-reveal style="margin-top:32px;text-align:center">
