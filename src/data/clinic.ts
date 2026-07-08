@@ -155,7 +155,7 @@ export const DOCTORS: Doctor[] = [
       '대한턱관절교합학회 정회원',
       '한국성인치과교정연구회 회원',
     ],
-    photo: '/static/img/doctor-jang-yujin.webp',
+    photo: '/static/img/doctor-jang-yujin-v2.webp',
   },
   {
     slug: 'park-jina',
@@ -177,7 +177,7 @@ export const DOCTORS: Doctor[] = [
       '아동심리상담사 1급',
       '아동발달전문지도사 1급',
     ],
-    photo: '/static/img/doctor-park-jina.webp',
+    photo: '/static/img/doctor-park-jina-v2.webp',
   },
   {
     slug: 'byun-jinsoo',
