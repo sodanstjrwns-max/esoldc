@@ -207,7 +207,7 @@ export function categoryName(slug: string): string {
   return POST_CATEGORIES.find(x => x.slug === slug)?.name || '';
 }
 
-export function BlogListPage(posts: any[]) {
+export function BlogListPage(posts: any[], mediumPosts: { title: string; link: string; pubDate: string }[] = []) {
   const cards = posts.map(p => `
   <a href="/blog/${esc(p.slug)}" class="blog-card reveal" data-cat="${esc(p.category || '')}">
     <div class="bc-img">${p.thumbnail ? `<img src="/api/img/${p.thumbnail}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : '<div class="bc-noimg"><i class="fas fa-feather-alt"></i></div>'}</div>
@@ -254,13 +254,27 @@ export function BlogListPage(posts: any[]) {
     ${posts.length
       ? raw(`<div class="blog-grid" id="blog-grid">${cards}</div>`)
       : raw(`<div style="text-align:center;padding:70px 20px;color:var(--ink-soft)"><i class="fas fa-feather-alt" style="font-size:2.4rem;color:var(--gold);margin-bottom:18px;display:block"></i>첫 글을 준비 중입니다. 곧 유익한 구강 건강 정보로 찾아뵙겠습니다.</div>`)}
-    <aside class="medium-banner reveal" aria-label="Medium 영문 칼럼 안내" style="margin-top:44px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px 28px">
-      <div style="width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex:none"><i class="fab fa-medium-m"></i></div>
-      <div style="flex:1;min-width:220px">
-        <strong style="display:block;font-size:1.02rem">영문 칼럼은 Medium에서도 만나보세요</strong>
-        <span style="font-size:.87rem;color:var(--ink-soft)">이솔치과의원 원장들이 작성한 구강 건강 칼럼의 영문판을 Medium에 연재하고 있습니다.</span>
+    <aside class="medium-banner reveal" aria-label="Medium 영문 칼럼 안내" style="margin-top:44px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px 28px">
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div style="width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex:none"><i class="fab fa-medium-m"></i></div>
+        <div style="flex:1;min-width:220px">
+          <strong style="display:block;font-size:1.02rem">영문 칼럼은 Medium에서도 만나보세요</strong>
+          <span style="font-size:.87rem;color:var(--ink-soft)">이솔치과의원 원장들이 작성한 구강 건강 칼럼의 영문판을 Medium에 연재하고 있습니다.</span>
+        </div>
+        <a href="https://medium.com/@isoldent1" target="_blank" rel="noopener" class="btn btn-ghost" style="flex:none" data-cta="medium">Medium 바로가기 <i class="fas fa-arrow-up-right-from-square"></i></a>
       </div>
-      <a href="https://medium.com/@isoldent1" target="_blank" rel="noopener" class="btn btn-ghost" style="flex:none" data-cta="medium">Medium 바로가기 <i class="fas fa-arrow-up-right-from-square"></i></a>
+      ${mediumPosts.length ? raw(`
+      <ul style="list-style:none;margin:18px 0 0;padding:16px 0 0;border-top:1px solid var(--line);display:grid;gap:4px">
+        ${mediumPosts.map(m => `
+        <li>
+          <a href="${esc(m.link)}" target="_blank" rel="noopener" data-cta="medium-post" style="display:flex;align-items:baseline;gap:10px;padding:7px 4px;border-radius:8px;font-size:.92rem;color:var(--ink);transition:background .2s" onmouseover="this.style.background='var(--gold-soft)'" onmouseout="this.style.background=''">
+            <i class="fas fa-angle-right" style="color:var(--gold);flex:none"></i>
+            <span style="flex:1;font-weight:600">${esc(m.title)}</span>
+            ${m.pubDate ? `<span style="font-size:.78rem;color:var(--ink-soft);flex:none;font-family:var(--mono)">${esc(m.pubDate)}</span>` : ''}
+            <span style="font-size:.7rem;font-weight:800;color:var(--gold-3);background:var(--gold-soft);border-radius:100px;padding:2px 9px;flex:none">EN</span>
+          </a>
+        </li>`).join('')}
+      </ul>`) : ''}
     </aside>
   </div></section>
   ${chips ? raw(`<script>

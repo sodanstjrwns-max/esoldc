@@ -30,6 +30,7 @@ import { admin } from './routes/admin';
 import { adminContent } from './routes/admin-content';
 import { INDEXNOW_KEY } from './lib/indexnow';
 import { SERVICE_WORKER_JS } from './lib/sw';
+import { fetchMediumPosts } from './lib/medium';
 import { getSession } from './lib/auth';
 import { searchRegions } from './data/regions';
 import { setGaId } from './lib/analytics';
@@ -354,6 +355,8 @@ app.get('/cases/:id', async (c) => {
 // ============================================================================
 app.get('/blog', async (c) => {
   let posts: any[] = [];
+  // D1 조회와 Medium RSS(엣지 캐시 1h)를 병렬 실행 — 실패해도 페이지는 정상 렌더
+  const mediumPromise = fetchMediumPosts(6);
   if (c.env.DB) {
     try {
       const { results } = await c.env.DB.prepare(
@@ -361,6 +364,7 @@ app.get('/blog', async (c) => {
       posts = results as any[];
     } catch {}
   }
+  const mediumPosts = await mediumPromise;
   return c.html(Layout({
     title: `원장 칼럼 | ${CLINIC.name} — 남양주 마석 치과 건강 이야기`,
     description: `${CLINIC.name} 원장들이 직접 쓰는 구강 건강 칼럼. 임플란트·치아교정·소아치과 등 진료 분야별 전문의가 검증한 치과 상식과 남양주 마석 병원 이야기.`,
@@ -389,7 +393,7 @@ app.get('/blog', async (c) => {
         })),
       },
     ],
-  }, BlogListPage(posts)));
+  }, BlogListPage(posts, mediumPosts)));
 });
 
 app.get('/blog/:slug', async (c) => {
