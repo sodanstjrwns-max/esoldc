@@ -30,7 +30,7 @@ const WEBSITE_ID = `${SITE_URL}/#website`;
 // 병원 SNS/채널 → sameAs (지식 패널 연결)
 function clinicSameAs(): string[] {
   const s = CLINIC.sns;
-  return [s.homepage, s.instagram, s.blog, s.youtube].filter(Boolean) as string[];
+  return [s.homepage, s.instagram, s.blog, (s as any).medium, s.youtube].filter(Boolean) as string[];
 }
 
 function postalAddress() {

@@ -750,6 +750,7 @@ function footer() {
         <span>© ${new Date().getFullYear()} ${CLINIC.name}. All rights reserved.</span>
         <span class="footer-sns" aria-label="병원 SNS">
           <!-- SNS URL 확정 시 교체: 네이버플레이스 / 카카오채널 / 인스타그램 -->
+          <a href="https://medium.com/@isoldent1" target="_blank" rel="noopener" aria-label="Medium 영문 칼럼" data-cta="medium" style="display:inline-flex;align-items:center;gap:7px;color:var(--inv-soft)"><i class="fab fa-medium" style="font-size:1.05rem"></i>Medium 영문 칼럼</a>
         </span>
         <span>개인정보처리방침 · 이용약관</span>
       </div>

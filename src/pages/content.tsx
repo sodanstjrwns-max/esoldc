@@ -254,6 +254,14 @@ export function BlogListPage(posts: any[]) {
     ${posts.length
       ? raw(`<div class="blog-grid" id="blog-grid">${cards}</div>`)
       : raw(`<div style="text-align:center;padding:70px 20px;color:var(--ink-soft)"><i class="fas fa-feather-alt" style="font-size:2.4rem;color:var(--gold);margin-bottom:18px;display:block"></i>첫 글을 준비 중입니다. 곧 유익한 구강 건강 정보로 찾아뵙겠습니다.</div>`)}
+    <aside class="medium-banner reveal" aria-label="Medium 영문 칼럼 안내" style="margin-top:44px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px 28px">
+      <div style="width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex:none"><i class="fab fa-medium-m"></i></div>
+      <div style="flex:1;min-width:220px">
+        <strong style="display:block;font-size:1.02rem">영문 칼럼은 Medium에서도 만나보세요</strong>
+        <span style="font-size:.87rem;color:var(--ink-soft)">이솔치과의원 원장들이 작성한 구강 건강 칼럼의 영문판을 Medium에 연재하고 있습니다.</span>
+      </div>
+      <a href="https://medium.com/@isoldent1" target="_blank" rel="noopener" class="btn btn-ghost" style="flex:none" data-cta="medium">Medium 바로가기 <i class="fas fa-arrow-up-right-from-square"></i></a>
+    </aside>
   </div></section>
   ${chips ? raw(`<script>
   (function(){
@@ -401,7 +409,11 @@ export function BlogDetailPage(
       </div>
     </div>`) : ''}
     ${related.length ? raw(`<div class="rel-posts reveal"><strong style="display:block;margin-bottom:10px">함께 읽으면 좋은 글</strong>${relList}</div>`) : ''}
-    <div style="margin-top:34px;display:flex;gap:12px">
+    <div style="margin-top:26px;font-size:.88rem;color:var(--ink-soft);display:flex;align-items:center;gap:8px">
+      <i class="fab fa-medium" style="font-size:1.1rem;color:var(--navy)"></i>
+      영문 칼럼은 <a href="https://medium.com/@isoldent1" target="_blank" rel="noopener" style="color:var(--gold-3);font-weight:700;text-decoration:underline;text-underline-offset:3px" data-cta="medium">Medium (@isoldent1)</a>에서도 보실 수 있습니다.
+    </div>
+    <div style="margin-top:24px;display:flex;gap:12px">
       <a href="/blog" class="btn btn-ghost"><i class="fas fa-list"></i> 목록으로</a>
       <a href="/reservation" class="btn btn-accent"><i class="fas fa-calendar-check"></i> 상담 예약</a>
     </div>

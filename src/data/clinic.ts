@@ -49,6 +49,7 @@ export const CLINIC = {
     homepage: 'https://isoldc.kr',
     instagram: 'https://www.instagram.com/isoldent_',   // 공지사항 알림용 · 활성화 예정
     blog: 'https://blog.naver.com/frogstar0315',
+    medium: 'https://medium.com/@isoldent1',           // 영문 칼럼 (Medium)
     youtube: 'https://www.youtube.com/@이솔치과',        // 휴면 — 재정비 예정
     naverPlace: true,    // 운영 중 (URL 취합 예정)
     kakaoChannel: true,  // 운영 시작 (URL 취합 예정)
