@@ -122,7 +122,7 @@ app.get('/', async (c) => {
         '@type': 'VideoObject',
         '@id': `${SITE_URL}/#interview-video`,
         name: '이솔치과의원 대표원장 고경우 인터뷰 — 기분 좋게 진료를 마칠 때까지',
-        description: '남양주 마석 이솔치과의원 고경우 대표원장이 직접 전하는 진료 철학. 치과가 두려운 마음까지 살피는 진료, 아이부터 어르신까지 온 가족 진료, 정성을 다하는 환자 중심 진료를 소개합니다.',
+        description: '남양주 마석 이솔치과의원 고경우 대표원장이 직접 전하는 진료 철학. 치과가 두려운 마음까지 살피는 진료, 하지 않아도 되는 치료를 먼저 권하지 않는 원칙, 3대 가족이 함께 다니는 온 가족 진료를 소개합니다.',
         thumbnailUrl: `${SITE_URL}/static/img/interview-poster.webp`,
         contentUrl: `${SITE_URL}/static/media/interview.mp4`,
         uploadDate: '2026-07-04',
