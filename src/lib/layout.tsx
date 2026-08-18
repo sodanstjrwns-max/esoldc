@@ -759,7 +759,7 @@ function footer() {
   <div class="float-cta">
     <a href="tel:${CLINIC.tel}" class="fc-tel" aria-label="전화 상담"><i class="fas fa-phone"></i><span class="fc-lbl">전화 상담</span></a>
     ${kko
-      ? raw(`<a href="${kko}" class="fc-kko" target="_blank" rel="noopener" aria-label="카카오톡 상담"><i class="fas fa-comment"></i><span class="fc-lbl">카카오톡 상담</span></a>`)
+      ? raw(`<a href="${kko}" class="fc-kko" target="_blank" rel="noopener" aria-label="카카오톡 상담 — 진료시간 내 30분 이내 답변" title="진료시간 내 30분 이내 답변"><i class="fas fa-comment"></i><span class="fc-lbl">카카오톡 상담</span></a>`)
       : raw(`<a href="/directions" class="fc-map" aria-label="오시는 길"><i class="fas fa-map-marker-alt"></i><span class="fc-lbl">오시는 길</span></a>`)}
     ${nvb ? raw(`<a href="${nvb}" class="fc-naver" target="_blank" rel="noopener" data-cta="naver-booking" aria-label="네이버 예약"><span class="nv-mark">N</span><span class="fc-lbl">네이버 예약</span></a>`) : ''}
     <a href="/reservation" class="fc-book" aria-label="예약 문의"><i class="fas fa-calendar-check"></i><span class="fc-lbl">예약 문의</span></a>

@@ -383,7 +383,7 @@ export function ReservationPage() {
           <div class="rs-num">2</div>
           <div class="rs-ico"><i class="fas fa-phone-volume"></i></div>
           <h3>확인 연락</h3>
-          <p>접수 내용을 확인한 뒤, 진료시간 내에 직접 연락드려 일정을 조율합니다.</p>
+          <p>접수 내용을 확인한 뒤, <strong>진료시간 내 접수는 당일</strong> 직접 연락드려 일정을 조율합니다.</p>
         </div>
         <div class="res-step reveal reveal-d2">
           <div class="rs-num">3</div>
@@ -399,7 +399,7 @@ export function ReservationPage() {
       <div class="res-grid">
         <div class="res-form reveal">
           <h3 style="font-size:1.4rem;margin-bottom:6px">온라인 예약 문의</h3>
-          <p style="color:var(--ink-soft);font-size:.9rem">남겨주시면 확인 후 연락드립니다. (실제 예약 확정은 전화 안내로 진행됩니다.)</p>
+          <p style="color:var(--ink-soft);font-size:.9rem">진료시간 내 접수는 당일, 진료시간 이후 접수는 다음 진료일 오전 중 확인 연락드립니다. (실제 예약 확정은 전화 안내로 진행됩니다.)</p>
           <!-- A2: 진행 퍼널 표시 -->
           <div class="res-progress" id="resProgress" aria-hidden="true">
             <div class="rp-step on" data-step="1"><span class="rp-dot">1</span><span class="rp-lbl">정보 입력</span></div>
@@ -439,7 +439,7 @@ export function ReservationPage() {
           <div class="si" style="border:none"><i class="fas fa-clock"></i><div>${raw(CLINIC.hours.map(h=>`${h.day} ${h.time}`).join('<br>'))}</div></div>
           <a href="tel:${CLINIC.tel}" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:24px"><i class="fas fa-phone"></i> 지금 전화하기</a>
           ${(CLINIC.sns as any).naverBookingUrl ? raw(`<a href="${(CLINIC.sns as any).naverBookingUrl}" target="_blank" rel="noopener" data-cta="naver-booking" style="width:100%;justify-content:center;margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:#03C75A;color:#fff;font-weight:800;padding:14px;border-radius:12px"><span class="nv-mark">N</span> 네이버로 바로 예약하기</a>`) : ''}
-          ${CLINIC.sns.kakaoChannelUrl ? raw(`<a href="${CLINIC.sns.kakaoChannelUrl}" target="_blank" rel="noopener" data-cta="kakao" style="width:100%;justify-content:center;margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:#FAE100;color:#3C1E1E;font-weight:800;padding:14px;border-radius:12px"><i class="fas fa-comment"></i> 카카오톡으로 문의하기</a>`) : ''}
+          ${CLINIC.sns.kakaoChannelUrl ? raw(`<a href="${CLINIC.sns.kakaoChannelUrl}" target="_blank" rel="noopener" data-cta="kakao" style="width:100%;justify-content:center;margin-top:10px;display:inline-flex;flex-direction:column;align-items:center;gap:2px;background:#FAE100;color:#3C1E1E;font-weight:800;padding:12px 14px;border-radius:12px"><span style="display:inline-flex;align-items:center;gap:8px"><i class="fas fa-comment"></i> 카카오톡으로 문의하기</span><small style="font-weight:600;font-size:.76em;opacity:.75">진료시간 내 30분 이내 답변</small></a>`) : ''}
         </div>
       </div>
     </div>

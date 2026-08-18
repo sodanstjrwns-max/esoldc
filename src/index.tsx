@@ -46,6 +46,17 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
+// www → 비www 301 통일 (A4 canonical 정합성: 같은 페이지가 두 주소로 존재하면 평가·색인 점수 분산)
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  if (url.hostname === 'www.isoldc.kr') {
+    url.hostname = 'isoldc.kr';
+    url.protocol = 'https:';
+    return c.redirect(url.toString(), 301);
+  }
+  return next();
+});
+
 // 전역 보안 헤더 (동적 SSR 페이지 포함 모든 응답에 적용)
 app.use('*', secureHeaders({
   xContentTypeOptions: 'nosniff',
