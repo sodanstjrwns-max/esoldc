@@ -354,7 +354,7 @@ export function HomePage(latestPosts: any[] = []) {
         </div>
         <div class="arch-frame" data-parallax="10">
           <img src="/static/img/lobby-lounge-v2.webp" alt="이솔치과의원 대기실 라운지 전경 — 밝고 여유로운 소파형 대기 공간" loading="eager" decoding="async" width="1024" height="683" fetchpriority="high">
-          <div class="tag"><span class="dot"></span><span><b>진료 안내</b> <span>· 진료시간은 전화로 확인해 주세요</span></span></div>
+          <div class="tag"><span class="dot"></span><span><b>진료 안내</b> <span>· 화·목 저녁 8시까지 야간진료</span></span></div>
         </div>
         <div class="hero-flank fl-r">
           <div class="fm"><b>3대</b><span>가족이 함께 다니는</span></div>
@@ -404,7 +404,7 @@ export function HomePage(latestPosts: any[] = []) {
       <div data-reveal>
         <span class="chapter-lbl"><span class="ch-no">첫 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Our Story</span></span>
         <p class="intro-quote" data-line><span>치과를 떠올릴 때 <em>가장 먼저</em><br>생각나는 곳이고 싶습니다.</span></p>
-        <p data-scrub class="dropcap">이솔치과의원은 남양주 마석에서 한자리를 지키며, 지역 주민과 따뜻하게 함께해 온 동네 치과입니다. 화려한 것보다 정직한 진료, 빠른 것보다 충분히 설명드리는 진료를 더 중요하게 생각합니다.</p>
+        <p data-scrub class="dropcap">이솔치과의원은 남양주 마석에서 10년째 한자리를 지켜온 동네 치과입니다. 보철·교정·소아·통합치의학 전문의가 한 곳에 상주하며, 하지 않아도 되는 치료를 먼저 권하지 않는 것 — 그 원칙 하나로 한 가족이 3대에 걸쳐 다니는 치과가 되었습니다.</p>
         <p data-scrub>실제로 이솔에는 할머니의 틀니와 잇몸 치료에서 시작해, 아버지의 임플란트, 아이의 충치 치료와 정기검진까지 — 한 가족이 3대에 걸쳐 함께 다니는 시간이 쌓여 있습니다. 가족마다 필요한 치료는 다르지만, 한곳에서 같은 기록과 같은 치료 방향 안에서 관리받을 수 있다는 것. 그것이 우리가 ‘가족 주치의’라는 말을 쓰는 이유입니다.</p>
         <div class="intro-sign">
           이솔치과의원 대표원장 ${CLINIC.business.owner}
@@ -456,8 +456,8 @@ export function HomePage(latestPosts: any[] = []) {
       <span class="folio-num" aria-hidden="true">02</span>
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">두 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Core Treatments</span></span>
-        <h2 data-line><span>가장 <em class="nb">집중하는</em> <span class="nb">세 가지</span></span></h2>
-        <p>임플란트·치아교정·소아치과를 중심으로, 각 분야 전문의가 책임지고 진료합니다.</p>
+        <h2 data-line><span>지금 <em class="nb">어떤 치료가</em> <span class="nb">필요하세요?</span></span></h2>
+        <p>임플란트·치아교정·소아치과 — 고민별로 각 분야 전문의가 책임지고 진료합니다.</p>
       </div>
       <div class="core-list">
         ${raw(CORE_TREATMENTS.map((t, i) => `
@@ -580,7 +580,7 @@ export function HomePage(latestPosts: any[] = []) {
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">우리의 공간</span><span class="ch-line"></span><span class="ch-name">Our Space</span></span>
         <h2 data-line><span>편안함을 <span class="nb"><em>설계한</em> 공간</span></span></h2>
-        <p>아이의 첫 치과 경험부터 어르신의 편안한 진료까지 — 공간 하나하나에 배려를 담았습니다.</p>
+        <p>아이 전용 키즈존부터 프라이벿 진료실, CT·디지털 장비실까지 — 새 공간을 직접 둘러보세요.</p>
       </div>
       <div class="space-grid" data-reveal>
         <div class="space-item wide"><img src="/static/img/lobby-lounge-v2.webp" alt="이솔치과의원 대기실 라운지" loading="lazy" decoding="async" width="1024" height="683"><span class="sp-lbl"><i class="fas fa-couch" style="margin-right:6px"></i>대기실 라운지</span></div>
@@ -614,7 +614,7 @@ export function HomePage(latestPosts: any[] = []) {
       <span class="folio-num" aria-hidden="true">06</span>
       <div class="sec-head" data-reveal>
         <span class="chapter-lbl"><span class="ch-no">여섯 번째 이야기</span><span class="ch-line"></span><span class="ch-name">Specialists</span></span>
-        <h2 data-line><span>각 분야 <span class="nb"><em>전문의</em>가 상주합니다</span></span></h2>
+        <h2 data-line><span>내 케이스는 <span class="nb"><em>어떤 전문의</em>에게?</span></span></h2>
         <p>대표원장이 진단의 중심을 잡고, 케이스에 따라 교정·소아·보철·통합 각 분야 전문의가 이어받는 분과별 협진. 다섯 명의 원장이 한 명의 환자를 함께 봅니다.</p>
       </div>
       <div class="team-grid">
@@ -665,8 +665,8 @@ export function HomePage(latestPosts: any[] = []) {
           </div>
           <div class="jy-step">
             <div class="jy-ic" data-n="4"><i class="fas fa-tooth"></i></div>
-            <h3>맞춤 진료</h3>
-            <p>설명드린 계획에 동의하신 뒤, 각 분야 전문의가 진료를 진행합니다.</p>
+            <h3>전문의 진료</h3>
+            <p>설명드린 계획에 동의하신 뒤, 보철·교정·소아·통합 각 분야 전문의가 직접 진료합니다.</p>
             <span class="jy-tag">Treatment</span>
           </div>
           <div class="jy-step">

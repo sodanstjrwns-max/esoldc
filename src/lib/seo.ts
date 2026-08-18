@@ -1,8 +1,12 @@
 import { CLINIC, DOCTORS, TREATMENTS, CORE_TREATMENTS, NEARBY_AREAS, type Treatment, type NearbyArea } from '../data/clinic';
 
-// 진료시간 미확정 → openingHours 스키마 생략(정직성). 확정 시 이 함수만 채우면 전 페이지 반영.
-function openingHoursSpec(): object[] | undefined {
-  return undefined;
+// 진료시간 확정(2026-08-18, 공식 홈페이지·모두닥·나무위키 교차검증) → 전 페이지 Schema 반영
+function openingHoursSpec(): object[] {
+  return [
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Wednesday', 'Friday'], opens: '09:00', closes: '18:00' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Tuesday', 'Thursday'], opens: '09:00', closes: '20:00' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Saturday', opens: '09:00', closes: '14:00' },
+  ];
 }
 
 export const SITE_URL = 'https://isoldc.kr'; // 실 도메인 (가비아 구매, Cloudflare 연결)
@@ -109,12 +113,7 @@ export function siteGraph() {
             actionPlatform: ['http://schema.org/DesktopWebPlatform', 'http://schema.org/MobileWebPlatform'] },
           result: { '@type': 'Reservation', name: '진료 예약' },
         }} : {}),
-        // 정직한 오픈예정 표시: 진료시간 미확정 → openingHours 대신 새 공간 오픈일만 명시
-        specialOpeningHoursSpecification: {
-          '@type': 'OpeningHoursSpecification',
-          validFrom: CLINIC.reopenDate,
-          description: CLINIC.hoursNote,
-        },
+        openingHoursSpecification: openingHoursSpec(),
         medicalSpecialty: 'Dentistry',
         knowsLanguage: 'ko-KR',
         priceRange: '₩₩',
@@ -196,11 +195,7 @@ export function localBusinessSchema() {
       `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`,
       `https://map.kakao.com/?q=${encodeURIComponent(CLINIC.address)}`,
     ],
-    specialOpeningHoursSpecification: {
-      '@type': 'OpeningHoursSpecification',
-      validFrom: CLINIC.reopenDate,
-      description: CLINIC.hoursNote,
-    },
+    openingHoursSpecification: openingHoursSpec(),
     medicalSpecialty: 'Dentistry',
     knowsLanguage: 'ko-KR',
     priceRange: '₩₩',
