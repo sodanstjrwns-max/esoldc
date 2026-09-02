@@ -793,6 +793,7 @@ app.get('/sitemap-content.xml', async (c) => {
   return xmlResp(c, buildUrlset(urls, NOW()));
 });
 
+app.get('/8327dd9eb4d147acac654d7137445f11.txt', (c) => c.text('8327dd9eb4d147acac654d7137445f11'))
 app.get('/robots.txt', (c) => {
   return c.text(`# ${CLINIC.name} — robots.txt
 User-agent: *
