@@ -61,7 +61,7 @@ app.use('/api/*', cors());
 
 // 요청마다 GA 측정 ID 주입 (환경변수 GA_MEASUREMENT_ID, 없으면 GA 비활성)
 app.use('*', async (c, next) => {
-  setGaId(c.env.GA_MEASUREMENT_ID);
+  setGaId(c.env.GA_MEASUREMENT_ID || 'G-08MLMFH9W3');
   await next();
 });
 
