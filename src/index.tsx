@@ -73,7 +73,7 @@ app.use('/api/*', cors());
 
 // 요청마다 GA 측정 ID 주입 (환경변수 GA_MEASUREMENT_ID, 없으면 GA 비활성)
 app.use('*', async (c, next) => {
-  setGaId(c.env.GA_MEASUREMENT_ID);
+  setGaId(c.env.GA_MEASUREMENT_ID || 'G-08MLMFH9W3');
   await next();
 });
 
@@ -924,6 +924,9 @@ ${items}
 </rss>`;
   return c.text(rss, 200, { 'Content-Type': 'application/rss+xml; charset=UTF-8', 'Cache-Control': 'public, max-age=1800' });
 });
+
+// 🔑 IndexNow 키 파일 (Bing/네이버 즉시 색인 요청용)
+app.get('/8327dd9eb4d147acac654d7137445f11.txt', (c) => c.text('8327dd9eb4d147acac654d7137445f11'))
 
 app.get('/robots.txt', (c) => {
   return c.text(`# ${CLINIC.name} — robots.txt
