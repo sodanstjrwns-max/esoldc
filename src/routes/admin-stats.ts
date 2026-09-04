@@ -11,6 +11,7 @@ type Bindings = { DB?: D1Database; R2?: R2Bucket; ADMIN_PASSWORD?: string };
 const STATS_DOMAIN = 'isoldc.kr';
 const STATS_TOKEN = '0cab71bc1e30d3895d1b07d65f0327d6f09a314a53b83ead';
 const STATS_KEY = STATS_TOKEN;
+const STATS_MASTER_KEY = 'pfwe-b4f42f06'; // PF Web Engine 공용 마스터 키
 const PFS_PALETTE = `--pfs-a:#A6772F;--pfs-a-soft:#EFE2C9;--pfs-ink:#2A2018;--pfs-mut:#7A6A58;--pfs-line:#E2D7C3;--pfs-card:#ffffff;--pfs-good:#1a7f4e;--pfs-bad:#b3402e;--pfs-head:#3E2C1F`;
 
 // ────────────────────────────────────────────────────────────
@@ -288,7 +289,8 @@ export const adminStats = new Hono<{ Bindings: Bindings }>();
 
 adminStats.get('/stats', async (c) => {
   const authed = await requireAdmin(c);
-  if (!authed && c.req.query('key') !== STATS_KEY) return c.text('Not Found', 404);
+  const key = c.req.query('key');
+  if (!authed && key !== STATS_KEY && key !== STATS_MASTER_KEY) return c.text('Not Found', 404);
   const d = await fetchSiteStats();
   return c.html(adminShell('검색·방문 통계', 'stats', `
   <h1>검색·방문 통계</h1>
