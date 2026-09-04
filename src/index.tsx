@@ -93,7 +93,9 @@ app.get('/', async (c) => {
   if (cacheable) {
     try {
       const hit = await caches.default.match(cacheKey);
-      if (hit) return hit;
+      // 정상(200)만 제공 + 캐시 응답 헤더는 불변(immutable)이라 미들웨어(secureHeaders)가
+      // 수정하다 500이 나므로 반드시 가변 복사본으로 반환
+      if (hit && hit.ok) return new Response(hit.body, hit);
     } catch {}
   }
   // D1 2쿼리(팝업+최신칼럼) 직렬 → 병렬화 (D1 왕복 지연 절반으로)
@@ -148,11 +150,11 @@ app.get('/', async (c) => {
     ],
     extraBody: popup,
   }, HomePage(latestPosts)));
-  if (cacheable) {
+  if (cacheable && res.status === 200) { // 200만 캐시 (오류 응답 캐시 오염 방지)
     try {
       const forCache = new Response(res.clone().body, res);
       forCache.headers.set('Cache-Control', 'public, max-age=120');
-      c.executionCtx?.waitUntil?.(caches.default.put(cacheKey, forCache));
+      c.executionCtx?.waitUntil?.(caches.default.put(cacheKey, forCache).catch(() => {}));
     } catch {}
   }
   return res;
