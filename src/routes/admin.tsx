@@ -130,6 +130,7 @@ function adminShell(title: string, active: string, body: string) {
     <a href="/admin/posts" class="${active === 'posts' ? 'on' : ''}">원장 칼럼</a>
     <a href="/admin/notices" class="${active === 'notices' ? 'on' : ''}">공지사항</a>
     <a href="/admin/reservations" class="${active === 'res' ? 'on' : ''}">예약문의</a>
+    <a href="/admin/stats" class="${active === 'stats' ? 'on' : ''}">검색·방문 통계</a>
   </nav>
   <button class="out" onclick="fetch('/api/auth/logout',{method:'POST'}).then(()=>location.href='/admin')">로그아웃</button>
 </header>

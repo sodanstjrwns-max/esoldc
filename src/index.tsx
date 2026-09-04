@@ -28,6 +28,7 @@ import { GLOSSARY, GLOSSARY_SORTED } from './data/glossary';
 import { authApi } from './routes/auth';
 import { admin } from './routes/admin';
 import { adminContent } from './routes/admin-content';
+import { adminStats } from './routes/admin-stats';
 import { INDEXNOW_KEY } from './lib/indexnow';
 import { SERVICE_WORKER_JS } from './lib/sw';
 import { fetchMediumPosts } from './lib/medium';
@@ -81,6 +82,7 @@ app.use('*', async (c, next) => {
 app.route('/api/auth', authApi);
 app.route('/admin', admin);
 app.route('/admin', adminContent);
+app.route('/admin', adminStats);
 
 // ============================================================================
 // 메인
