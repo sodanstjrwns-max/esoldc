@@ -86,17 +86,32 @@ app.route('/admin', adminContent);
 // 메인
 // ============================================================================
 app.get('/', async (c) => {
-  const popup = renderPopup(await fetchActivePopup(c.env.DB));
-  // 최신 원장 칼럼 3개 — 홈 인링크 (신선도 신호 + 칼럼 발견성)
-  let latestPosts: any[] = [];
-  if (c.env.DB) {
+  // 홈 HTML 엣지 캐시 (120초) — 쿼리스트링 없는 요청만. 팝업/최신칼럼 변경은 최대 2분 지연.
+  const reqUrl = new URL(c.req.url);
+  const cacheable = reqUrl.search === '';
+  const cacheKey = new Request(`${reqUrl.origin}/`, { method: 'GET' });
+  if (cacheable) {
     try {
-      const { results } = await c.env.DB.prepare(
-        'SELECT slug, title, excerpt, thumbnail, author_slug, category, created_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 3').all();
-      latestPosts = results as any[];
+      const hit = await caches.default.match(cacheKey);
+      if (hit) return hit;
     } catch {}
   }
-  return c.html(Layout({
+  // D1 2쿼리(팝업+최신칼럼) 직렬 → 병렬화 (D1 왕복 지연 절반으로)
+  const [popupRow, postsResults] = await Promise.all([
+    fetchActivePopup(c.env.DB),
+    (async () => {
+      if (!c.env.DB) return [];
+      try {
+        const { results } = await c.env.DB.prepare(
+          'SELECT slug, title, excerpt, thumbnail, author_slug, category, created_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 3').all();
+        return results as any[];
+      } catch { return []; }
+    })(),
+  ]);
+  const popup = renderPopup(popupRow);
+  // 최신 원장 칼럼 3개 — 홈 인링크 (신선도 신호 + 칼럼 발견성)
+  const latestPosts: any[] = postsResults;
+  const res = await c.html(Layout({
     title: `${CLINIC.name} | 남양주 마석 임플란트·교정·소아치과`,
     description: `남양주 마석 ${CLINIC.name}. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과. 임플란트·치아교정·소아치과 전 연령 통합 진료. 기분 좋게 진료를 마칠 때까지.`,
     path: '/',
@@ -133,6 +148,14 @@ app.get('/', async (c) => {
     ],
     extraBody: popup,
   }, HomePage(latestPosts)));
+  if (cacheable) {
+    try {
+      const forCache = new Response(res.clone().body, res);
+      forCache.headers.set('Cache-Control', 'public, max-age=120');
+      c.executionCtx?.waitUntil?.(caches.default.put(cacheKey, forCache));
+    } catch {}
+  }
+  return res;
 });
 
 // ============================================================================
