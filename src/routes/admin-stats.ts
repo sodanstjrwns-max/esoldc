@@ -345,3 +345,36 @@ adminStats.get('/stats', async (c) => {
   <p class="sub">구글 검색 노출과 사이트 방문 현황을 한눈에 확인합니다.</p>
   ${statsBody(d)}`));
 });
+
+// ────────────────────────────────────────────────────────────
+// 실예약 로컬 통계 — GET /api/local-stats?key=<토큰|마스터키>
+// 최근 28일/직전 28일 건수만 반환 (개인정보 응답 금지 — 건수만)
+// ────────────────────────────────────────────────────────────
+const LOCAL_STATS_TABLES = ['reservations'];
+
+export const localStats = new Hono<{ Bindings: Bindings }>();
+
+localStats.get('/local-stats', async (c) => {
+  const key = c.req.query('key');
+  if (key !== STATS_KEY && key !== STATS_MASTER_KEY) return c.text('Not Found', 404);
+  const db = c.env.DB;
+  if (!db) return c.json({ supported: false });
+  try {
+    const tables: { name: string; cur: number; prev: number }[] = [];
+    for (const t of LOCAL_STATS_TABLES) {
+      const row = await db
+        .prepare(
+          `SELECT
+             SUM(CASE WHEN created_at >= datetime('now','-28 days') THEN 1 ELSE 0 END) AS cur,
+             SUM(CASE WHEN created_at >= datetime('now','-56 days') AND created_at < datetime('now','-28 days') THEN 1 ELSE 0 END) AS prev
+           FROM ${t}`,
+        )
+        .first<{ cur: number | null; prev: number | null }>();
+      tables.push({ name: t, cur: Number(row?.cur ?? 0), prev: Number(row?.prev ?? 0) });
+    }
+    const total = tables.reduce((a, t) => ({ cur: a.cur + t.cur, prev: a.prev + t.prev }), { cur: 0, prev: 0 });
+    return c.json({ supported: true, tables, total });
+  } catch {
+    return c.json({ supported: false });
+  }
+});

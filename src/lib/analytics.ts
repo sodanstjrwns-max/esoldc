@@ -21,15 +21,17 @@ export function getGaId(): string | undefined {
   return _gaId;
 }
 
-// <head>에 삽입할 GA4 기본 스니펫 (측정 ID 없으면 빈 문자열)
+// <head>에 삽입할 GA4 기본 스니펫 (측정 ID 없으면 1st-party 비콘만)
+const PF_BEACON = '<script defer src="https://pf-dashboard-2nt.pages.dev/beacon.js"></script>';
 export function gaHeadSnippet(): string {
-  if (!_gaId) return '';
+  if (!_gaId) return PF_BEACON;
   return `<script async src="https://www.googletagmanager.com/gtag/js?id=${_gaId}"></script>
 <script>
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());gtag('config','${_gaId}',{anonymize_ip:true});
 </script>
-<script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","yc7xpycehu");</script>`;
+<script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","yc7xpycehu");</script>
+${PF_BEACON}`;
 }
 
 // <body> 끝에 삽입할 전환 이벤트 위임 스크립트
