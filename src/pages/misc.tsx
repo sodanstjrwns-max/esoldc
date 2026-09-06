@@ -1,5 +1,5 @@
 import { html, raw } from 'hono/html';
-import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatment, PRICING, type Treatment, type NearbyArea } from '../data/clinic';
+import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatment, PRICING, type Treatment, type NearbyArea, type PriceGroup } from '../data/clinic';
 
 const esc = (s: any): string => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -224,10 +224,10 @@ export function FaqPage() {
 // ============ 비용 안내 (비급여 진료비용 게시) ============
 const won = (n: number) => n.toLocaleString('ko-KR');
 
-export function PricingPage() {
-  const nav = PRICING.map(g => `<a href="#price-${encodeURIComponent(g.cat)}" class="price-nav-chip"><i class="fas ${g.icon}"></i> ${esc(g.cat)}</a>`).join('');
+export function PricingPage(groups: PriceGroup[] = PRICING) {
+  const nav = groups.map(g => `<a href="#price-${encodeURIComponent(g.cat)}" class="price-nav-chip"><i class="fas ${g.icon}"></i> ${esc(g.cat)}</a>`).join('');
 
-  const tables = PRICING.map(g => `
+  const tables = groups.map(g => `
     <section class="price-group reveal" id="price-${encodeURIComponent(g.cat)}">
       <h2 class="price-cat"><i class="fas ${g.icon}"></i> ${esc(g.cat)} 진료비${g.taxable ? '<span class="price-tax-badge">부가세 별도</span>' : ''}</h2>
       ${g.note ? `<p class="price-cat-note"><i class="fas fa-circle-info"></i> ${esc(g.note)}</p>` : ''}

@@ -29,6 +29,8 @@ import { authApi } from './routes/auth';
 import { admin } from './routes/admin';
 import { adminContent } from './routes/admin-content';
 import { adminStats, localStats } from './routes/admin-stats';
+import { adminFees } from './routes/admin-fees';
+import { loadPublicPricing } from './lib/fees';
 import { INDEXNOW_KEY } from './lib/indexnow';
 import { SERVICE_WORKER_JS } from './lib/sw';
 import { fetchMediumPosts } from './lib/medium';
@@ -83,6 +85,7 @@ app.route('/api/auth', authApi);
 app.route('/admin', admin);
 app.route('/admin', adminContent);
 app.route('/admin', adminStats);
+app.route('/admin', adminFees);
 app.route('/api', localStats);
 
 // ============================================================================
@@ -305,13 +308,14 @@ app.get('/faq', (c) => {
   }, FaqPage()));
 });
 
-app.get('/pricing', (c) => {
+app.get('/pricing', async (c) => {
+  const groups = await loadPublicPricing((c.env as any).DB);
   return c.html(Layout({
     title: `비급여 진료비용 안내 | ${CLINIC.name}`,
     description: `${CLINIC.name} 비급여 진료비용 게시 안내. 임플란트·교정·보철·틀니·소아·미용 등 주요 진료비 기준표를 투명하게 안내합니다. 실제 비용은 구강 상태와 진료 범위에 따라 달라지며 내원 상담 시 확정됩니다. (${CLINIC.region} ${CLINIC.district} 마석)`,
     path: '/pricing',
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비용안내', path: '/pricing' }])],
-  }, PricingPage()));
+  }, PricingPage(groups)));
 });
 
 app.get('/reservation', (c) => {
