@@ -7,6 +7,9 @@ import { DOCTORS, TREATMENTS } from '../data/clinic';
 import { editorToolbar, editorBody, seoPanel } from '../lib/editor';
 import { pingContent } from '../lib/indexnow';
 import { POST_CATEGORIES } from '../pages/content';
+import { POPUP_MAX, kstToday } from '../lib/popup';
+
+const POPUP_HINT = `팝업은 최대 ${POPUP_MAX}개까지 동시에 표시됩니다 (PC는 나란히, 모바일은 넘겨보기)`;
 
 type Bindings = { DB?: D1Database; R2?: R2Bucket; ADMIN_PASSWORD?: string };
 
@@ -386,7 +389,9 @@ adminContent.get('/notices', async (c) => {
   if (!(await requireAdmin(c))) return c.redirect('/admin');
   const db = c.env.DB!;
   const { results } = await db.prepare('SELECT id, title, is_pinned, views, published, is_popup, popup_start, popup_end, created_at FROM notices ORDER BY is_pinned DESC, id DESC LIMIT 300').all();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = kstToday();
+  // 홈과 같은 정렬(고정 우선 → 최신순)이므로 위에서부터 POPUP_MAX개가 실제 노출
+  let liveCount = 0;
   const rows = (results as any[]).map(x => {
     // 팝업 노출 상태 판정
     let popupLabel = '';
@@ -396,8 +401,11 @@ adminContent.get('/notices', async (c) => {
       const live = x.published && started && notEnded;
       const range = (x.popup_start || x.popup_end)
         ? `<span style="font-size:.72rem;color:var(--ink-soft);display:block;margin-top:2px">${x.popup_start || '즉시'} ~ ${x.popup_end || '무기한'}</span>` : '';
-      popupLabel = live
+      const shown = live && ++liveCount <= POPUP_MAX;
+      popupLabel = shown
         ? `<span class="badge" style="background:#e6f4ea;color:#2e7d4f">● 노출중</span>${range}`
+        : live
+        ? `<span class="badge" style="background:#fdecea;color:#b3261e" title="동시 표시 한도(${POPUP_MAX}개) 초과로 홈에 보이지 않습니다">● 숨겨짐(${POPUP_MAX}개 초과)</span>${range}`
         : `<span class="badge" style="background:#fff3e0;color:#b07000">● 대기/만료</span>${range}`;
     } else {
       popupLabel = '<span style="color:var(--ink-soft);font-size:.8rem">—</span>';
@@ -417,12 +425,18 @@ adminContent.get('/notices', async (c) => {
       <button class="btn btn-d btn-sm" onclick="delItem('notices',${x.id})">삭제</button>
     </td></tr>`;
   }).join('');
+  const popupStatus = liveCount > POPUP_MAX
+    ? `<span class="badge" style="background:#fdecea;color:#b3261e;font-size:.8rem">⚠ 표시 중 ${POPUP_MAX}/${liveCount} — 오래된 것은 숨겨짐</span>`
+    : liveCount
+    ? `<span class="badge" style="background:#e6f4ea;color:#2e7d4f;font-size:.8rem">표시 중 ${liveCount}/${POPUP_MAX}</span>`
+    : '';
   return c.html(adminShell('공지사항', 'notices', `
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
     <h1>공지사항</h1>
     <a href="/admin/notices/new" class="btn btn-g"><i class="fas fa-bullhorn"></i> 새 공지 작성</a>
   </div>
-  <p class="sub">📌 고정 공지는 목록 최상단에 표시됩니다. · <i class="fas fa-window-restore" style="color:var(--gold)"></i> 홈팝업 스위치로 즉시 켜고 끌 수 있어요. (노출중인 팝업이 여러 개면 가장 최근 공지 하나만 표시)</p>
+  <p class="sub">📌 고정 공지는 목록 최상단에 표시됩니다. · <i class="fas fa-window-restore" style="color:var(--gold)"></i> 홈팝업 스위치로 즉시 켜고 끌 수 있어요.</p>
+  <p class="sub" style="margin-top:-6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span><i class="fas fa-circle-info" style="color:var(--gold)"></i> ${POPUP_HINT}. 📌 고정 공지가 먼저, 그다음 최신 순으로 표시돼요.</span>${popupStatus}</p>
   <div class="card" style="overflow-x:auto">
     <table><thead><tr><th>ID</th><th>제목</th><th>조회</th><th>상태</th><th>홈 팝업</th><th>작성일</th><th></th></tr></thead>
     <tbody>${rows || '<tr><td colspan="7" style="text-align:center;color:var(--ink-soft);padding:30px">작성된 공지가 없습니다.</td></tr>'}</tbody></table>
@@ -510,7 +524,7 @@ function noticeForm(x: any): string {
       </div>
       <label>클릭 시 이동 링크 (선택)</label>
       <input type="text" id="f-link" value="${x && x.link_url ? esc(x.link_url) : ''}" placeholder="비워두면 공지 상세 페이지로 이동 (예: /reservation, https://...)">
-      <p class="drop-hint" style="margin-top:8px"><i class="fas fa-circle-info"></i> 날짜를 비워두면 즉시~무기한 노출됩니다. 활성 팝업이 여러 개면 가장 최근에 등록된 공지 하나만 표시됩니다. 방문자는 "오늘 하루 보지 않기"를 누를 수 있습니다.</p>
+      <p class="drop-hint" style="margin-top:8px"><i class="fas fa-circle-info"></i> 날짜를 비워두면 즉시~무기한 노출됩니다. ${POPUP_HINT}. 5개를 넘으면 📌 고정 공지 → 최신 공지 순으로 5개만 보입니다. 방문자는 팝업마다 "오늘 하루 보지 않기"를 누를 수 있습니다.</p>
 
       <div class="preview-wrap" id="preview-wrap">
         <div class="preview-label"><i class="fas fa-eye"></i> 실시간 미리보기</div>

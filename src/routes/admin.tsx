@@ -9,6 +9,7 @@ import { DOCTORS, TREATMENTS, CLINIC } from '../data/clinic';
 import { searchRegions } from '../data/regions';
 import { EDITOR_CSS, EDITOR_MODALS, EDITOR_JS } from '../lib/editor';
 import { submitUrls } from '../lib/indexnow';
+import { POPUP_MAX, kstToday } from '../lib/popup';
 
 type Bindings = { DB?: D1Database; R2?: R2Bucket; ADMIN_PASSWORD?: string };
 
@@ -171,8 +172,8 @@ document.getElementById('af').addEventListener('submit',async function(e){
   }
   // 대시보드
   const db = c.env.DB!;
-  const today = new Date().toISOString().slice(0, 10);
-  const [members, cases, posts, notices, reservations, activePopup, recentRes] = await Promise.all([
+  const today = kstToday();
+  const [members, cases, posts, notices, reservations, activePopupsRes, recentRes] = await Promise.all([
     db.prepare('SELECT COUNT(*) n FROM members').first<any>(),
     db.prepare('SELECT COUNT(*) n, COALESCE(SUM(views),0) v FROM cases').first<any>(),
     db.prepare('SELECT COUNT(*) n, COALESCE(SUM(views),0) v FROM posts').first<any>(),
@@ -181,19 +182,21 @@ document.getElementById('af').addEventListener('submit',async function(e){
     db.prepare(`SELECT id, title, popup_start, popup_end FROM notices
       WHERE published=1 AND is_popup=1
         AND (popup_start IS NULL OR popup_start <= ?) AND (popup_end IS NULL OR popup_end >= ?)
-      ORDER BY id DESC LIMIT 1`).bind(today, today).first<any>().catch(() => null),
+      ORDER BY is_pinned DESC, id DESC`).bind(today, today).all<any>().catch(() => ({ results: [] })),
     db.prepare('SELECT name, phone, treatment, created_at FROM reservations ORDER BY id DESC LIMIT 5').all().catch(() => ({ results: [] })),
   ]);
 
-  const popupCard = activePopup
+  const activePopups: any[] = ((activePopupsRes as any)?.results as any[]) || [];
+  const shownPopups = activePopups.slice(0, POPUP_MAX);
+  const popupCard = shownPopups.length
     ? `<div class="card" style="background:linear-gradient(135deg,#fbf4e6,#fff);border:2px solid var(--gold-soft)">
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <span style="font-size:1.6rem">🟢</span>
           <div style="flex:1;min-width:180px">
-            <div style="font-weight:800;color:var(--navy)">홈 팝업 노출 중</div>
-            <div style="font-size:.88rem;color:var(--ink-soft);margin-top:2px">"${esc(activePopup.title)}" · ${activePopup.popup_start || '즉시'} ~ ${activePopup.popup_end || '무기한'}</div>
+            <div style="font-weight:800;color:var(--navy)">홈 팝업 ${shownPopups.length}개 노출 중${activePopups.length > POPUP_MAX ? ` <span style="font-size:.8rem;color:#b3261e;font-weight:700">(활성 ${activePopups.length}개 중 ${POPUP_MAX}개만 표시)</span>` : ''}</div>
+            ${shownPopups.map(p => `<div style="font-size:.88rem;color:var(--ink-soft);margin-top:2px"><a href="/admin/notices/${p.id}" style="color:inherit">"${esc(p.title)}"</a> · ${p.popup_start || '즉시'} ~ ${p.popup_end || '무기한'}</div>`).join('')}
           </div>
-          <a href="/admin/notices/${activePopup.id}" class="btn btn-o btn-sm">편집</a>
+          <a href="/admin/notices" class="btn btn-o btn-sm">관리</a>
           <a href="/" target="_blank" rel="noopener" class="btn btn-g btn-sm"><i class="fas fa-eye"></i> 확인</a>
         </div>
       </div>`

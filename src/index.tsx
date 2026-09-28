@@ -10,7 +10,7 @@ import {
   articleSchema,
 } from './lib/seo';
 import { HomePage } from './pages/home';
-import { fetchActivePopup, renderPopup } from './lib/popup';
+import { fetchActivePopups, renderPopups } from './lib/popup';
 import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
 import { DoctorsListPage, DoctorDetailPage } from './pages/doctors';
 import {
@@ -105,8 +105,8 @@ app.get('/', async (c) => {
     } catch {}
   }
   // D1 2쿼리(팝업+최신칼럼) 직렬 → 병렬화 (D1 왕복 지연 절반으로)
-  const [popupRow, postsResults] = await Promise.all([
-    fetchActivePopup(c.env.DB),
+  const [popupRows, postsResults] = await Promise.all([
+    fetchActivePopups(c.env.DB),
     (async () => {
       if (!c.env.DB) return [];
       try {
@@ -116,7 +116,7 @@ app.get('/', async (c) => {
       } catch { return []; }
     })(),
   ]);
-  const popup = renderPopup(popupRow);
+  const popup = renderPopups(popupRows);
   // 최신 원장 칼럼 3개 — 홈 인링크 (신선도 신호 + 칼럼 발견성)
   const latestPosts: any[] = postsResults;
   const res = await c.html(Layout({
