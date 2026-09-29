@@ -25,6 +25,7 @@ import {
 import { GlossaryListPage, GlossaryDetailPage } from './pages/glossary';
 import { SeoHealthPage } from './pages/seo-health';
 import { GLOSSARY, GLOSSARY_SORTED } from './data/glossary';
+import { isThinGlossaryTerm, isThinNotice, NOINDEX_FOLLOW } from './lib/thin-content';
 import { authApi } from './routes/auth';
 import { admin } from './routes/admin';
 import { adminContent } from './routes/admin-content';
@@ -497,15 +498,19 @@ app.get('/notices', async (c) => {
   if (c.env.DB) {
     try {
       const { results } = await c.env.DB.prepare(
-        'SELECT id, title, image, is_pinned, views, created_at FROM notices WHERE published = 1 ORDER BY is_pinned DESC, id DESC LIMIT 200').all();
+        'SELECT id, title, image, is_pinned, views, created_at, content_html FROM notices WHERE published = 1 ORDER BY is_pinned DESC, id DESC LIMIT 200').all();
       notices = results as any[];
     } catch {}
   }
+  // 공지가 전부 얇으면(사이트맵에서도 제외됨) 목록도 noindex, follow — 링크는 따라가게
+  const listThin = notices.length > 0 && notices.every(n => isThinNotice(n));
+  if (listThin) c.header('X-Robots-Tag', NOINDEX_FOLLOW);
   return c.html(Layout({
     title: `공지사항 | ${CLINIC.name}`,
     description: `${CLINIC.name} 공지사항 안내. 진료 일정 변경, 휴진·정기휴무, 새 소식 등 ${CLINIC.region} ${CLINIC.district} 마석 이솔치과의 최신 병원 소식을 확인하실 수 있습니다.`,
     path: '/notices',
     noindex: notices.length === 0,
+    noindexFollow: listThin,
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notices' }])],
   }, NoticesListPage(notices)));
 });
@@ -518,10 +523,14 @@ app.get('/notices/:id', async (c) => {
   const n = await db.prepare('SELECT * FROM notices WHERE id = ? AND published = 1').bind(id).first<any>();
   if (!n) return c.notFound();
   await db.prepare('UPDATE notices SET views = views + 1 WHERE id = ?').bind(id).run();
+  // 얇은 공지(본문 300자 미만 — 휴진·주차 안내 등): noindex, follow + 사이트맵 제외
+  const thinNotice = isThinNotice(n);
+  if (thinNotice) c.header('X-Robots-Tag', NOINDEX_FOLLOW);
   return c.html(Layout({
     title: `${n.title} | 공지사항 - ${CLINIC.name}`,
     description: `${CLINIC.name} 공지 - ${n.title}`,
     path: `/notices/${id}`,
+    noindexFollow: thinNotice,
     ogImage: n.image ? `${SITE_URL}/api/img/${n.image}` : undefined,
     jsonLd: [
       articleSchema({
@@ -582,11 +591,15 @@ app.get('/glossary/:term', (c) => {
     .filter((t): t is NonNullable<typeof t> => !!t)
     .map(t => ({ slug: t.slug, name: t.name, short: t.short }));
   const fullDesc = term.longDef || term.def;
+  // 얇은 용어(정의+심층 설명 300자 미만): noindex, follow + 사이트맵 제외 — 심층 설명 추가 시 자동 복귀
+  const thinTerm = isThinGlossaryTerm(term);
+  if (thinTerm) c.header('X-Robots-Tag', NOINDEX_FOLLOW);
   return c.html(Layout({
     title: `${term.term} 뜻·설명 | 치과 백과사전 - ${CLINIC.name}`,
     description: `${term.term}이란? ${term.def.slice(0, 110)}`,
     path: `/glossary/${encodeURIComponent(term.term)}`,
     type: 'article',
+    noindexFollow: thinTerm,
     jsonLd: [
       {
         '@context': 'https://schema.org', '@type': 'DefinedTerm',
@@ -863,11 +876,11 @@ app.get('/sitemap-doctors.xml', (c) => {
   return xmlResp(c, buildUrlset(urls, NOW()));
 });
 
-// 용어사전 (200개 longDef는 우선순위 ↑)
+// 용어사전 — 얇은 용어(noindex, follow)는 제외, 심층 설명 있는 용어만 등록
 app.get('/sitemap-glossary.xml', (c) => {
-  const urls: SUrl[] = GLOSSARY_SORTED.map(t => ({
+  const urls: SUrl[] = GLOSSARY_SORTED.filter(t => !isThinGlossaryTerm(t)).map(t => ({
     loc: `/glossary/${encodeURIComponent(t.term)}`,
-    pri: t.longDef ? '0.6' : '0.4',
+    pri: '0.6',
     freq: 'yearly',
   }));
   return xmlResp(c, buildUrlset(urls, NOW()));
@@ -895,18 +908,20 @@ app.get('/sitemap-content.xml', async (c) => {
       const [posts, cases, notices] = await Promise.all([
         c.env.DB.prepare('SELECT slug, created_at, updated_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
         c.env.DB.prepare('SELECT id FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
-        c.env.DB.prepare('SELECT id FROM notices WHERE published = 1 ORDER BY id DESC LIMIT 500').all().catch(() => ({ results: [] })),
+        c.env.DB.prepare('SELECT id, content_html FROM notices WHERE published = 1 ORDER BY id DESC LIMIT 500').all().catch(() => ({ results: [] })),
       ]);
       blogN = (posts.results as any[]).length;
       caseN = (cases.results as any[]).length;
-      noticeN = ((notices as any).results as any[]).length;
+      // 얇은 공지(noindex, follow)는 사이트맵 제외 — 색인 대상 공지가 있을 때만 /notices 목록도 등록
+      const indexableNotices = ((notices as any).results as any[]).filter(n => !isThinNotice(n));
+      noticeN = indexableNotices.length;
       for (const p of posts.results as any[]) {
         // 실제 발행/수정일 → lastmod (검색엔진 재크롤링 유도 정확도↑)
         const lm = String(p.updated_at || p.created_at || '').slice(0, 10) || undefined;
         urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', freq: 'monthly', lastmod: lm });
       }
       for (const x of cases.results as any[]) urls.push({ loc: `/cases/${x.id}`, pri: '0.6', freq: 'monthly' });
-      for (const n of (notices as any).results as any[]) urls.push({ loc: `/notices/${n.id}`, pri: '0.5', freq: 'monthly' });
+      for (const n of indexableNotices) urls.push({ loc: `/notices/${n.id}`, pri: '0.5', freq: 'monthly' });
     } catch {}
   }
   // 콘텐츠가 있는 섹션의 리스트 페이지만 등록 (빈 "준비 중" 페이지 색인 방지)

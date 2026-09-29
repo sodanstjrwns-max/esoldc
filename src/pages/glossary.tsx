@@ -36,18 +36,35 @@ const GLOSSARY_CSS = `
   .gl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
   .gl-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 24px;display:block;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
   .gl-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
-  .gl-card h3{font-size:1.05rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-  .gl-card h3 i{color:var(--gold);font-size:.8em}
+  .gl-card h4{font-size:1.05rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .gl-card h4 i{color:var(--gold);font-size:.8em}
+  .gl-group{margin-bottom:44px}
+  .gl-group-h{font-size:1.35rem;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:10px}
+  .gl-group-h small{font-size:.8rem;font-weight:400;color:var(--ink-soft)}
   .gl-card p{font-size:.86rem;color:var(--ink-soft);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .gl-card .gl-tag{display:inline-block;font-size:.7rem;color:var(--gold);background:var(--gold-soft);border-radius:99px;padding:3px 10px;margin-top:12px;margin-right:6px}
   .gl-count{font-size:.85rem;color:var(--ink-soft);margin-bottom:18px}
   .gl-empty{text-align:center;padding:80px 0;color:var(--ink-soft)}
 `;
 
+// 목록 그룹 키: 한글 초성(쌍자음은 기본 자음으로), 영문·숫자는 'A-Z'
+const GROUP_ORDER = ['ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ', 'A-Z'];
+function groupKey(term: string): string {
+  const ch = chosung(term);
+  return GROUP_ORDER.includes(ch) ? ch : 'A-Z';
+}
+
 export function GlossaryListPage() {
-  // 서버에서 전체 데이터를 JSON으로 내려보내 클라이언트 필터링 (정적 콘텐츠라 가능)
-  const data = GLOSSARY_SORTED.map(t => ({ t: t.term, d: t.def, c: t.cat, r: t.rel, ch: chosung(t.term) }));
-  const chos = ['전체', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ', 'A-Z'];
+  // 2026-09-29: 전체 용어를 서버에서 <a href> 카드로 렌더(초성별 그룹) — 검색엔진이 510개 용어 페이지를 모두 발견하도록.
+  //  (이전엔 JSON → 클라이언트 렌더라 서버 HTML에 용어 링크가 거의 없었음) 검색·카테고리·초성 필터는 DOM 표시/숨김으로 유지.
+  const groups = GROUP_ORDER
+    .map(key => ({ key, terms: GLOSSARY_SORTED.filter(t => groupKey(t.term) === key) }))
+    .filter(g => g.terms.length);
+  const card = (t: GTerm) => {
+    const tags = t.rel.slice(0, 2).map(s => `<span class="gl-tag">${esc(tName(s))}</span>`).join('');
+    return `<a class="gl-card" href="/glossary/${encodeURIComponent(t.term)}" data-c="${esc(t.cat)}"><h4><i class="fas fa-book-open"></i>${esc(t.term)}</h4><p>${esc(t.def)}</p>${tags}</a>`;
+  };
+  const chos = ['전체', ...GROUP_ORDER];
 
   return html`
   ${raw(PAGE_HERO('치과 백과사전', '치과 백과사전', `${GLOSSARY_SORTED.length}개의 치과 용어를 쉬운 말로 풀어드립니다. 진료실에서 들었던 낯선 단어, 여기서 찾아보세요.`))}
@@ -68,36 +85,42 @@ export function GlossaryListPage() {
       <div class="gl-cho" id="glCho">
         ${raw(chos.map((c, i) => `<button data-cho="${c === '전체' ? '' : c}" class="${i === 0 ? 'on' : ''}" style="${c === '전체' || c === 'A-Z' ? 'width:auto;padding:0 14px' : ''}">${c}</button>`).join(''))}
       </div>
-      <div class="gl-count" id="glCount"></div>
-      <div class="gl-grid" id="glGrid"></div>
+      <div class="gl-count" id="glCount">총 ${GLOSSARY_SORTED.length}개 용어</div>
+      <div id="glGroups">
+        ${raw(groups.map(g => `
+        <section class="gl-group" data-cho="${g.key}" aria-labelledby="gl-g-${g.key === 'A-Z' ? 'az' : g.key}">
+          <h3 class="gl-group-h" id="gl-g-${g.key === 'A-Z' ? 'az' : g.key}">${g.key}<small>${g.terms.length}개</small></h3>
+          <div class="gl-grid">${g.terms.map(card).join('')}</div>
+        </section>`).join(''))}
+      </div>
       <div class="gl-empty" id="glEmpty" style="display:none"><i class="fas fa-search" style="font-size:2rem;color:var(--gold);margin-bottom:14px;display:block"></i>검색 결과가 없습니다.</div>
     </div>
   </section>
   <script>
   (function(){
-    var DATA = ${raw(JSON.stringify(data))};
-    var TNAMES = ${raw(JSON.stringify(Object.fromEntries(TREATMENTS.map(t => [t.slug, t.name]))))};
-    var grid = document.getElementById('glGrid'), count = document.getElementById('glCount'), empty = document.getElementById('glEmpty');
+    var groups = Array.prototype.slice.call(document.querySelectorAll('#glGroups .gl-group'));
+    var count = document.getElementById('glCount'), empty = document.getElementById('glEmpty');
     var q = '', cat = '', cho = '';
-    function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function render(){
-      var ql = q.trim().toLowerCase();
-      var list = DATA.filter(function(x){
-        if (cat && x.c !== cat) return false;
-        if (cho){
-          if (cho === 'A-Z'){ if (!/^[A-Za-z0-9]/.test(x.t)) return false; }
-          else if (x.ch !== cho) return false;
-        }
-        if (ql && x.t.toLowerCase().indexOf(ql) < 0 && x.d.toLowerCase().indexOf(ql) < 0) return false;
-        return true;
+    // 카드별 검색 텍스트 캐시
+    groups.forEach(function(g){
+      g.querySelectorAll('.gl-card').forEach(function(a){
+        a._s = (a.querySelector('h4').textContent + ' ' + a.querySelector('p').textContent).toLowerCase();
       });
-      count.textContent = '총 ' + list.length + '개 용어';
-      empty.style.display = list.length ? 'none' : 'block';
-      grid.innerHTML = list.slice(0, 200).map(function(x){
-        var tags = (x.r||[]).slice(0,2).map(function(s){ return '<span class="gl-tag">'+escH(TNAMES[s]||s)+'</span>'; }).join('');
-        return '<a class="gl-card" href="/glossary/'+encodeURIComponent(x.t)+'"><h3><i class="fas fa-book-open"></i>'+escH(x.t)+'</h3><p>'+escH(x.d)+'</p>'+tags+'</a>';
-      }).join('');
-      if (list.length > 200) grid.innerHTML += '<div style="grid-column:1/-1;text-align:center;color:var(--ink-soft);font-size:.85rem;padding:14px">상위 200개만 표시됩니다 — 검색이나 필터를 활용해 보세요.</div>';
+    });
+    function render(){
+      var ql = q.trim().toLowerCase(), total = 0;
+      groups.forEach(function(g){
+        var n = 0, groupOk = !cho || g.dataset.cho === cho;
+        g.querySelectorAll('.gl-card').forEach(function(a){
+          var ok = groupOk && (!cat || a.dataset.c === cat) && (!ql || a._s.indexOf(ql) >= 0);
+          a.style.display = ok ? '' : 'none';
+          if (ok) n++;
+        });
+        g.style.display = n ? '' : 'none';
+        total += n;
+      });
+      count.textContent = '총 ' + total + '개 용어';
+      empty.style.display = total ? 'none' : 'block';
     }
     document.getElementById('glSearch').addEventListener('input', function(e){ q = e.target.value; render(); });
     document.getElementById('glCats').addEventListener('click', function(e){
@@ -112,7 +135,6 @@ export function GlossaryListPage() {
       this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
       render();
     });
-    render();
   })();
   </script>`;
 }

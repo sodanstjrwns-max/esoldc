@@ -19,6 +19,7 @@ export interface SeoMeta {
   type?: string;
   jsonLd?: object[];     // 추가 구조화 데이터
   noindex?: boolean;
+  noindexFollow?: boolean; // 얇은 상세: noindex, follow (링크는 따라가게) — lib/thin-content.ts
   extraBody?: any;       // body 끝에 삽입할 추가 마크업 (예: 홈 히어로 팝업)
 }
 

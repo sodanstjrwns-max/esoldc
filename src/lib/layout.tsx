@@ -802,7 +802,7 @@ export function Layout(meta: SeoMeta, body: any) {
   <link rel="alternate" hreflang="ko-KR" href="${canonical}">
   <link rel="alternate" hreflang="x-default" href="${canonical}">
   <link rel="alternate" type="application/rss+xml" title="이솔치과의원 원장 칼럼 RSS" href="${SITE_URL}/rss.xml">
-  ${meta.noindex ? raw('<meta name="robots" content="noindex,nofollow">') : raw('<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">')}
+  ${meta.noindex ? raw('<meta name="robots" content="noindex,nofollow">') : meta.noindexFollow ? raw('<meta name="robots" content="noindex, follow">') : raw('<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">')}
   ${raw([
     (CLINIC as any).siteVerification?.google ? `<meta name="google-site-verification" content="${(CLINIC as any).siteVerification.google}">` : '',
     (CLINIC as any).siteVerification?.naver ? `<meta name="naver-site-verification" content="${(CLINIC as any).siteVerification.naver}">` : '',
