@@ -31,6 +31,10 @@ export interface SeoMeta {
 const ORG_ID = `${SITE_URL}/#organization`;
 const CLINIC_ID = `${SITE_URL}/#clinic`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
+/** 의료진 Physician @id — 의료진 상세(personSchema)와 전 페이지 employee 노드가 같은 값 */
+export const doctorId = (slug: string) => `${SITE_URL}/doctors/${slug}#person`;
+/** 진료 페이지 감수자 = 대표원장 */
+export const REVIEWER = DOCTORS.find(d => d.role === '대표원장') || DOCTORS[0];
 
 // 병원 SNS/채널 → sameAs (지식 패널 연결)
 function clinicSameAs(): string[] {
@@ -138,6 +142,7 @@ export function siteGraph() {
         // 의료진(전문의 상주) → employee로 연결. AI가 "어떤 전문의가 있나"를 직접 인용 가능.
         employee: DOCTORS.map(d => ({
           '@type': ['Person', 'Physician'],
+          '@id': doctorId(d.slug),
           name: d.name,
           jobTitle: d.role,
           url: `${SITE_URL}/doctors/${d.slug}`,
@@ -277,7 +282,7 @@ export function personSchema(d: typeof DOCTORS[number]) {
   return {
     '@context': 'https://schema.org',
     '@type': ['Person', 'Physician'],
-    '@id': `${SITE_URL}/doctors/${d.slug}#person`,
+    '@id': doctorId(d.slug),
     name: d.name,
     jobTitle: d.role,
     url: `${SITE_URL}/doctors/${d.slug}`,
@@ -383,21 +388,29 @@ export function faqSchema(faqs: { q: string; a: string }[], path?: string) {
  * MedicalWebPage + speakable — 진료/용어 페이지를 AI 음성/답변에 인용되기 좋게.
  * speakable: 음성 비서가 읽어줄 핵심 요약 영역(.aeo-summary, h1) 지정.
  */
-export function medicalWebPageSchema(opts: { name: string; description: string; path: string; about?: string }) {
+export function medicalWebPageSchema(opts: {
+  name: string; description: string; path: string; about?: string;
+  aboutId?: string;          // 페이지 주제 엔티티 @id (예: 진료 MedicalProcedure #procedure)
+  lastReviewed?: string;     // 고정 날짜(src/data/reviewed.ts) — 없으면 출력하지 않음(오늘 날짜 자동 채움 금지)
+  reviewedBy?: string;       // 감수 의료진 slug → Physician @id
+  speakable?: string[];
+}) {
   return {
     '@context': 'https://schema.org',
     '@type': 'MedicalWebPage',
+    '@id': `${SITE_URL}${opts.path}#webpage`,
     name: opts.name,
     description: opts.description,
     url: `${SITE_URL}${opts.path}`,
     inLanguage: 'ko-KR',
     isPartOf: { '@id': WEBSITE_ID },
-    about: opts.about ? { '@type': 'MedicalEntity', name: opts.about } : { '@id': CLINIC_ID },
+    about: opts.aboutId ? { '@id': opts.aboutId } : opts.about ? { '@type': 'MedicalEntity', name: opts.about } : { '@id': CLINIC_ID },
     publisher: { '@id': ORG_ID },
-    lastReviewed: new Date().toISOString().split('T')[0],
+    ...(opts.lastReviewed ? { lastReviewed: opts.lastReviewed } : {}),
+    ...(opts.reviewedBy ? { reviewedBy: { '@id': doctorId(opts.reviewedBy) } } : {}),
     speakable: {
       '@type': 'SpeakableSpecification',
-      cssSelector: ['h1', '.aeo-summary'],
+      cssSelector: opts.speakable || ['h1', '.aeo-summary'],
     },
   };
 }

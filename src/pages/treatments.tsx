@@ -1,5 +1,7 @@
 import { html, raw } from 'hono/html';
 import { CLINIC, TREATMENTS, CORE_TREATMENTS, getDoctorsForTreatment, NEARBY_AREAS, type Treatment } from '../data/clinic';
+import { TREATMENT_REVIEWED } from '../data/reviewed';
+import { REVIEWER } from '../lib/seo';
 
 // DB 유래 문자열 이스케이프 (칼럼 제목/요약 등)
 const escT = (s: string) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -169,6 +171,10 @@ export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] =
         <img src="${photo.src}" alt="${photo.alt}" loading="lazy" decoding="async" width="1024" height="683" style="display:block;width:100%;aspect-ratio:16/9;object-fit:cover">
         <figcaption style="padding:13px 20px;font-size:.88rem;color:var(--ink-soft)">${photo.cap}</figcaption>
       </figure>` : ''}
+
+      <p class="t-reviewed" style="font-size:.9rem;color:var(--ink-soft);margin:0 0 18px">
+        <i class="fas fa-user-doctor" style="color:var(--gold);margin-right:6px"></i>감수: <a href="/doctors/${REVIEWER.slug}">${REVIEWER.name} ${REVIEWER.role}</a>${TREATMENT_REVIEWED[t.slug] ? html` · 최종 검토 <time datetime="${TREATMENT_REVIEWED[t.slug]}">${TREATMENT_REVIEWED[t.slug]}</time>` : ''}
+      </p>
 
       <div class="t-intro reveal aeo-summary-lead">${raw(formatIntro(t.intro))}</div>
 

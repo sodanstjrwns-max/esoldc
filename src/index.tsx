@@ -8,6 +8,7 @@ import {
   faqSchema, breadcrumbSchema, areaServiceSchema, areaWebPageSchema,
   itemListSchema, definedTermSetSchema, howToSchema, localBusinessSchema,
   articleSchema,
+  REVIEWER,
 } from './lib/seo';
 import { HomePage } from './pages/home';
 import { fetchActivePopups, renderPopups } from './lib/popup';
@@ -25,6 +26,7 @@ import {
 import { GlossaryListPage, GlossaryDetailPage } from './pages/glossary';
 import { SeoHealthPage } from './pages/seo-health';
 import { GLOSSARY, GLOSSARY_SORTED } from './data/glossary';
+import { TREATMENT_REVIEWED, FAQ_REVIEWED, GLOSSARY_DEF_REVIEWED, GLOSSARY_LONG_REVIEWED } from './data/reviewed';
 import { isThinGlossaryTerm, isThinNotice, NOINDEX_FOLLOW } from './lib/thin-content';
 import { authApi } from './routes/auth';
 import { admin } from './routes/admin';
@@ -137,7 +139,8 @@ app.get('/', async (c) => {
         isPartOf: { '@id': `${SITE_URL}/#website` },
         about: { '@id': `${SITE_URL}/#clinic` },
         primaryImageOfPage: { '@id': `${SITE_URL}/#logo` },
-        speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.aeo-summary'] },
+        // 홈에는 .aeo-summary 가 없음 → 실제 히어로 요약 문단(.hero-sub)
+        speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.hero-sub'] },
       },
       itemListSchema({ name: `${CLINIC.name} 핵심 진료`, items: CORE_TREATMENTS.map(t => ({ name: t.name, path: `/treatments/${t.slug}` })) }),
       // 대표원장 인터뷰 영상 (VideoObject — 검색 결과 비디오 리치 스니펫 타깃)
@@ -262,7 +265,12 @@ app.get('/treatments/:slug', async (c) => {
     jsonLd: [
       medicalProcedureSchema(t),
       howToSchema(t),
-      medicalWebPageSchema({ name: t.metaTitle, description: t.metaDesc, path: `/treatments/${t.slug}`, about: t.name }),
+      medicalWebPageSchema({
+        name: t.metaTitle, description: t.metaDesc, path: `/treatments/${t.slug}`,
+        aboutId: `${SITE_URL}/treatments/${t.slug}#procedure`,
+        lastReviewed: TREATMENT_REVIEWED[t.slug],
+        reviewedBy: REVIEWER.slug,
+      }),
       faqSchema(t.faqs, `/treatments/${t.slug}`),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }, { name: t.name, path: `/treatments/${t.slug}` }]),
     ],
@@ -284,6 +292,7 @@ app.get('/directions', (c) => {
         description: `${CLINIC.name}은 ${CLINIC.address}에 위치합니다. 경춘선 마석역 인근으로, 대중교통과 자가용 모두 방문하실 수 있습니다. 대표전화 ${CLINIC.tel}.`,
         path: '/directions',
         about: `${CLINIC.name} 위치·교통`,
+        speakable: ['h1'], // 이 페이지엔 .aeo-summary 없음
       }),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '오시는길', path: '/directions' }]),
     ],
@@ -303,6 +312,8 @@ app.get('/faq', (c) => {
         description: `진료별 자주 묻는 질문 ${allFaqs.length}개 모음. 정확한 내용은 상담을 통해 안내해 드립니다.`,
         path: '/faq',
         about: '치과 진료 자주 묻는 질문',
+        lastReviewed: FAQ_REVIEWED,
+        speakable: ['h1'], // 이 페이지엔 .aeo-summary 없음
       }),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '자주묻는질문', path: '/faq' }]),
     ],
@@ -607,7 +618,11 @@ app.get('/glossary/:term', (c) => {
         name: term.term, description: fullDesc,
         inDefinedTermSet: { '@type': 'DefinedTermSet', name: `${CLINIC.name} 치과 백과사전`, url: `${SITE_URL}/glossary` },
       },
-      medicalWebPageSchema({ name: `${term.term} 뜻·설명`, description: term.def, path: `/glossary/${encodeURIComponent(term.term)}`, about: term.term }),
+      medicalWebPageSchema({
+        name: `${term.term} 뜻·설명`, description: term.def, path: `/glossary/${encodeURIComponent(term.term)}`,
+        aboutId: `${SITE_URL}/glossary/${encodeURIComponent(term.term)}#term`,
+        lastReviewed: term.longDef ? GLOSSARY_LONG_REVIEWED : GLOSSARY_DEF_REVIEWED,
+      }),
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }, { name: term.term, path: `/glossary/${encodeURIComponent(term.term)}` }]),
     ],
   }, GlossaryDetailPage(term, related, relTreatments)));

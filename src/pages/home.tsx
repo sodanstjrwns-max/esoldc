@@ -349,8 +349,8 @@ export function HomePage(latestPosts: any[] = []) {
       </div>
       <div class="hero-arch" data-reveal data-reveal-d="2">
         <div class="hero-flank fl-l">
-          <div class="fm"><b><span data-count="10" data-suffix="년째">0</span></b><span>한자리에서 함께</span></div>
-          <div class="fm"><b><span data-count="5" data-suffix="인">0</span></b><span>상주 의료진</span></div>
+          <div class="fm"><b><span data-count="10" data-suffix="년째">10년째</span></b><span>한자리에서 함께</span></div>
+          <div class="fm"><b><span data-count="5" data-suffix="인">5인</span></b><span>상주 의료진</span></div>
         </div>
         <div class="arch-frame" data-parallax="10">
           <img src="/static/img/lobby-lounge-v2.webp" alt="이솔치과의원 대기실 라운지 전경 — 밝고 여유로운 소파형 대기 공간" loading="eager" decoding="async" width="1024" height="683" fetchpriority="high">
