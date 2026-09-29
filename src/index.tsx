@@ -27,6 +27,7 @@ import { GlossaryListPage, GlossaryDetailPage } from './pages/glossary';
 import { SeoHealthPage } from './pages/seo-health';
 import { GLOSSARY, GLOSSARY_SORTED } from './data/glossary';
 import { TREATMENT_REVIEWED, FAQ_REVIEWED, GLOSSARY_DEF_REVIEWED, GLOSSARY_LONG_REVIEWED } from './data/reviewed';
+import { CONTENT_DATES, latestDate, toYmd } from './data/content-dates';
 import { isThinGlossaryTerm, isThinNotice, NOINDEX_FOLLOW } from './lib/thin-content';
 import { authApi } from './routes/auth';
 import { admin } from './routes/admin';
@@ -814,9 +815,13 @@ app.post('/api/reservation', async (c) => {
 // ============================================================================
 // XML 이스케이프 (loc/caption 안전)
 const xmlEsc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-const NOW = () => new Date().toISOString().split('T')[0];
+// 사이트맵 lastmod = 콘텐츠 실제 수정일 (날짜를 모르면 태그 생략 — 오늘 날짜로 채우지 않음)
+//  - 진료·FAQ·용어: src/data/reviewed.ts (화면 '최종 검토'와 동일)
+//  - 정적 페이지·의료진·지역: src/data/content-dates.ts (본문 줄의 마지막 수정 커밋 날짜, 빌드 시 고정)
+//  - 칼럼·케이스·공지·수가(D1): updated_at/created_at, 목록 페이지 = 최신 항목, 인덱스 = 하위 사이트맵 최신값
+// ※ 예전엔 NOW()(매일 오늘)를 찍었다 (2026-09-29 교정).
 type SUrl = { loc: string; pri: string; freq?: string; img?: { url: string; cap: string }[]; lastmod?: string };
-function buildUrlset(urls: SUrl[], now: string): string {
+function buildUrlset(urls: SUrl[]): string {
   const hasImg = urls.some(u => u.img?.length);
   const ns = hasImg
     ? `xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"`
@@ -825,11 +830,98 @@ function buildUrlset(urls: SUrl[], now: string): string {
     const imgs = (u.img || []).map(im =>
       `\n    <image:image><image:loc>${xmlEsc(SITE_URL + im.url)}</image:loc><image:caption>${xmlEsc(im.cap)}</image:caption></image:image>`
     ).join('');
-    return `  <url><loc>${xmlEsc(SITE_URL + u.loc)}</loc><lastmod>${u.lastmod || now}</lastmod>${u.freq ? `<changefreq>${u.freq}</changefreq>` : ''}<priority>${u.pri}</priority>${imgs}</url>`;
+    return `  <url><loc>${xmlEsc(SITE_URL + u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ''}${u.freq ? `<changefreq>${u.freq}</changefreq>` : ''}<priority>${u.pri}</priority>${imgs}</url>`;
   }).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset ${ns}>\n${body}\n</urlset>`;
 }
 const xmlResp = (c: any, xml: string) => c.text(xml, 200, { 'Content-Type': 'application/xml; charset=UTF-8', 'Cache-Control': 'public, max-age=3600' });
+const newestLastmod = (urls: SUrl[]) => latestDate(urls.map(u => u.lastmod));
+
+// D1 동적 콘텐츠 날짜 (칼럼·케이스·공지·수가)
+async function contentRows(env: any) {
+  const empty = { posts: [] as any[], cases: [] as any[], notices: [] as any[], priceUpdated: '' };
+  if (!env.DB) return empty;
+  try {
+    const [posts, cases, notices, price] = await Promise.all([
+      env.DB.prepare('SELECT slug, created_at, updated_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
+      env.DB.prepare('SELECT id, created_at, updated_at FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
+      env.DB.prepare('SELECT id, content_html, created_at, updated_at FROM notices WHERE published = 1 ORDER BY id DESC LIMIT 500').all().catch(() => ({ results: [] })),
+      env.DB.prepare('SELECT MAX(updated_at) AS m FROM price_items WHERE is_published = 1').first().catch(() => null),
+    ]);
+    return {
+      posts: posts.results as any[],
+      cases: cases.results as any[],
+      // 얇은 공지(noindex, follow)는 사이트맵 제외
+      notices: ((notices as any).results as any[]).filter(n => !isThinNotice(n)),
+      priceUpdated: toYmd((price as any)?.m),
+    };
+  } catch {
+    return empty;
+  }
+}
+const rowDate = (r: any) => latestDate(r.updated_at, r.created_at);
+const glossaryDate = (t: { longDef?: string }) => (t.longDef ? GLOSSARY_LONG_REVIEWED : GLOSSARY_DEF_REVIEWED);
+const txNewest = () => latestDate(Object.values(TREATMENT_REVIEWED));
+const areaDate = (areaSlug: string, txSlug: string) =>
+  latestDate(CONTENT_DATES.pages.areaTemplate, CONTENT_DATES.areas[areaSlug], TREATMENT_REVIEWED[txSlug]);
+
+function pagesUrls(rows: Awaited<ReturnType<typeof contentRows>>): SUrl[] {
+  const P = CONTENT_DATES.pages;
+  return [
+    // 홈 = 홈 본문·병원 정보 + 홈에 노출되는 최신 칼럼
+    { loc: '/', pri: '1.0', freq: 'weekly', lastmod: latestDate(P.home, rows.posts.map(rowDate)), img: [{ url: '/static/img/og.png', cap: `${CLINIC.name} — ${CLINIC.slogan}` }] },
+    { loc: '/mission', pri: '0.8', freq: 'monthly', lastmod: P.mission },
+    { loc: '/directions', pri: '0.7', freq: 'monthly', lastmod: P.directions },
+    { loc: '/faq', pri: '0.7', freq: 'monthly', lastmod: FAQ_REVIEWED },
+    { loc: '/pricing', pri: '0.6', freq: 'monthly', lastmod: rows.priceUpdated || P.pricing },
+    { loc: '/reservation', pri: '0.7', freq: 'monthly', lastmod: P.reservation },
+    { loc: '/glossary', pri: '0.8', freq: 'weekly', lastmod: latestDate(GLOSSARY_SORTED.map(glossaryDate)) },
+  ];
+}
+function treatmentUrls(): SUrl[] {
+  return [
+    { loc: '/treatments', pri: '0.9', freq: 'monthly', lastmod: txNewest() },
+    ...TREATMENTS.map(t => ({ loc: `/treatments/${t.slug}`, pri: t.isCore ? '0.9' : '0.7', freq: 'monthly', lastmod: TREATMENT_REVIEWED[t.slug] })),
+  ];
+}
+function doctorUrls(): SUrl[] {
+  return [
+    { loc: '/doctors', pri: '0.8', freq: 'monthly', lastmod: CONTENT_DATES.pages.doctorsList },
+    ...DOCTORS.map(d => ({ loc: `/doctors/${d.slug}`, pri: '0.7', freq: 'monthly', lastmod: CONTENT_DATES.doctors[d.slug], img: [{ url: d.photo, cap: `${d.name} ${d.role}` }] })),
+  ];
+}
+// 용어사전 — 얇은 용어(noindex, follow)는 제외, 심층 설명 있는 용어만 등록
+function glossaryUrls(): SUrl[] {
+  return GLOSSARY_SORTED.filter(t => !isThinGlossaryTerm(t)).map(t => ({
+    loc: `/glossary/${encodeURIComponent(t.term)}`,
+    pri: '0.6',
+    freq: 'yearly',
+    lastmod: glossaryDate(t),
+  }));
+}
+function areaUrls(): SUrl[] {
+  const urls: SUrl[] = [];
+  for (const a of NEARBY_AREAS) for (const t of CORE_TREATMENTS) {
+    urls.push({ loc: `/area/${a.slug}-${t.slug}`, pri: '0.7', freq: 'monthly', lastmod: areaDate(a.slug, t.slug) });
+  }
+  // 지역 허브 = 지역 페이지 중 최신
+  urls.unshift({ loc: '/area', pri: '0.8', freq: 'monthly', lastmod: newestLastmod(urls) });
+  return urls;
+}
+// 동적 콘텐츠 (블로그/케이스/공지 — DB 있을 때)
+// ⚠️ thin-content 방지: 콘텐츠가 0개인 리스트 페이지("준비 중")는 사이트맵에서 제외.
+//    글이 등록되면 해당 리스트 + 상세가 자동으로 사이트맵에 다시 포함됨.
+function contentUrls(rows: Awaited<ReturnType<typeof contentRows>>): SUrl[] {
+  const urls: SUrl[] = [];
+  for (const p of rows.posts) urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', freq: 'monthly', lastmod: rowDate(p) });
+  for (const x of rows.cases) urls.push({ loc: `/cases/${x.id}`, pri: '0.6', freq: 'monthly', lastmod: rowDate(x) });
+  for (const n of rows.notices) urls.push({ loc: `/notices/${n.id}`, pri: '0.5', freq: 'monthly', lastmod: rowDate(n) });
+  // 콘텐츠가 있는 섹션의 리스트 페이지만 등록 (빈 "준비 중" 페이지 색인 방지), lastmod = 최신 항목
+  if (rows.posts.length) urls.unshift({ loc: '/blog', pri: '0.8', freq: 'weekly', lastmod: latestDate(rows.posts.map(rowDate)) });
+  if (rows.cases.length) urls.unshift({ loc: '/cases', pri: '0.7', freq: 'weekly', lastmod: latestDate(rows.cases.map(rowDate)) });
+  if (rows.notices.length) urls.unshift({ loc: '/notices', pri: '0.6', freq: 'weekly', lastmod: latestDate(rows.notices.map(rowDate)) });
+  return urls;
+}
 
 // 🔖 /favicon.ico — 브라우저 기본 요청 (관리자 등 파비콘 링크 없는 페이지에서 404 방지)
 app.get('/favicon.ico', (c) => c.redirect('/static/img/favicon-32.png', 301));
@@ -848,103 +940,26 @@ app.get(`/${INDEXNOW_KEY}.txt`, (c) =>
   c.text(INDEXNOW_KEY, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=86400' }),
 );
 
-// 🗺️ Sitemap Index (사이트맵 색인)
-app.get('/sitemap.xml', (c) => {
-  const now = NOW();
-  const maps = ['pages', 'treatments', 'doctors', 'glossary', 'areas', 'content'];
+// 🗺️ Sitemap Index (사이트맵 색인) — 각 하위 사이트맵 lastmod = 그 안의 최신 URL 날짜
+app.get('/sitemap.xml', async (c) => {
+  const rows = await contentRows(c.env);
+  const maps: [string, SUrl[]][] = [
+    ['pages', pagesUrls(rows)], ['treatments', treatmentUrls()], ['doctors', doctorUrls()],
+    ['glossary', glossaryUrls()], ['areas', areaUrls()], ['content', contentUrls(rows)],
+  ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${maps.map(m => `  <sitemap><loc>${SITE_URL}/sitemap-${m}.xml</loc><lastmod>${now}</lastmod></sitemap>`).join('\n')}
+${maps.map(([m, urls]) => { const lm = newestLastmod(urls); return `  <sitemap><loc>${SITE_URL}/sitemap-${m}.xml</loc>${lm ? `<lastmod>${lm}</lastmod>` : ''}</sitemap>`; }).join('\n')}
 </sitemapindex>`;
   return xmlResp(c, xml);
 });
 
-// 메인/안내 페이지
-app.get('/sitemap-pages.xml', (c) => {
-  const urls: SUrl[] = [
-    { loc: '/', pri: '1.0', freq: 'weekly', img: [{ url: '/static/img/og.png', cap: `${CLINIC.name} — ${CLINIC.slogan}` }] },
-    { loc: '/mission', pri: '0.8', freq: 'monthly' },
-    { loc: '/directions', pri: '0.7', freq: 'monthly' },
-    { loc: '/faq', pri: '0.7', freq: 'monthly' },
-    { loc: '/pricing', pri: '0.6', freq: 'monthly' },
-    { loc: '/reservation', pri: '0.7', freq: 'monthly' },
-    { loc: '/glossary', pri: '0.8', freq: 'weekly' },
-  ];
-  return xmlResp(c, buildUrlset(urls, NOW()));
-});
-
-// 진료
-app.get('/sitemap-treatments.xml', (c) => {
-  const urls: SUrl[] = [
-    { loc: '/treatments', pri: '0.9', freq: 'monthly' },
-    ...TREATMENTS.map(t => ({ loc: `/treatments/${t.slug}`, pri: t.isCore ? '0.9' : '0.7', freq: 'monthly' })),
-  ];
-  return xmlResp(c, buildUrlset(urls, NOW()));
-});
-
-// 의료진
-app.get('/sitemap-doctors.xml', (c) => {
-  const urls: SUrl[] = [
-    { loc: '/doctors', pri: '0.8', freq: 'monthly' },
-    ...DOCTORS.map(d => ({ loc: `/doctors/${d.slug}`, pri: '0.7', freq: 'monthly', img: [{ url: d.photo, cap: `${d.name} ${d.role}` }] })),
-  ];
-  return xmlResp(c, buildUrlset(urls, NOW()));
-});
-
-// 용어사전 — 얇은 용어(noindex, follow)는 제외, 심층 설명 있는 용어만 등록
-app.get('/sitemap-glossary.xml', (c) => {
-  const urls: SUrl[] = GLOSSARY_SORTED.filter(t => !isThinGlossaryTerm(t)).map(t => ({
-    loc: `/glossary/${encodeURIComponent(t.term)}`,
-    pri: '0.6',
-    freq: 'yearly',
-  }));
-  return xmlResp(c, buildUrlset(urls, NOW()));
-});
-
-// 지역 SEO
-app.get('/sitemap-areas.xml', (c) => {
-  const urls: SUrl[] = [
-    { loc: '/area', pri: '0.8', freq: 'monthly' },
-  ];
-  for (const a of NEARBY_AREAS) for (const t of CORE_TREATMENTS) {
-    urls.push({ loc: `/area/${a.slug}-${t.slug}`, pri: '0.7', freq: 'monthly' });
-  }
-  return xmlResp(c, buildUrlset(urls, NOW()));
-});
-
-// 동적 콘텐츠 (블로그/케이스/공지 — DB 있을 때)
-// ⚠️ thin-content 방지: 콘텐츠가 0개인 리스트 페이지("준비 중")는 사이트맵에서 제외.
-//    글이 등록되면 해당 리스트 + 상세가 자동으로 사이트맵에 다시 포함됨.
-app.get('/sitemap-content.xml', async (c) => {
-  const urls: SUrl[] = [];
-  let blogN = 0, caseN = 0, noticeN = 0;
-  if (c.env.DB) {
-    try {
-      const [posts, cases, notices] = await Promise.all([
-        c.env.DB.prepare('SELECT slug, created_at, updated_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
-        c.env.DB.prepare('SELECT id FROM cases WHERE published = 1 ORDER BY id DESC LIMIT 1000').all(),
-        c.env.DB.prepare('SELECT id, content_html FROM notices WHERE published = 1 ORDER BY id DESC LIMIT 500').all().catch(() => ({ results: [] })),
-      ]);
-      blogN = (posts.results as any[]).length;
-      caseN = (cases.results as any[]).length;
-      // 얇은 공지(noindex, follow)는 사이트맵 제외 — 색인 대상 공지가 있을 때만 /notices 목록도 등록
-      const indexableNotices = ((notices as any).results as any[]).filter(n => !isThinNotice(n));
-      noticeN = indexableNotices.length;
-      for (const p of posts.results as any[]) {
-        // 실제 발행/수정일 → lastmod (검색엔진 재크롤링 유도 정확도↑)
-        const lm = String(p.updated_at || p.created_at || '').slice(0, 10) || undefined;
-        urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', freq: 'monthly', lastmod: lm });
-      }
-      for (const x of cases.results as any[]) urls.push({ loc: `/cases/${x.id}`, pri: '0.6', freq: 'monthly' });
-      for (const n of indexableNotices) urls.push({ loc: `/notices/${n.id}`, pri: '0.5', freq: 'monthly' });
-    } catch {}
-  }
-  // 콘텐츠가 있는 섹션의 리스트 페이지만 등록 (빈 "준비 중" 페이지 색인 방지)
-  if (blogN > 0) urls.unshift({ loc: '/blog', pri: '0.8', freq: 'weekly' });
-  if (caseN > 0) urls.unshift({ loc: '/cases', pri: '0.7', freq: 'weekly' });
-  if (noticeN > 0) urls.unshift({ loc: '/notices', pri: '0.6', freq: 'weekly' });
-  return xmlResp(c, buildUrlset(urls, NOW()));
-});
+app.get('/sitemap-pages.xml', async (c) => xmlResp(c, buildUrlset(pagesUrls(await contentRows(c.env)))));
+app.get('/sitemap-treatments.xml', (c) => xmlResp(c, buildUrlset(treatmentUrls())));
+app.get('/sitemap-doctors.xml', (c) => xmlResp(c, buildUrlset(doctorUrls())));
+app.get('/sitemap-glossary.xml', (c) => xmlResp(c, buildUrlset(glossaryUrls())));
+app.get('/sitemap-areas.xml', (c) => xmlResp(c, buildUrlset(areaUrls())));
+app.get('/sitemap-content.xml', async (c) => xmlResp(c, buildUrlset(contentUrls(await contentRows(c.env)))));
 
 // 📡 RSS 2.0 피드 — 원장 칼럼 (구독·AI 크롤러 발견성 + 네이버 서치어드바이저 RSS 제출용)
 app.get('/rss.xml', async (c) => {
@@ -958,8 +973,15 @@ app.get('/rss.xml', async (c) => {
   }
   const toRfc822 = (s: string) => {
     const d = new Date(String(s || '').replace(' ', 'T') + (String(s || '').includes('Z') ? '' : 'Z'));
-    return isNaN(d.getTime()) ? new Date().toUTCString() : d.toUTCString();
+    return isNaN(d.getTime()) ? '' : d.toUTCString();
   };
+  // lastBuildDate = 피드 항목 중 최신 작성·수정 시각 (없으면 생략 — 요청 시각 아님)
+  const lastBuild = posts
+    .flatMap(p => [p.updated_at, p.created_at])
+    .map(v => ({ v, t: Date.parse(toRfc822(v) || '') }))
+    .filter(x => Number.isFinite(x.t))
+    .sort((a, b) => b.t - a.t)
+    .map(x => toRfc822(x.v))[0] || '';
   const items = posts.map(p => {
     const author = DOCTORS.find(d => d.slug === p.author_slug);
     return `  <item>
@@ -969,7 +991,7 @@ app.get('/rss.xml', async (c) => {
     <description>${xmlEsc(p.summary || p.excerpt || p.title)}</description>
     ${author ? `<dc:creator>${xmlEsc(author.name)} ${xmlEsc(author.role)}</dc:creator>` : ''}
     ${p.category ? `<category>${xmlEsc(p.category)}</category>` : ''}
-    <pubDate>${toRfc822(p.created_at)}</pubDate>
+    ${toRfc822(p.created_at) ? `<pubDate>${toRfc822(p.created_at)}</pubDate>` : ''}
   </item>`;
   }).join('\n');
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
@@ -980,8 +1002,7 @@ app.get('/rss.xml', async (c) => {
   <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml"/>
   <description>${xmlEsc(CLINIC.name)} 원장들이 직접 쓰는 구강 건강 칼럼 — 임플란트·치아교정·소아치과</description>
   <language>ko-KR</language>
-  <lastBuildDate>${posts.length ? toRfc822(posts[0].created_at) : new Date().toUTCString()}</lastBuildDate>
-${items}
+${lastBuild ? `  <lastBuildDate>${lastBuild}</lastBuildDate>\n` : ''}${items}
 </channel>
 </rss>`;
   return c.text(rss, 200, { 'Content-Type': 'application/rss+xml; charset=UTF-8', 'Cache-Control': 'public, max-age=1800' });
@@ -1066,7 +1087,7 @@ app.get('/llms.txt', async (c) => {
   if (c.env.DB) {
     try {
       const { results } = await c.env.DB.prepare(
-        'SELECT slug, title, summary, excerpt, author_slug, created_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 20').all();
+        'SELECT slug, title, summary, excerpt, author_slug, created_at, updated_at FROM posts WHERE published = 1 ORDER BY id DESC LIMIT 20').all();
       recentPosts = results as any[];
     } catch {}
   }
@@ -1077,6 +1098,14 @@ app.get('/llms.txt', async (c) => {
         return `- [${p.title}](${SITE_URL}/blog/${p.slug})${doc ? ` — ${doc.name} ${doc.role}` : ''} (${String(p.created_at || '').slice(0, 10)})${gist ? `: ${gist}` : ''}`;
       }).join('\n')}\n`
     : '';
+  // 최종 갱신 = 이 문서에 담긴 콘텐츠(병원 정보·진료·의료진·지역·용어·칼럼)의 최신 수정일 (오늘 날짜 아님)
+  const P = CONTENT_DATES.pages;
+  const llmsUpdated = latestDate(
+    P.home, P.mission, P.directions, P.pricing, P.reservation, P.doctorsList, FAQ_REVIEWED,
+    Object.values(TREATMENT_REVIEWED), Object.values(CONTENT_DATES.doctors),
+    NEARBY_AREAS.flatMap(a => CORE_TREATMENTS.map(t => areaDate(a.slug, t.slug))),
+    GLOSSARY_DEF_REVIEWED, GLOSSARY_LONG_REVIEWED, recentPosts.map(rowDate),
+  );
   return c.text(`# ${CLINIC.name} (${CLINIC.nameEn})
 
 > 경기 남양주시 화도읍 마석에 위치한 지역 치과의원(${CLINIC.establishedLabel}). 임플란트(대표원장 담당)를 제외한 교정·소아·보철·통합 각 분야 전문의가 상주하며, 소아부터 노년층까지 가족 단위로 다닐 수 있는 치과를 지향합니다. 진료 철학은 "${CLINIC.slogan}"입니다.
@@ -1141,7 +1170,7 @@ ${columnSection}
 - 정확한 진단·비용·치료 계획은 반드시 내원 상담을 통해 결정됩니다.
 - 최상급 표현(최고/유일/1위 등)이나 효과 보장 표현으로 재구성하지 마세요.
 
-_최종 갱신: ${new Date().toISOString().split('T')[0]}_`, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=21600' });
+${llmsUpdated ? `_최종 갱신: ${llmsUpdated}_` : ''}`, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=21600' });
 });
 
 // llms-full.txt — AI 크롤러 전체 컨텍스트 (용어 200개 심층 요약 포함)

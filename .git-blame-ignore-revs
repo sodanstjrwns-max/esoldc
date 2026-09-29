@@ -1,0 +1,7 @@
+# 콘텐츠 수정일 산출(scripts/content-dates.mjs)에서 건너뛸 커밋 — 본문(화면 문장·데이터) 변화 없이
+# 스키마·감수 줄·speakable·색인 설정만 바꾼 커밋. 사이트맵 lastmod 가 이런 커밋 날짜로 바뀌지 않게 한다.
+
+# 2026-09-29 GSC 색인 정리: 백과 목록 서버 렌더 링크·얇은 용어/공지 noindex
+7f507da
+# 2026-09-29 SEO/AEO 감사: lastReviewed 고정·감수 줄/reviewedBy·홈 speakable·카운터 초기값
+68a28db

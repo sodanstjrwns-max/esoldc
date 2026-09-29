@@ -1,0 +1,32 @@
+{
+  "pages": {
+    "home": "2026-08-18",
+    "mission": "2026-08-18",
+    "directions": "2026-08-18",
+    "pricing": "2026-09-06",
+    "reservation": "2026-08-18",
+    "doctorsList": "2026-07-14",
+    "areaTemplate": "2026-06-21"
+  },
+  "doctors": {
+    "ko-kyungwoo": "2026-07-08",
+    "jang-yujin": "2026-07-08",
+    "park-jina": "2026-07-08",
+    "byun-jinsoo": "2026-07-08",
+    "kang-sewon": "2026-07-08"
+  },
+  "areas": {
+    "maseok": "2026-06-15",
+    "hwado": "2026-06-15",
+    "namyangju": "2026-06-15",
+    "wabu": "2026-06-15",
+    "jingeon": "2026-06-15",
+    "oneung": "2026-06-15",
+    "sudong": "2026-06-15",
+    "gapyeong": "2026-06-15",
+    "dasan": "2026-06-21",
+    "byeollae": "2026-06-21",
+    "guri": "2026-06-21",
+    "yangpyeong": "2026-06-21"
+  }
+}
