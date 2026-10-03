@@ -147,7 +147,7 @@ const TREAT_PHOTOS: Record<string, { src: string; alt: string; cap: string }> = 
 
 // --- 진료 상세 페이지 ---
 // relTerms: 이 진료와 연결된 용어사전 용어(양방향 인링크). index.tsx에서 주입.
-export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] = [], relPosts: any[] = []) {
+export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] = [], relPosts: any[] = [], relCases: any[] = []) {
   const docs = getDoctorsForTreatment(t.slug);
   const related = TREATMENTS.filter(x => x.slug !== t.slug).slice(0, 5);
   const areaLinks = t.isCore ? NEARBY_AREAS.slice(0, 8) : [];
@@ -237,7 +237,21 @@ export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] =
             <span style="font-size:.78rem;color:var(--ink-soft)">${(p.created_at || '').slice(0, 10)}</span>
           </a>`).join(''))}
         </div>
-        <p style="margin-top:14px;font-size:.85rem"><a href="/blog" style="color:var(--gold);font-weight:600">원장 칼럼 전체 보기 <i class="fas fa-arrow-right" style="font-size:.8em"></i></a></p>
+        <p style="margin-top:14px;font-size:.85rem"><a href="/blog?category=${t.slug}" style="color:var(--gold);font-weight:600">${t.name} 칼럼 전체 보기 <i class="fas fa-arrow-right" style="font-size:.8em"></i></a></p>
+      </div>` : ''}
+
+      <!-- 치료 사례 인링크 (진료 → 비포&애프터, 치료 후 사진은 로그인 정책 그대로) -->
+      ${relCases.length ? html`
+      <div class="t-related reveal">
+        <h3>${t.name} 치료 사례</h3>
+        <div style="display:grid;gap:10px">
+          ${raw(relCases.map(x => `
+          <a href="/cases/${x.id}" style="display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px">
+            ${(x.img_pano_before || x.img_oral_before) ? `<img src="/api/img/${escT(x.img_pano_before || x.img_oral_before)}" alt="${escT(t.name)} 치료 전" width="72" height="54" loading="lazy" decoding="async" style="width:72px;height:54px;object-fit:cover;border-radius:8px;flex:none">` : ''}
+            <span><strong style="color:var(--navy);display:block">${escT(x.title)}</strong>${x.duration ? `<span style="font-size:.8rem;color:var(--ink-soft)">치료 기간 ${escT(x.duration)}</span>` : ''}</span>
+          </a>`).join(''))}
+        </div>
+        <p style="margin-top:14px;font-size:.85rem"><a href="/cases?category=${t.slug}" style="color:var(--gold);font-weight:600">${t.name} 사례 전체 보기 <i class="fas fa-arrow-right" style="font-size:.8em"></i></a></p>
       </div>` : ''}
 
       <!-- 지역 SEO 인링크 (핵심 진료만) -->

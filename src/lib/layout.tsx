@@ -789,7 +789,7 @@ export function Layout(meta: SeoMeta, body: any) {
   const d = escAttr(meta.description);
   // 전 페이지 공통 지식 그래프 + 페이지별 스키마 (noindex 페이지는 그래프 생략)
   const allLd = meta.noindex ? (meta.jsonLd || []) : [siteGraph(), ...(meta.jsonLd || [])];
-  const jsonLdBlocks = allLd.map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join('');
+  const jsonLdBlocks = allLd.map(j => `<script type="application/ld+json">${JSON.stringify(j).replace(/</g, '\\u003c')}</script>`).join('');
 
   return html`<!DOCTYPE html>
 <html lang="ko">
@@ -809,6 +809,11 @@ export function Layout(meta: SeoMeta, body: any) {
     (CLINIC as any).siteVerification?.bing ? `<meta name="msvalidate.01" content="${(CLINIC as any).siteVerification.bing}">` : '',
   ].filter(Boolean).join('\n  '))}
   <meta property="og:type" content="${meta.type || 'website'}">
+  ${raw(meta.type === 'article' && meta.article ? [
+    meta.article.published ? `<meta property="article:published_time" content="${escAttr(meta.article.published)}">` : '',
+    meta.article.modified ? `<meta property="article:modified_time" content="${escAttr(meta.article.modified)}">` : '',
+    meta.article.section ? `<meta property="article:section" content="${escAttr(meta.article.section)}">` : '',
+  ].filter(Boolean).join('\n  ') : '')}
   <meta property="og:site_name" content="${CLINIC.name}">
   <meta property="og:title" content="${meta.title}">
   <meta property="og:description" content="${meta.description}">

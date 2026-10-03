@@ -21,6 +21,29 @@ export interface SeoMeta {
   noindex?: boolean;
   noindexFollow?: boolean; // 얇은 상세: noindex, follow (링크는 따라가게) — lib/thin-content.ts
   extraBody?: any;       // body 끝에 삽입할 추가 마크업 (예: 홈 히어로 팝업)
+  /** og:type=article 일 때 article:published_time / modified_time / section */
+  article?: { published?: string; modified?: string; section?: string };
+}
+
+/** D1 datetime('now')/CURRENT_TIMESTAMP(UTC 'YYYY-MM-DD HH:MM:SS') → ISO 8601(+00:00). 날짜만이면 그대로 */
+export function toIsoUtc(v: any): string | undefined {
+  const t = String(v || '').trim();
+  if (!t) return undefined;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(t)) return t;
+  const iso = t.replace(' ', 'T');
+  return /([zZ]|[+-]\d\d:?\d\d)$/.test(iso) ? iso : `${iso}+00:00`;
+}
+/** UTC 시각 → KST 날짜(YYYY-MM-DD) — 화면 '최종 검토'·lastReviewed */
+export function kstYmd(v: any): string {
+  const iso = toIsoUtc(v);
+  if (!iso) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? String(v).slice(0, 10) : new Date(d.getTime() + 9 * 3600e3).toISOString().slice(0, 10);
+}
+/** 여러 JSON-LD 노드를 하나의 @graph 로 (노드의 @context 제거) */
+export function graphLd(nodes: any[]) {
+  return { '@context': 'https://schema.org', '@graph': nodes.filter(Boolean).map((n) => { const { ['@context']: _c, ...rest } = n; return rest; }) };
 }
 
 // ============================================================================
@@ -394,6 +417,10 @@ export function medicalWebPageSchema(opts: {
   lastReviewed?: string;     // 고정 날짜(src/data/reviewed.ts) — 없으면 출력하지 않음(오늘 날짜 자동 채움 금지)
   reviewedBy?: string;       // 감수 의료진 slug → Physician @id
   speakable?: string[];
+  datePublished?: string; dateModified?: string;
+  mainEntityId?: string;     // 예: 칼럼 BlogPosting #article
+  breadcrumbId?: string;
+  image?: string;
 }) {
   return {
     '@context': 'https://schema.org',
@@ -408,6 +435,12 @@ export function medicalWebPageSchema(opts: {
     publisher: { '@id': ORG_ID },
     ...(opts.lastReviewed ? { lastReviewed: opts.lastReviewed } : {}),
     ...(opts.reviewedBy ? { reviewedBy: { '@id': doctorId(opts.reviewedBy) } } : {}),
+    ...(opts.datePublished ? { datePublished: toIsoUtc(opts.datePublished) } : {}),
+    ...(opts.dateModified ? { dateModified: toIsoUtc(opts.dateModified) } : {}),
+    ...(opts.mainEntityId ? { mainEntity: { '@id': opts.mainEntityId } } : {}),
+    ...(opts.breadcrumbId ? { breadcrumb: { '@id': opts.breadcrumbId } } : {}),
+    ...(opts.image ? { primaryImageOfPage: { '@type': 'ImageObject', url: opts.image } } : {}),
+    medicalAudience: { '@type': 'MedicalAudience', audienceType: 'Patient' },
     speakable: {
       '@type': 'SpeakableSpecification',
       cssSelector: opts.speakable || ['h1', '.aeo-summary'],
@@ -452,10 +485,11 @@ export function definedTermSetSchema(opts: { count: number; longCount: number })
   };
 }
 
-export function breadcrumbSchema(items: { name: string; path: string }[]) {
+export function breadcrumbSchema(items: { name: string; path: string }[], id?: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
+    ...(id ? { '@id': id } : {}),
     itemListElement: items.map((it, i) => ({
       '@type': 'ListItem',
       position: i + 1,
@@ -480,6 +514,10 @@ export function articleSchema(opts: {
   /** 관련 진료 엔티티 경로 (예: /treatments/implant) → about/mentions 연결 */
   aboutPath?: string;
   aboutName?: string;
+  /** 감수 의료진 slug → reviewedBy Physician @id */
+  reviewedBy?: string;
+  /** 같은 페이지에 MedicalWebPage(#webpage) 노드를 함께 낼 때 true → mainEntityOfPage 를 그 @id 로 */
+  webPageNode?: boolean;
 }) {
   const url = `${SITE_URL}${opts.path}`;
   const imgUrl = opts.image || `${SITE_URL}/static/img/og.png`;
@@ -501,11 +539,12 @@ export function articleSchema(opts: {
   return {
     '@context': 'https://schema.org',
     '@type': opts.type || 'BlogPosting',
+    '@id': `${url}#article`,
     headline: opts.title.slice(0, 110),
     name: opts.title,
     description: opts.desc,
     url,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    mainEntityOfPage: opts.webPageNode ? { '@id': `${url}#webpage` } : { '@type': 'WebPage', '@id': url },
     image: {
       '@type': 'ImageObject',
       url: imgUrl,
@@ -513,9 +552,10 @@ export function articleSchema(opts: {
     },
     inLanguage: 'ko-KR',
     isPartOf: { '@id': WEBSITE_ID },
-    datePublished: opts.published,
-    dateModified: opts.modified || opts.published,
+    datePublished: toIsoUtc(opts.published),
+    dateModified: toIsoUtc(opts.modified || opts.published),
     author,
+    ...(opts.reviewedBy ? { reviewedBy: { '@id': doctorId(opts.reviewedBy) } } : {}),
     publisher: { '@id': ORG_ID },
     ...(opts.section ? { articleSection: opts.section } : {}),
     ...(opts.keywords?.length ? { keywords: opts.keywords.join(', ') } : {}),

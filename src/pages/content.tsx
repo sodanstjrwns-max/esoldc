@@ -15,18 +15,46 @@ const PAGE_HERO = (crumb: string, title: string, sub: string) => `
 </section>`;
 
 const docName = (slug: string) => DOCTORS.find(d => d.slug === slug)?.name || '';
+
+/** 서버 렌더 페이지네이션 — 1페이지는 쿼리 없는 주소, 나머지 ?page=N (a 링크) */
+export function pagerHtml(base: string, page: number, pages: number): string {
+  if (pages <= 1) return '';
+  const href = (n: number) => (n === 1 ? base.replace(/[?&]$/, '') : `${base}page=${n}`);
+  return `<nav class="list-pager" aria-label="페이지">${Array.from({ length: pages }, (_, i) => i + 1).map(n => `<a href="${href(n)}"${n === page ? ' aria-current="page"' : ''}>${n}</a>`).join('')}</nav>`;
+}
+const PAGER_CSS = `.list-pager{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:40px}
+    .list-pager a{min-width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--line);border-radius:12px;background:#fff;font-weight:700;color:var(--ink-soft)}
+    .list-pager a:hover{border-color:var(--gold)}
+    .list-pager a[aria-current]{background:var(--navy);border-color:var(--navy);color:#fff}
+    .list-cats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+    .list-cats a{border:1.5px solid var(--line);background:#fff;border-radius:100px;padding:9px 18px;font-size:.9rem;font-weight:700;color:var(--ink-soft);transition:.2s}
+    .list-cats a span{font-size:.78rem;color:var(--gold-3);margin-left:2px}
+    .list-cats a:hover{border-color:var(--gold)}
+    .list-cats a[aria-current]{background:var(--navy);border-color:var(--navy);color:#fff}
+    .list-cats a[aria-current] span{color:var(--gold)}`;
+
+export interface ListOpts { cat: string; page: number; pages: number; total: number; counts: Record<string, number>; allTotal: number }
+
+function catLinks(base: string, opts: ListOpts, cats: { slug: string; name: string }[]): string {
+  const used = cats.filter(c => opts.counts[c.slug]);
+  if (used.length < 2) return '';
+  return `<nav class="list-cats" aria-label="분야별 보기">
+    <a href="${base}"${!opts.cat ? ' aria-current="page"' : ''}>전체 <span>${opts.allTotal}</span></a>
+    ${used.map(c => `<a href="${base}?category=${c.slug}"${opts.cat === c.slug ? ' aria-current="page"' : ''}>${c.name} <span>${opts.counts[c.slug]}</span></a>`).join('')}
+  </nav>`;
+}
 const catName = (slug: string) => TREATMENTS.find(t => t.slug === slug)?.name || slug;
 
 // ============================================================
 // 비포&애프터 목록
 // ============================================================
-export function CasesListPage(cases: any[], loggedIn: boolean) {
+export function CasesListPage(cases: any[], loggedIn: boolean, opts: ListOpts = { cat: '', page: 1, pages: 1, total: 0, counts: {}, allTotal: 0 }) {
   const cards = cases.map(x => {
     const thumb = x.img_oral_before || x.img_pano_before;
     return `
     <a href="/cases/${x.id}" class="case-card reveal">
       <div class="cc-img">
-        ${thumb ? `<img src="/api/img/${thumb}" alt="${esc(x.title)} 치료 전" loading="lazy" decoding="async">` : `<div class="cc-noimg"><i class="fas fa-tooth"></i></div>`}
+        ${thumb ? `<img src="/api/img/${thumb}" alt="${esc(catName(x.category))} 치료 전" loading="lazy" decoding="async">` : `<div class="cc-noimg"><i class="fas fa-tooth"></i></div>`}
         <span class="cc-cat">${esc(catName(x.category))}</span>
       </div>
       <div class="cc-body">
@@ -60,13 +88,16 @@ export function CasesListPage(cases: any[], loggedIn: boolean) {
     .cc-views{opacity:.7}
     .case-lock-note{background:var(--gold-soft);border:1px solid var(--line);border-radius:14px;padding:16px 22px;margin-bottom:34px;display:flex;gap:12px;align-items:center;font-size:.92rem}
     .case-lock-note i{color:var(--gold-3);font-size:1.2rem}
+    ${raw(PAGER_CSS)}
   </style>
   <section class="section">
     <div class="wrap">
-      <h2 class="section-list-title">치료 사례 목록</h2>
+      <h2 class="section-list-title">${opts.cat ? `${catName(opts.cat)} 치료 사례` : '치료 사례 목록'}</h2>
+      ${raw(catLinks('/cases', opts, TREATMENTS.map(t => ({ slug: t.slug, name: t.name }))))}
+      ${opts.cat ? raw(`<p style="margin:-14px 0 26px;font-size:.92rem;color:var(--ink-soft)">${esc(catName(opts.cat))} 사례 ${opts.total}건 · <a href="/treatments/${esc(opts.cat)}" style="color:var(--gold-3);font-weight:700;text-decoration:underline">${esc(catName(opts.cat))} 진료 안내</a> · <a href="/blog?category=${esc(opts.cat)}" style="color:var(--gold-3);font-weight:700;text-decoration:underline">관련 원장 칼럼</a></p>`) : ''}
       ${loggedIn ? '' : raw(`<div class="case-lock-note reveal"><i class="fas fa-lock"></i><div>치료 <strong>후(애프터)</strong> 사진은 의료법 준수를 위해 <a href="/login" style="color:var(--gold-3);font-weight:700;text-decoration:underline">로그인</a> 후 열람하실 수 있습니다. 아직 회원이 아니시라면 <a href="/signup" style="color:var(--gold-3);font-weight:700;text-decoration:underline">회원가입</a> 해주세요.</div></div>`)}
       ${cases.length
-        ? raw(`<div class="case-grid">${cards}</div>`)
+        ? raw(`<div class="case-grid">${cards}</div>${pagerHtml(`/cases?${opts.cat ? `category=${opts.cat}&` : ''}`, opts.page, opts.pages)}`)
         : raw(`<div style="text-align:center;padding:70px 20px;color:var(--ink-soft)"><i class="fas fa-folder-open" style="font-size:2.4rem;color:var(--gold);margin-bottom:18px;display:block"></i>치료 사례를 준비 중입니다. 자세한 사례는 내원 상담 시 직접 안내해 드립니다.</div>`)}
       <p style="margin-top:40px;font-size:.8rem;color:var(--ink-soft);text-align:center">※ 치료 결과는 개인의 구강 상태에 따라 차이가 있을 수 있으며, 모든 의료 행위에는 부작용이 발생할 수 있습니다.</p>
     </div>
@@ -76,10 +107,12 @@ export function CasesListPage(cases: any[], loggedIn: boolean) {
 // ============================================================
 // 비포&애프터 상세 — 전후 비교 슬라이더 + 애프터 로그인 잠금
 // ============================================================
-export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
+export function CaseDetailPage(x: any, loggedIn: boolean, related: any[], extra: { summary?: string; relPosts?: any[] } = {}) {
   const doctor = DOCTORS.find(d => d.slug === x.doctor_slug);
   const treatment = TREATMENTS.find(t => t.slug === x.category);
 
+  const txName = treatment?.name || catName(x.category) || '치과';
+  const relPosts = extra.relPosts || [];
   const pair = (label: string, before: string | null, after: string | null, id: string) => {
     if (!before && !after) return '';
     // 둘 다 있고 로그인 → 비교 슬라이더
@@ -88,8 +121,8 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
       <div class="ba-block reveal">
         <h3 class="ba-title">${label}</h3>
         <div class="ba-slider" id="${id}">
-          <img src="/api/img/${after}" alt="${label} 치료 후" class="ba-after" draggable="false" loading="lazy" decoding="async">
-          <div class="ba-before-wrap"><img src="/api/img/${before}" alt="${label} 치료 전" draggable="false" loading="lazy" decoding="async"></div>
+          <img src="/api/img/${after}" alt="${txName} 치료 후 (${label})" class="ba-after" draggable="false" loading="lazy" decoding="async">
+          <div class="ba-before-wrap"><img src="/api/img/${before}" alt="${txName} 치료 전 (${label})" draggable="false" loading="lazy" decoding="async"></div>
           <div class="ba-handle"><span><i class="fas fa-arrows-alt-h"></i></span></div>
           <span class="ba-lbl ba-lbl-b">BEFORE</span><span class="ba-lbl ba-lbl-a">AFTER</span>
         </div>
@@ -101,9 +134,9 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
     <div class="ba-block reveal">
       <h3 class="ba-title">${label}</h3>
       <div class="ba-pair">
-        ${before ? `<figure><img src="/api/img/${before}" alt="${label} 치료 전" loading="lazy" decoding="async"><figcaption>BEFORE</figcaption></figure>` : ''}
+        ${before ? `<figure><img src="/api/img/${before}" alt="${txName} 치료 전 (${label})" loading="lazy" decoding="async"><figcaption>BEFORE</figcaption></figure>` : ''}
         ${after ? (loggedIn
-          ? `<figure><img src="/api/img/${after}" alt="${label} 치료 후" loading="lazy" decoding="async"><figcaption>AFTER</figcaption></figure>`
+          ? `<figure><img src="/api/img/${after}" alt="${txName} 치료 후 (${label})" loading="lazy" decoding="async"><figcaption>AFTER</figcaption></figure>`
           : `<figure class="ba-locked"><div class="ba-lock-box"><i class="fas fa-lock"></i><strong>치료 후 사진</strong><p>회원 로그인 시 열람 가능합니다</p><a href="/login?next=/cases/${x.id}" class="btn btn-accent" style="padding:10px 22px;font-size:.9rem">로그인하고 보기</a></div><figcaption>AFTER 🔒</figcaption></figure>`) : ''}
       </div>
     </div>`;
@@ -112,12 +145,12 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
   const relCards = related.map(r => {
     const thumb = r.img_oral_before || r.img_pano_before;
     return `<a href="/cases/${r.id}" class="rel-case">
-      ${thumb ? `<img src="/api/img/${thumb}" alt="${esc(r.title)}" loading="lazy" decoding="async">` : '<div class="rel-noimg"><i class="fas fa-tooth"></i></div>'}
+      ${thumb ? `<img src="/api/img/${thumb}" alt="${esc(catName(r.category))} 치료 전" loading="lazy" decoding="async">` : '<div class="rel-noimg"><i class="fas fa-tooth"></i></div>'}
       <div><strong>${esc(r.title)}</strong><span>${esc(catName(r.category))}</span></div></a>`;
   }).join('');
 
   return html`
-  ${raw(PAGE_HERO(`<a href="/cases" style="color:rgba(250,248,244,.45)">비포&애프터</a> / 사례`, esc(x.title), `${esc(x.age_group)} ${esc(x.gender)} 환자분의 ${esc(catName(x.category))} 치료 사례입니다.`))}
+  ${raw(PAGE_HERO(`<a href="/cases" style="color:rgba(250,248,244,.45)">비포&애프터</a> / ${treatment ? `<a href="/cases?category=${treatment.slug}" style="color:rgba(250,248,244,.45)">${esc(treatment.name)}</a> / ` : ''}사례`, esc(x.title), `${esc(x.age_group)} ${esc(x.gender)} 환자분의 ${esc(catName(x.category))} 치료 사례입니다.`))}
   <style>
     .ba-detail{max-width:880px;margin:0 auto}
     .ba-meta-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:34px}
@@ -166,7 +199,8 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
         <span><i class="fas fa-stethoscope"></i>${esc(catName(x.category))}</span>
         <span><i class="fas fa-eye"></i>조회 ${x.views}</span>
       </div>
-      ${x.description ? raw(`<div class="ba-desc reveal">${esc(x.description)}</div>`) : ''}
+      ${extra.summary ? raw(`<div class="aeo-summary case-summary reveal" style="background:linear-gradient(135deg,var(--gold-soft),#fff);border:1.5px solid var(--gold);border-radius:14px;padding:20px 26px;margin-bottom:24px"><div style="font-weight:800;color:var(--navy);font-size:.95rem;margin-bottom:8px"><i class="fas fa-clipboard-list" style="color:var(--gold);margin-right:7px"></i>사례 요약</div><p class="answer-summary" style="margin:0;line-height:1.75">${esc(extra.summary)}</p></div>`) : ''}
+      ${x.description ? raw(`<h2 style="font-size:1.25rem;margin-bottom:12px">진단과 치료 과정</h2><div class="ba-desc reveal">${esc(x.description)}</div>`) : ''}
       ${raw(pair('파노라마 (방사선) 전후', x.img_pano_before, x.img_pano_after, 'slider-pano'))}
       ${raw(pair('구내 포토 전후', x.img_oral_before, x.img_oral_after, 'slider-oral'))}
       ${doctor ? raw(`
@@ -178,9 +212,11 @@ export function CaseDetailPage(x: any, loggedIn: boolean, related: any[]) {
         </div>
       </div>`) : ''}
       ${related.length ? raw(`<h3 style="font-size:1.2rem;margin-top:10px">비슷한 치료 사례</h3><div class="rel-grid">${relCards}</div>`) : ''}
+      ${relPosts.length ? raw(`<h3 style="font-size:1.2rem;margin-top:34px">${esc(txName)} 관련 원장 칼럼</h3><div class="rel-posts" style="margin-top:14px;background:var(--gold-soft);border-radius:var(--radius-lg);padding:18px 24px">${relPosts.map((p: any) => `<a href="/blog/${esc(p.slug)}" style="display:block;padding:7px 0;font-weight:600;font-size:.92rem;color:var(--navy)"><i class="fas fa-angle-right" style="color:var(--gold);margin-right:6px"></i>${esc(p.title)}</a>`).join('')}</div>`) : ''}
       <p style="margin-top:40px;font-size:.8rem;color:var(--ink-soft)">※ 본 사례는 해당 환자의 치료 결과이며, 개인의 구강 상태에 따라 치료 방법과 결과는 차이가 있을 수 있습니다. 모든 의료 행위에는 부작용이 발생할 수 있으므로 정확한 진단은 내원 상담을 통해 받으시기 바랍니다.</p>
       <div style="margin-top:30px;display:flex;gap:12px;flex-wrap:wrap">
         <a href="/cases" class="btn btn-ghost"><i class="fas fa-list"></i> 목록으로</a>
+        ${treatment ? raw(`<a href="/cases?category=${treatment.slug}" class="btn btn-ghost">${esc(treatment.name)} 사례 더 보기</a>`) : ''}
         <a href="/reservation" class="btn btn-accent"><i class="fas fa-calendar-check"></i> 상담 예약하기</a>
       </div>
     </div>
@@ -207,7 +243,7 @@ export function categoryName(slug: string): string {
   return POST_CATEGORIES.find(x => x.slug === slug)?.name || '';
 }
 
-export function BlogListPage(posts: any[], mediumPosts: { title: string; link: string; pubDate: string }[] = []) {
+export function BlogListPage(posts: any[], mediumPosts: { title: string; link: string; pubDate: string }[] = [], opts: ListOpts = { cat: '', page: 1, pages: 1, total: 0, counts: {}, allTotal: 0 }) {
   const cards = posts.map(p => `
   <a href="/blog/${esc(p.slug)}" class="blog-card reveal" data-cat="${esc(p.category || '')}">
     <div class="bc-img">${p.thumbnail ? `<img src="/api/img/${p.thumbnail}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : '<div class="bc-noimg"><i class="fas fa-feather-alt"></i></div>'}</div>
@@ -218,23 +254,11 @@ export function BlogListPage(posts: any[], mediumPosts: { title: string; link: s
       <div class="bc-meta"><span><i class="fas fa-user-md"></i> ${esc(docName(p.author_slug))} 원장</span><span>${(p.created_at || '').slice(0, 10)}</span><span><i class="fas fa-eye"></i> ${p.views}</span></div>
     </div>
   </a>`).join('');
-  // 카테고리 필터 칩 — 실제 글이 있는 카테고리만 노출
-  const usedCats = POST_CATEGORIES.filter(cat => posts.some(p => p.category === cat.slug));
-  const chips = usedCats.length >= 2
-    ? `<div class="blog-cats" role="group" aria-label="칼럼 카테고리 필터">
-        <button class="cat-chip active" data-cat="" type="button">전체 <span>${posts.length}</span></button>
-        ${usedCats.map(cat => `<button class="cat-chip" data-cat="${cat.slug}" type="button">${cat.name} <span>${posts.filter(p => p.category === cat.slug).length}</span></button>`).join('')}
-       </div>`
-    : '';
+  // 카테고리 필터 — 서버 렌더 링크(?category=), 실제 글이 있는 카테고리만
+  const chips = catLinks('/blog', opts, POST_CATEGORIES);
   return html`
   ${raw(PAGE_HERO('원장 칼럼', '치과 건강 이야기', '이솔치과 원장들이 직접 쓰는 구강 건강 정보와 병원 이야기입니다.'))}
   <style>
-    .blog-cats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
-    .cat-chip{border:1.5px solid var(--line);background:#fff;border-radius:100px;padding:9px 18px;font-size:.9rem;font-weight:700;color:var(--ink-soft);cursor:pointer;transition:.2s;font-family:inherit}
-    .cat-chip span{font-size:.78rem;color:var(--gold-3);margin-left:2px}
-    .cat-chip:hover{border-color:var(--gold)}
-    .cat-chip.active{background:var(--navy);border-color:var(--navy);color:#fff}
-    .cat-chip.active span{color:var(--gold)}
     .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px}
     .bc-cat{display:inline-block;font-size:.72rem;font-weight:800;color:var(--gold-3);background:var(--gold-soft);border-radius:100px;padding:3px 12px;margin-bottom:9px}
     .blog-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:transform .35s var(--ease),box-shadow .35s var(--ease);display:block}
@@ -247,12 +271,14 @@ export function BlogListPage(posts: any[], mediumPosts: { title: string; link: s
     .bc-body p{font-size:.88rem;color:var(--ink-soft);line-height:1.6;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .bc-meta{display:flex;gap:14px;font-size:.78rem;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:12px}
     .bc-meta i{color:var(--gold);margin-right:4px}
+    ${raw(PAGER_CSS)}
   </style>
   <section class="section"><div class="wrap">
-    <h2 class="section-list-title">칼럼 글 목록</h2>
+    <h2 class="section-list-title">${opts.cat ? `${categoryName(opts.cat) || opts.cat} 칼럼` : '칼럼 글 목록'}</h2>
     ${raw(chips)}
+    ${opts.cat && TREATMENTS.some(t => t.slug === opts.cat) ? raw(`<p style="margin:-14px 0 26px;font-size:.92rem;color:var(--ink-soft)">${esc(categoryName(opts.cat))} 칼럼 ${opts.total}편 · <a href="/treatments/${esc(opts.cat)}" style="color:var(--gold-3);font-weight:700;text-decoration:underline">${esc(catName(opts.cat))} 진료 안내</a> · <a href="/cases?category=${esc(opts.cat)}" style="color:var(--gold-3);font-weight:700;text-decoration:underline">${esc(catName(opts.cat))} 치료 사례</a></p>`) : ''}
     ${posts.length
-      ? raw(`<div class="blog-grid" id="blog-grid">${cards}</div>`)
+      ? raw(`<div class="blog-grid" id="blog-grid">${cards}</div>${pagerHtml(`/blog?${opts.cat ? `category=${opts.cat}&` : ''}`, opts.page, opts.pages)}`)
       : raw(`<div style="text-align:center;padding:70px 20px;color:var(--ink-soft)"><i class="fas fa-feather-alt" style="font-size:2.4rem;color:var(--gold);margin-bottom:18px;display:block"></i>첫 글을 준비 중입니다. 곧 유익한 구강 건강 정보로 찾아뵙겠습니다.</div>`)}
     <aside class="medium-banner reveal" aria-label="Medium 영문 칼럼 안내" style="margin-top:44px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px 28px">
       <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
@@ -277,16 +303,7 @@ export function BlogListPage(posts: any[], mediumPosts: { title: string; link: s
       </ul>`) : ''}
     </aside>
   </div></section>
-  ${chips ? raw(`<script>
-  (function(){
-    var chips=document.querySelectorAll('.cat-chip'),cards=document.querySelectorAll('#blog-grid .blog-card');
-    chips.forEach(function(ch){ch.addEventListener('click',function(){
-      chips.forEach(function(x){x.classList.remove('active')});ch.classList.add('active');
-      var cat=ch.getAttribute('data-cat');
-      cards.forEach(function(cd){cd.style.display=(!cat||cd.getAttribute('data-cat')===cat)?'':'none'});
-    });});
-  })();
-  </script>`) : ''}`;
+`;
 }
 
 // ============================================================
@@ -317,14 +334,16 @@ function analyzePost(htmlStr: string): { html: string; readMin: number; toc: { i
 export function BlogDetailPage(
   p: any,
   related: any[],
-  extra?: { relTreatment?: any; faqs?: { q: string; a: string }[]; tags?: string[] },
+  extra?: { relTreatment?: any; faqs?: { q: string; a: string }[]; tags?: string[]; summary?: string; bodyHtml?: string; relCases?: any[]; reviewed?: string; catLabel?: string },
 ) {
   const doctor = DOCTORS.find(d => d.slug === p.author_slug);
   const relTreatment = extra?.relTreatment;
   const faqs = extra?.faqs || [];
   const tags = extra?.tags || [];
   const relList = related.map(r => `<a href="/blog/${esc(r.slug)}"><i class="fas fa-angle-right"></i> ${esc(r.title)}</a>`).join('');
-  const { html: bodyHtml, readMin, toc } = analyzePost(p.content_html || '');
+  const relCases = extra?.relCases || [];
+  const summary = extra?.summary || p.summary || '';
+  const { html: bodyHtml, readMin, toc } = analyzePost(extra?.bodyHtml ?? (p.content_html || ''));
   const tocHtml = toc.length >= 2
     ? `<nav class="post-toc reveal" aria-label="목차">
         <div class="toc-head"><i class="fas fa-list-ul"></i> 목차</div>
@@ -332,7 +351,7 @@ export function BlogDetailPage(
        </nav>`
     : '';
   return html`
-  ${raw(PAGE_HERO(`<a href="/blog" style="color:rgba(250,248,244,.45)">블로그</a> / 글`, esc(p.title), p.excerpt ? esc(p.excerpt) : ''))}
+  ${raw(PAGE_HERO(`<a href="/blog" style="color:rgba(250,248,244,.45)">원장 칼럼</a> / ${extra?.catLabel && p.category ? `<a href="/blog?category=${esc(p.category)}" style="color:rgba(250,248,244,.45)">${esc(extra.catLabel)}</a> / ` : ''}글`, esc(p.title), p.excerpt ? esc(p.excerpt) : ''))}
   <style>
     .post-wrap{max-width:780px;margin:0 auto}
     .post-meta{display:flex;gap:16px;align-items:center;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:34px;font-size:.88rem;color:var(--ink-soft)}
@@ -389,10 +408,10 @@ export function BlogDetailPage(
       <span><i class="fas fa-eye"></i>조회 ${p.views}</span>
       <span><i class="fas fa-clock"></i>읽기 ${readMin}분</span>
     </div>
-    ${p.summary ? raw(`
+    ${summary ? raw(`
     <div class="aeo-summary reveal">
       <div class="as-head"><i class="fas fa-lightbulb"></i>핵심 요약</div>
-      <p>${esc(p.summary)}</p>
+      <p class="answer-summary">${esc(summary)}</p>
     </div>`) : ''}
     ${tocHtml ? raw(tocHtml) : ''}
     <article class="post-body reveal">${raw(bodyHtml)}</article>
@@ -420,8 +439,11 @@ export function BlogDetailPage(
       <div>
         <div style="font-weight:800">${doctor.name} ${doctor.role}${doctor.isSpecialist ? ' <span style="font-size:.75rem;font-weight:800;color:var(--gold-3);background:var(--gold-soft);border-radius:100px;padding:2px 10px;vertical-align:2px">전문의</span>' : ''}</div>
         <div style="font-size:.85rem;color:var(--ink-soft);margin-top:4px">${doctor.specialty} · <a href="/doctors/${doctor.slug}" style="color:var(--gold-3);font-weight:700;text-decoration:underline;text-underline-offset:3px">원장 소개 보기</a></div>
+        <div style="font-size:.8rem;color:var(--ink-soft);margin-top:4px">글·감수 ${doctor.name} ${doctor.role} · 게시 ${(p.created_at || '').slice(0, 10)}${extra?.reviewed ? ` · 최종 검토 ${extra.reviewed}` : ''}</div>
       </div>
     </div>`) : ''}
+    <p style="margin-top:14px;font-size:.8rem;color:var(--ink-soft)">※ 이 글은 일반적인 구강 건강 정보이며 진단을 대신하지 않습니다. 치료 방법과 결과는 개인의 구강 상태에 따라 차이가 있을 수 있으니 정확한 진단은 내원 상담을 통해 받으시기 바랍니다.</p>
+    ${relCases.length ? raw(`<div class="rel-posts reveal"><strong style="display:block;margin-bottom:10px">${esc(relTreatment?.name || '')} 치료 사례</strong>${relCases.map((r: any) => `<a href="/cases/${r.id}"><i class="fas fa-angle-right"></i> ${esc(r.title)}</a>`).join('')}<a href="/cases?category=${esc(relTreatment?.slug || '')}" style="font-size:.82rem;color:var(--gold-3)">사례 전체 보기 →</a></div>`) : ''}
     ${related.length ? raw(`<div class="rel-posts reveal"><strong style="display:block;margin-bottom:10px">함께 읽으면 좋은 글</strong>${relList}</div>`) : ''}
     <div style="margin-top:26px;font-size:.88rem;color:var(--ink-soft);display:flex;align-items:center;gap:8px">
       <i class="fab fa-medium" style="font-size:1.1rem;color:var(--navy)"></i>
