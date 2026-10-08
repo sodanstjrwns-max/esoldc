@@ -289,6 +289,7 @@ export function TreatmentDetailPage(t: Treatment, relTerms: { term: string }[] =
           <a href="/reservation" class="btn-line">예약 문의하기 <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
+      <p class="t-hub-link" style="margin-top:22px;text-align:center;font-size:.92rem;color:var(--ink-soft)">오시는 길·진료시간·주차 안내: <a href="/area/maseok" style="color:var(--gold-3);font-weight:700;border-bottom:1px solid currentColor">마석 치과</a> 이솔치과의원</p>
     </div>
   </section>
   `;

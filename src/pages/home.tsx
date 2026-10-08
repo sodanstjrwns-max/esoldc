@@ -690,7 +690,7 @@ export function HomePage(latestPosts: any[] = []) {
       <div class="sec-head center" data-reveal>
         <span class="mono-lbl"><span class="num">/08</span> 진료 가능 지역</span>
         <h2 data-line><span>마석 인근에서 <span class="nb"><em>편하게</em> 오세요</span></span></h2>
-        <p>마석을 중심으로 화도·남양주·가평 등 인근 지역에서 찾아주십니다. 처음 오신다면 <a href="/area/maseok" style="color:var(--gold-3);font-weight:700;border-bottom:1px solid currentColor">마석 치과 안내</a>에서 오시는 길·진료시간·주차를 먼저 확인해 보세요.</p>
+        <p>마석을 중심으로 화도·남양주·가평 등 인근 지역에서 찾아주십니다. 처음 오신다면 <a href="/area/maseok" style="color:var(--gold-3);font-weight:700;border-bottom:1px solid currentColor">마석 치과</a> 안내에서 오시는 길·진료시간·주차를 먼저 확인해 보세요.</p>
       </div>
       <div class="geo-chips" data-reveal>
         ${raw(NEARBY_AREAS.map(a => `<a href="/area/${a.slug}-implant">${a.name} 임플란트</a>`).join(''))}

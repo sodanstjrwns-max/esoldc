@@ -201,6 +201,7 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
       <div class="gd-rel">
         ${related.map(t => `<a href="${termPath(t.term)}"${r?.see.includes(t.term) ? ' class="gd-see"' : ''}>${esc(t.term)}</a>`).join('')}
       </div>`) : ''}
+      <p class="gd-hub-link" style="margin-top:28px;font-size:.92rem;color:var(--ink-soft)">진료 상담·위치 안내: <a href="/area/maseok" style="color:var(--gold-3);font-weight:700;border-bottom:1px solid currentColor">마석 치과</a> 이솔치과의원</p>
 
       <div style="margin-top:48px;display:flex;gap:12px;flex-wrap:wrap">
         <a href="/glossary" class="btn-ghost" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border:1px solid var(--line);border-radius:99px;font-size:.9rem"><i class="fas fa-arrow-left"></i> 백과사전 전체 보기</a>

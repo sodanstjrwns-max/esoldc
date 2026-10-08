@@ -869,6 +869,7 @@ export function AreaPage(area: NearbyArea, t: Treatment) {
           <li><strong>문의</strong> ${CLINIC.tel} · 진료 방법과 비용은 개인 상태에 따라 차이가 있으며 내원 상담을 통해 결정됩니다.</li>
         </ul>
       </div>
+      <p class="area-hub-link">진료시간·주차·의료진은 <a href="/area/maseok" style="color:var(--gold-3);font-weight:700;border-bottom:1px solid currentColor">마석 치과</a> 이솔치과의원 종합 안내에서 한 번에 보실 수 있습니다.</p>
 
       <h2>${area.full}에서 ${t.name} 치과를 찾으신다면</h2>
       <p>${area.intro} 이솔치과의원은 ${CLINIC.address}에 위치하여, ${area.name} 지역에서 가깝게 방문하실 수 있는 동네 치과입니다. 임플란트를 제외한 각 진료 분야의 전문의가 상주하며, 충분한 상담을 통해 환자분의 상태에 맞는 진료를 안내해 드립니다.</p>

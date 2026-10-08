@@ -697,7 +697,7 @@ function header() {
   </div>`;
 }
 
-function footer() {
+function footer(path = '') {
   // 카카오 채널 URL이 확정된 경우에만 카카오 버튼 활성화 (없으면 '오시는 길'로 안전 대체 — 창작/허위링크 금지)
   const kko = (CLINIC.sns.kakaoChannelUrl || '').trim();
   const nvb = ((CLINIC.sns as any).naverBookingUrl || '').trim();
@@ -736,7 +736,7 @@ function footer() {
           <div class="footer-col-title">찾아오시는 길</div>
           <a href="/directions">${CLINIC.addressShort}</a>
           <a href="tel:${CLINIC.tel}">${CLINIC.tel}</a>
-          <a href="/area/maseok">마석 치과 안내</a>
+          ${path !== '/area/maseok' ? raw('<a href="/area/maseok">마석 치과</a>') : ''}
           <a href="/area">지역별 진료 안내</a>
           <a href="/directions">진료시간 안내</a>
           <a href="/reservation">예약 문의</a>
@@ -880,7 +880,7 @@ export function Layout(meta: SeoMeta, body: any) {
   </nav>`) : ''}
   ${header()}
   <main id="main-content">${body}</main>
-  ${footer()}
+  ${footer(meta.path)}
   ${meta.extraBody ? raw(meta.extraBody) : ''}
   <script>${raw(INTERACTION_JS)}</script>
   <script>

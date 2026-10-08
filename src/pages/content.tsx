@@ -3,6 +3,7 @@
 // ============================================================
 import { html, raw } from 'hono/html';
 import { CLINIC, DOCTORS, TREATMENTS } from '../data/clinic';
+import { blogHubNote } from '../lib/hub-link';
 
 const PAGE_HERO = (crumb: string, title: string, sub: string) => `
 <section style="background:var(--navy);color:var(--inv);padding:104px 0 80px;position:relative;overflow:hidden">
@@ -433,6 +434,7 @@ export function BlogDetailPage(
       </div>
       <a href="/treatments/${esc(relTreatment.slug)}" class="btn btn-accent" style="flex:none">${esc(relTreatment.name)} 진료 안내 <i class="fas fa-arrow-right"></i></a>
     </div>`) : ''}
+    ${/href="(?:https:\/\/isoldc\.kr)?\/area\/maseok"/.test(bodyHtml) ? '' : raw(blogHubNote(String(p.slug || p.id || ''), relTreatment?.name))}
     ${doctor ? raw(`
     <div class="post-author reveal">
       ${doctor.photo ? `<img src="${doctor.photo}" alt="${doctor.name} ${doctor.role}" width="58" height="58" loading="lazy" decoding="async" style="width:58px;height:58px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;border:2px solid var(--gold)">` : `<div class="av"><i class="fas fa-user-md"></i></div>`}
