@@ -749,7 +749,7 @@ app.get('/glossary/:term', (c) => {
       medicalWebPageSchema({
         name: `${term.term} 뜻·설명`, description: term.def, path: termPath,
         aboutId: `${SITE_URL}${termPath}#term`,
-        lastReviewed: modified,
+        // lastReviewed/reviewedBy 없음 — 용어 본문은 원장 검토 기록이 없다(2026-10-08 보강분은 AI 작성). 수정일만 표시.
         dateModified: modified,
       }),
       ...(term.rich?.faqs.length ? [faqSchema(term.rich.faqs, termPath)] : []),
@@ -895,7 +895,7 @@ app.get(MASEOK_HUB_PATH, (c) => {
         mainEntity: { '@id': `${SITE_URL}${MASEOK_HUB_PATH}#faq` },
         breadcrumb: { '@id': `${SITE_URL}${MASEOK_HUB_PATH}#breadcrumb` },
         significantLink: [`${SITE_URL}/directions`, `${SITE_URL}/doctors`, `${SITE_URL}/treatments`, `${SITE_URL}/reservation`],
-        lastReviewed: MASEOK_HUB_UPDATED,
+        // lastReviewed 없음 — 2026-10-08 작성 허브, 원장 검토 기록 없음
         dateModified: MASEOK_HUB_UPDATED,
         speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.aeo-summary'] },
       },
