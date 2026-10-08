@@ -28,9 +28,18 @@ export function visibleTextLength(s?: string | null): number {
     .length;
 }
 
-/** 백과사전 용어: 정의 + 심층 설명 고유 본문 */
-export function isThinGlossaryTerm(t: Pick<GTerm, 'def' | 'longDef'>): boolean {
-  return visibleTextLength(t.def) + visibleTextLength(t.longDef) < THIN_GLOSSARY_MIN_CHARS;
+/** 백과사전 용어 고유 본문 글자 수: 정의 + 심층 설명 + 보강 본문(도입·소제목·문단·FAQ) */
+export function glossaryTextLength(t: Pick<GTerm, 'def' | 'longDef' | 'rich'>): number {
+  const r = t.rich;
+  const richText = r
+    ? [r.lead, ...r.sections.flatMap(s => [s.h, s.p]), ...r.faqs.flatMap(f => [f.q, f.a])].join(' ')
+    : '';
+  return visibleTextLength(t.def) + visibleTextLength(t.longDef) + visibleTextLength(richText);
+}
+
+/** 백과사전 용어: 정의 + 심층 설명 + 보강 본문 (2026-10-08 보강으로 310개 전부 기준 통과 → 색인·사이트맵 자동 복귀) */
+export function isThinGlossaryTerm(t: Pick<GTerm, 'def' | 'longDef' | 'rich'>): boolean {
+  return glossaryTextLength(t) < THIN_GLOSSARY_MIN_CHARS;
 }
 
 /** 공지: 본문(content_html) */

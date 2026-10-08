@@ -2,6 +2,7 @@
 // 이솔치과의원 — 치과 백과사전 (500+ 용어)
 // 각 용어: term(용어), def(정의), cat(카테고리), rel(관련 진료 slug)
 // ============================================================
+import type { RichTerm } from './glossary-rich';
 
 export interface GTerm {
   term: string;
@@ -9,6 +10,8 @@ export interface GTerm {
   cat: string;
   rel: string[];
   longDef?: string; // 심층 설명(약 1000자) — 핵심 200개 용어에 추가
+  rich?: RichTerm;  // 보강 본문(2026-10-08) — 정의 한 줄뿐이던 용어 + 동의어를 합친 대표 용어 (glossary-rich.ts)
+  aliases?: string[]; // 이 용어로 301 합쳐진 다른 이름 (GLOSSARY_ALIASES)
 }
 
 const g = (term: string, def: string, cat: string, rel: string[] = []): GTerm => ({ term, def, cat, rel });
@@ -598,6 +601,36 @@ for (const t of GLOSSARY) {
   if (ld) t.longDef = ld;
 }
 
+// 동의어·같은 대상의 다른 이름 → 대표 용어로 301 (2026-10-08). 키 = 합쳐져 사라지는 용어, 값 = 남는 대표 용어.
+// 사라지는 용어는 목록·사이트맵·관련 용어에서 빠지고, /glossary/<옛 용어> 는 대표 용어로 영구 이동한다.
+export const GLOSSARY_ALIASES: Record<string, string> = {
+  '사이너스리프트': '상악동거상술',
+  '3D CT': 'CBCT',
+  '치아홈메우기': '실란트',
+  '치태': '플라크',
+  '비니어': '라미네이트',
+  '어버트먼트': '지대주',
+  '아펙스로케이터': '근관장측정',
+  '근관장측정기': '근관장측정',
+  '불소바니쉬도포': '불소바니쉬',
+  '스플린트': '교합안정장치',
+  '임플란트지지의치': '오버덴처',
+  '치과용현미경': '미세현미경치료',
+  '치면세마': '전문가구강위생관리',
+};
+for (let i = GLOSSARY.length - 1; i >= 0; i--) {
+  if (GLOSSARY_ALIASES[GLOSSARY[i].term]) GLOSSARY.splice(i, 1);
+}
+
+// 보강 본문(rich) 병합 + 대표 용어에 다른 이름 표시
+import { RICH_TERMS } from './glossary-rich';
+for (const t of GLOSSARY) {
+  const r = RICH_TERMS[t.term];
+  if (r) t.rich = r;
+  const al = Object.keys(GLOSSARY_ALIASES).filter(k => GLOSSARY_ALIASES[k] === t.term);
+  if (al.length) t.aliases = al;
+}
+
 // 가나다 정렬된 전체 목록
 export const GLOSSARY_SORTED = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term, 'ko'));
 
@@ -618,7 +651,7 @@ export function searchGlossary(q: string, limit = 30): GTerm[] {
   const s = q.trim().toLowerCase();
   if (!s) return [];
   const starts = GLOSSARY_SORTED.filter(t => t.term.toLowerCase().startsWith(s));
-  const inc = GLOSSARY_SORTED.filter(t => !t.term.toLowerCase().startsWith(s) && (t.term.toLowerCase().includes(s) || t.def.toLowerCase().includes(s)));
+  const inc = GLOSSARY_SORTED.filter(t => !t.term.toLowerCase().startsWith(s) && (t.term.toLowerCase().includes(s) || t.def.toLowerCase().includes(s) || (t.aliases || []).some(a => a.toLowerCase().includes(s))));
   return [...starts, ...inc].slice(0, limit);
 }
 

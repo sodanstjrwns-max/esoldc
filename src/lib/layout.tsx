@@ -641,7 +641,7 @@ function contentMenu() {
       <a href="/blog"><span class="mi"><i class="fas fa-feather-alt"></i></span><span><strong>블로그</strong><span>원장들이 쓰는 건강 이야기</span></span></a>
       <a href="/notices"><span class="mi"><i class="fas fa-bullhorn"></i></span><span><strong>공지사항</strong><span>진료 일정·병원 소식</span></span></a>
       <a href="/faq"><span class="mi"><i class="fas fa-circle-question"></i></span><span><strong>자주묻는질문</strong><span>진료별 궁금증 모음</span></span></a>
-      <a href="/glossary"><span class="mi"><i class="fas fa-book-open"></i></span><span><strong>치과 백과사전</strong><span>치과 용어 500선 알기 쉽게</span></span></a>
+      <a href="/glossary"><span class="mi"><i class="fas fa-book-open"></i></span><span><strong>치과 백과사전</strong><span>치과 용어 약 500개 알기 쉽게</span></span></a>
     </div>`;
 }
 
@@ -736,6 +736,7 @@ function footer() {
           <div class="footer-col-title">찾아오시는 길</div>
           <a href="/directions">${CLINIC.addressShort}</a>
           <a href="tel:${CLINIC.tel}">${CLINIC.tel}</a>
+          <a href="/area/maseok">마석 치과 안내</a>
           <a href="/area">지역별 진료 안내</a>
           <a href="/directions">진료시간 안내</a>
           <a href="/reservation">예약 문의</a>

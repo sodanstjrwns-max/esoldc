@@ -62,7 +62,7 @@ export function GlossaryListPage() {
     .filter(g => g.terms.length);
   const card = (t: GTerm) => {
     const tags = t.rel.slice(0, 2).map(s => `<span class="gl-tag">${esc(tName(s))}</span>`).join('');
-    return `<a class="gl-card" href="/glossary/${encodeURIComponent(t.term)}" data-c="${esc(t.cat)}"><h4><i class="fas fa-book-open"></i>${esc(t.term)}</h4><p>${esc(t.def)}</p>${tags}</a>`;
+    return `<a class="gl-card" href="/glossary/${encodeURIComponent(t.term)}" data-c="${esc(t.cat)}"${t.aliases?.length ? ` data-a="${esc(t.aliases.join(' '))}"` : ''}><h4><i class="fas fa-book-open"></i>${esc(t.term)}</h4><p>${esc(t.def)}</p>${tags}</a>`;
   };
   const chos = ['전체', ...GROUP_ORDER];
 
@@ -104,7 +104,7 @@ export function GlossaryListPage() {
     // 카드별 검색 텍스트 캐시
     groups.forEach(function(g){
       g.querySelectorAll('.gl-card').forEach(function(a){
-        a._s = (a.querySelector('h4').textContent + ' ' + a.querySelector('p').textContent).toLowerCase();
+        a._s = (a.querySelector('h4').textContent + ' ' + a.querySelector('p').textContent + ' ' + (a.dataset.a || '')).toLowerCase();
       });
     });
     function render(){
@@ -139,14 +139,25 @@ export function GlossaryListPage() {
   </script>`;
 }
 
-export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments: { slug: string; name: string; short: string }[]) {
+export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments: { slug: string; name: string; short: string }[], modified = '') {
+  const r = term.rich;
+  const termPath = (t: string) => `/glossary/${encodeURIComponent(t)}`;
   return html`
   ${raw(PAGE_HERO(`<a href="/glossary" style="color:rgba(250,248,244,.45)">치과 백과사전</a> / 용어`, esc(term.term), esc(term.cat)))}
   <style>${raw(GLOSSARY_CSS)}
     .gd-def{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:var(--radius-lg);padding:34px 38px;font-size:1.12rem;line-height:1.9;margin-bottom:40px}
+    .gd-def .gd-alias{display:block;margin-top:12px;font-size:.86rem;color:var(--ink-soft)}
+    .gd-lead{font-size:1.06rem;line-height:1.95;color:var(--ink);margin:-14px 0 8px}
     .gd-long{font-size:1.04rem;line-height:2;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:30px 34px;letter-spacing:-.01em}
+    .gd-sec p{font-size:1.04rem;line-height:1.95;color:var(--ink);letter-spacing:-.01em}
     .gd-sub{font-size:1.25rem;margin:40px 0 18px;display:flex;align-items:center;gap:10px}
     .gd-sub i{color:var(--gold);font-size:.85em}
+    .gd-faq details{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px;background:#fff;overflow:hidden}
+    .gd-faq summary{padding:18px 22px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--navy)}
+    .gd-faq summary::-webkit-details-marker{display:none}
+    .gd-faq summary i{color:var(--gold);transition:transform .3s}
+    .gd-faq details[open] summary i{transform:rotate(45deg)}
+    .gd-faq .gd-fa{padding:0 22px 20px;color:var(--ink-soft);line-height:1.85}
     .gd-treat{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
     .gd-treat a{background:var(--gold-soft);border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px 24px;display:block;transition:.3s}
     .gd-treat a:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
@@ -155,14 +166,29 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
     .gd-rel{display:flex;gap:10px;flex-wrap:wrap}
     .gd-rel a{padding:9px 18px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:.88rem;transition:.25s}
     .gd-rel a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .gd-rel a.gd-see{border-color:var(--gold);color:var(--gold-3,var(--ink))}
   </style>
   <section class="section">
     <div class="wrap" style="max-width:880px">
-      <div class="gd-def aeo-summary"><strong>${esc(term.term)}</strong>(이)란? ${esc(term.def)}</div>
+      <div class="gd-def aeo-summary"><strong>${esc(term.term)}</strong>(이)란? ${esc(term.def)}${term.aliases?.length ? raw(`<span class="gd-alias">다른 이름: ${term.aliases.map(esc).join(', ')}</span>`) : ''}</div>
+
+      ${r ? raw(`<p class="gd-lead">${esc(r.lead)}</p>`) : ''}
 
       ${term.longDef ? raw(`
       <h2 class="gd-sub"><i class="fas fa-circle-info"></i>자세히 알아보기</h2>
       <div class="gd-long">${esc(term.longDef)}</div>`) : ''}
+
+      ${r ? raw(r.sections.map(sec => `
+      <section class="gd-sec">
+        <h2 class="gd-sub"><i class="fas fa-circle-info"></i>${esc(sec.h)}</h2>
+        <p>${esc(sec.p)}</p>
+      </section>`).join('')) : ''}
+
+      ${r && r.faqs.length ? raw(`
+      <h2 class="gd-sub" id="faq"><i class="fas fa-circle-question"></i>${esc(term.term)} 자주 묻는 질문</h2>
+      <div class="gd-faq">
+        ${r.faqs.map((f, i) => `<details id="q-${i + 1}"><summary>${esc(f.q)}<i class="fas fa-plus" aria-hidden="true"></i></summary><div class="gd-fa">${esc(f.a)}</div></details>`).join('')}
+      </div>`) : ''}
 
       ${relTreatments.length ? raw(`
       <h2 class="gd-sub"><i class="fas fa-stethoscope"></i>관련 진료 보기</h2>
@@ -173,7 +199,7 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
       ${related.length ? raw(`
       <h2 class="gd-sub"><i class="fas fa-link"></i>함께 보면 좋은 용어</h2>
       <div class="gd-rel">
-        ${related.map(t => `<a href="/glossary/${encodeURIComponent(t.term)}">${esc(t.term)}</a>`).join('')}
+        ${related.map(t => `<a href="${termPath(t.term)}"${r?.see.includes(t.term) ? ' class="gd-see"' : ''}>${esc(t.term)}</a>`).join('')}
       </div>`) : ''}
 
       <div style="margin-top:48px;display:flex;gap:12px;flex-wrap:wrap">
@@ -181,7 +207,7 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
         <a href="/reservation" class="btn-gold" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:99px;font-size:.9rem;background:linear-gradient(110deg,var(--gold),#C99A50);color:#fff"><i class="fas fa-calendar-check"></i> 진료 예약 문의</a>
       </div>
 
-      <p style="margin-top:36px;font-size:.78rem;color:var(--ink-soft);line-height:1.7">※ 본 설명은 일반적인 치과 의학 정보이며, 개인의 구강 상태에 따라 진단과 치료 방법은 달라질 수 있습니다. 정확한 진단은 ${esc(CLINIC.name)} 내원 상담을 통해 받아보시기 바랍니다.</p>
+      <p style="margin-top:36px;font-size:.78rem;color:var(--ink-soft);line-height:1.7">※ 본 설명은 일반적인 치과 의학 정보이며, 개인의 구강 상태에 따라 진단과 치료 방법은 달라질 수 있습니다. 정확한 진단은 ${esc(CLINIC.name)} 내원 상담을 통해 받아보시기 바랍니다.${modified ? raw(` · 최종 수정 <time datetime="${modified}">${modified}</time>`) : ''}</p>
     </div>
   </section>`;
 }

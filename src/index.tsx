@@ -18,6 +18,7 @@ import { DoctorsListPage, DoctorDetailPage } from './pages/doctors';
 import {
   MissionPage, DirectionsPage, FaqPage, PricingPage,
   ReservationPage, AreaPage, AreaHubPage, areaFaqs, NotFoundPage,
+  MaseokHubPage, MASEOK_HUB_PATH, MASEOK_HUB_UPDATED, MASEOK_HUB_TITLE, MASEOK_HUB_DESC, MASEOK_HUB_ANSWER, MASEOK_HUB_FAQS,
 } from './pages/misc';
 import { SignupPage, LoginPage } from './pages/auth';
 import {
@@ -26,8 +27,8 @@ import {
 } from './pages/content';
 import { GlossaryListPage, GlossaryDetailPage } from './pages/glossary';
 import { SeoHealthPage } from './pages/seo-health';
-import { GLOSSARY, GLOSSARY_SORTED } from './data/glossary';
-import { TREATMENT_REVIEWED, FAQ_REVIEWED, GLOSSARY_DEF_REVIEWED, GLOSSARY_LONG_REVIEWED } from './data/reviewed';
+import { GLOSSARY, GLOSSARY_SORTED, GLOSSARY_ALIASES, type GTerm } from './data/glossary';
+import { TREATMENT_REVIEWED, FAQ_REVIEWED, GLOSSARY_DEF_REVIEWED, GLOSSARY_LONG_REVIEWED, GLOSSARY_RICH_REVIEWED, glossaryTermDate } from './data/reviewed';
 import { CONTENT_DATES, latestDate, toYmd } from './data/content-dates';
 import { isThinGlossaryTerm, isThinNotice, NOINDEX_FOLLOW } from './lib/thin-content';
 import { authApi } from './routes/auth';
@@ -54,10 +55,11 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// www → 비www 301 통일 (A4 canonical 정합성: 같은 페이지가 두 주소로 존재하면 평가·색인 점수 분산)
+// www·pages.dev → isoldc.kr 301 통일 (A4 canonical 정합성: 같은 페이지가 두 주소로 존재하면 평가·색인 점수 분산)
+// pages.dev 는 프로덕션 별칭(isoldent.pages.dev)만 — 해시 미리보기 배포 URL(<hash>.isoldent.pages.dev)은 테스트용으로 그대로 둔다.
 app.use('*', async (c, next) => {
   const url = new URL(c.req.url);
-  if (url.hostname === 'www.isoldc.kr') {
+  if (url.hostname === 'www.isoldc.kr' || url.hostname === 'isoldent.pages.dev') {
     url.hostname = 'isoldc.kr';
     url.protocol = 'https:';
     return c.redirect(url.toString(), 301);
@@ -125,8 +127,8 @@ app.get('/', async (c) => {
   // 최신 원장 칼럼 3개 — 홈 인링크 (신선도 신호 + 칼럼 발견성)
   const latestPosts: any[] = postsResults;
   const res = await c.html(Layout({
-    title: `${CLINIC.name} | 남양주 마석 임플란트·교정·소아치과`,
-    description: `남양주 마석 ${CLINIC.name}. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과. 임플란트·치아교정·소아치과 전 연령 통합 진료. 기분 좋게 진료를 마칠 때까지.`,
+    title: `마석 치과 | ${CLINIC.name} — 남양주 화도읍 임플란트·교정·소아치과`,
+    description: `마석 치과 ${CLINIC.name} — 남양주 화도읍 마석로 25. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과. 임플란트·치아교정·소아치과 전 연령 통합 진료. 기분 좋게 진료를 마칠 때까지.`,
     path: '/',
     jsonLd: [
       // 홈 WebPage(speakable) — 메인 엔티티를 병원으로 연결, AEO 인용 타깃
@@ -134,7 +136,7 @@ app.get('/', async (c) => {
         '@context': 'https://schema.org',
         '@type': ['WebPage', 'MedicalWebPage'],
         '@id': `${SITE_URL}/#webpage`,
-        name: `${CLINIC.name} | 남양주 마석 임플란트·교정·소아치과`,
+        name: `마석 치과 | ${CLINIC.name} — 남양주 화도읍 임플란트·교정·소아치과`,
         url: SITE_URL,
         description: `남양주 마석 ${CLINIC.name}. 각 분야 전문의 상주(임플란트 제외), 소아부터 노인까지 3대가 함께하는 가족 치과.`,
         inLanguage: 'ko-KR',
@@ -177,7 +179,7 @@ app.get('/', async (c) => {
 // ============================================================================
 app.get('/mission', (c) => {
   return c.html(Layout({
-    title: `병원소개 | ${CLINIC.name} - 남양주 마석 치과`,
+    title: `병원소개 · 진료 철학 | ${CLINIC.name} (남양주 화도읍)`,
     description: `${CLINIC.name}의 이야기. 남양주 마석에서 10년째 한자리, "기분 좋게 진료를 마칠 때까지"라는 철학으로 지역 주민과 함께해 온 동네 치과입니다.`,
     path: '/mission',
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '병원소개', path: '/mission' }])],
@@ -230,7 +232,7 @@ app.get('/doctors/:slug', async (c) => {
 // ============================================================================
 app.get('/treatments', (c) => {
   return c.html(Layout({
-    title: `진료안내 | ${CLINIC.name} - 남양주 마석 치과`,
+    title: `진료안내 — 임플란트·교정·소아치과·보철 | ${CLINIC.name}`,
     description: `${CLINIC.name}의 진료안내. 임플란트·치아교정·소아치과를 중심으로 보철·잇몸치료·일반진료까지 전 연령 통합 진료를 제공합니다.`,
     path: '/treatments',
     jsonLd: [
@@ -504,7 +506,7 @@ app.get('/blog', async (c) => {
   const path = listSelfPath('/blog', cat, page);
   const pageSuffix = page > 1 ? ` (${page}페이지)` : '';
   return c.html(Layout({
-    title: cName ? `${cName} 원장 칼럼${pageSuffix} | ${CLINIC.name}` : `원장 칼럼${pageSuffix} | ${CLINIC.name} — 남양주 마석 치과 건강 이야기`,
+    title: cName ? `${cName} 원장 칼럼${pageSuffix} | ${CLINIC.name}` : `원장 칼럼${pageSuffix} | ${CLINIC.name} — 원장이 직접 쓰는 치아 건강 이야기`,
     description: cName
       ? `${CLINIC.name} ${cName} 칼럼 ${total}편. 분야별 전문의가 직접 쓰는 ${cName} 정보와 치료 상식.${pageSuffix}`
       : `${CLINIC.name} 원장들이 직접 쓰는 구강 건강 칼럼. 임플란트·치아교정·소아치과 등 진료 분야별 전문의가 검증한 치과 상식과 남양주 마석 병원 이야기.${pageSuffix}`,
@@ -688,7 +690,7 @@ app.get('/glossary', (c) => {
     path: '/glossary',
     jsonLd: [
       breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }]),
-      definedTermSetSchema({ count: GLOSSARY.length, longCount: GLOSSARY_SORTED.filter(t => t.longDef).length }),
+      definedTermSetSchema({ count: GLOSSARY.length, longCount: GLOSSARY_SORTED.filter(t => t.longDef || t.rich).length }),
     ],
   }, GlossaryListPage()));
 });
@@ -709,19 +711,25 @@ app.get('/seo-health', (c) => {
 app.get('/glossary/:term', (c) => {
   let raw = c.req.param('term');
   try { raw = decodeURIComponent(raw); } catch {}
+  // 동의어(합쳐진 옛 용어) → 대표 용어 301 (2026-10-08)
+  const aliasTo = GLOSSARY_ALIASES[raw];
+  if (aliasTo) return c.redirect(`/glossary/${encodeURIComponent(aliasTo)}`, 301);
   const term = GLOSSARY.find(t => t.term === raw);
   if (!term) return c.notFound();
-  // 관련 용어: 공유 rel 우선 → 같은 카테고리 보충, 최대 12개
-  const byRel = GLOSSARY_SORTED.filter(t => t.term !== term.term && t.rel.some(r => term.rel.includes(r)));
-  const byCat = GLOSSARY_SORTED.filter(t => t.term !== term.term && t.cat === term.cat && !byRel.includes(t));
-  const related = [...byRel, ...byCat].slice(0, 12);
+  // 관련 용어: 보강 본문이 고른 용어(see) → 공유 rel → 같은 카테고리 보충, 최대 12개
+  const bySee = (term.rich?.see || []).map(n => GLOSSARY_SORTED.find(t => t.term === n)).filter((t): t is GTerm => !!t && t.term !== term.term);
+  const byRel = GLOSSARY_SORTED.filter(t => t.term !== term.term && !bySee.includes(t) && t.rel.some(r => term.rel.includes(r)));
+  const byCat = GLOSSARY_SORTED.filter(t => t.term !== term.term && t.cat === term.cat && !bySee.includes(t) && !byRel.includes(t));
+  const related = [...bySee, ...byRel, ...byCat].slice(0, 12);
   // 관련 진료 인링크
   const relTreatments = term.rel
     .map(slug => TREATMENTS.find(t => t.slug === slug))
     .filter((t): t is NonNullable<typeof t> => !!t)
     .map(t => ({ slug: t.slug, name: t.name, short: t.short }));
-  const fullDesc = term.longDef || term.def;
-  // 얇은 용어(정의+심층 설명 300자 미만): noindex, follow + 사이트맵 제외 — 심층 설명 추가 시 자동 복귀
+  const fullDesc = term.longDef || (term.rich ? `${term.def} ${term.rich.lead}` : term.def);
+  const modified = glossaryTermDate(term);
+  const termPath = `/glossary/${encodeURIComponent(term.term)}`;
+  // 얇은 용어(정의+심층 설명+보강 본문 300자 미만): noindex, follow + 사이트맵 제외 — 보강 시 자동 복귀
   const thinTerm = isThinGlossaryTerm(term);
   if (thinTerm) c.header('X-Robots-Tag', NOINDEX_FOLLOW);
   return c.html(Layout({
@@ -735,16 +743,19 @@ app.get('/glossary/:term', (c) => {
         '@context': 'https://schema.org', '@type': 'DefinedTerm',
         '@id': `${SITE_URL}/glossary/${encodeURIComponent(term.term)}#term`,
         name: term.term, description: fullDesc,
+        ...(term.aliases?.length ? { alternateName: term.aliases } : {}),
         inDefinedTermSet: { '@type': 'DefinedTermSet', name: `${CLINIC.name} 치과 백과사전`, url: `${SITE_URL}/glossary` },
       },
       medicalWebPageSchema({
-        name: `${term.term} 뜻·설명`, description: term.def, path: `/glossary/${encodeURIComponent(term.term)}`,
-        aboutId: `${SITE_URL}/glossary/${encodeURIComponent(term.term)}#term`,
-        lastReviewed: term.longDef ? GLOSSARY_LONG_REVIEWED : GLOSSARY_DEF_REVIEWED,
+        name: `${term.term} 뜻·설명`, description: term.def, path: termPath,
+        aboutId: `${SITE_URL}${termPath}#term`,
+        lastReviewed: modified,
+        dateModified: modified,
       }),
-      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }, { name: term.term, path: `/glossary/${encodeURIComponent(term.term)}` }]),
+      ...(term.rich?.faqs.length ? [faqSchema(term.rich.faqs, termPath)] : []),
+      breadcrumbSchema([{ name: '홈', path: '/' }, { name: '치과 백과사전', path: '/glossary' }, { name: term.term, path: termPath }]),
     ],
-  }, GlossaryDetailPage(term, related, relTreatments)));
+  }, GlossaryDetailPage(term, related, relTreatments, modified)));
 });
 
 // ============================================================================
@@ -825,7 +836,7 @@ app.get('/area', (c) => {
     },
   ];
   return c.html(Layout({
-    title: `지역별 진료 안내 | ${CLINIC.name} - 남양주 화도·마석 치과`,
+    title: `남양주 화도·마석 지역별 진료 안내 | ${CLINIC.name}`,
     description: `${CLINIC.region} ${CLINIC.district} 마석에 위치한 ${CLINIC.name}. ${areaNames} 인근에서 임플란트·치아교정·소아치과 등 진료를 안내합니다.`,
     path: '/area',
     jsonLd: [
@@ -851,6 +862,51 @@ app.get('/area', (c) => {
       faqSchema(hubFaqs, '/area'),
     ],
   }, AreaHubPage(hubFaqs)));
+});
+
+// 대표 키워드 허브 "마석 치과" (2026-10-08) — /area/:combo 보다 먼저 등록
+app.get(MASEOK_HUB_PATH, (c) => {
+  const maseok = NEARBY_AREAS.find(a => a.slug === 'maseok');
+  const hwado = NEARBY_AREAS.find(a => a.slug === 'hwado');
+  return c.html(Layout({
+    title: MASEOK_HUB_TITLE,
+    description: MASEOK_HUB_DESC,
+    path: MASEOK_HUB_PATH,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': ['WebPage', 'MedicalWebPage'],
+        '@id': `${SITE_URL}${MASEOK_HUB_PATH}#webpage`,
+        name: MASEOK_HUB_TITLE,
+        description: MASEOK_HUB_ANSWER,
+        url: `${SITE_URL}${MASEOK_HUB_PATH}`,
+        inLanguage: 'ko-KR',
+        isPartOf: { '@id': `${SITE_URL}/#website` },
+        about: {
+          '@type': 'Dentist',
+          '@id': `${SITE_URL}/#clinic`,
+          name: CLINIC.name,
+          areaServed: [
+            ...(maseok ? [{ '@type': 'Place', name: maseok.full }] : []),
+            ...(hwado ? [{ '@type': 'AdministrativeArea', name: hwado.full }] : []),
+            { '@type': 'GeoCircle', geoMidpoint: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng }, geoRadius: 5000 },
+          ],
+        },
+        mainEntity: { '@id': `${SITE_URL}${MASEOK_HUB_PATH}#faq` },
+        breadcrumb: { '@id': `${SITE_URL}${MASEOK_HUB_PATH}#breadcrumb` },
+        significantLink: [`${SITE_URL}/directions`, `${SITE_URL}/doctors`, `${SITE_URL}/treatments`, `${SITE_URL}/reservation`],
+        lastReviewed: MASEOK_HUB_UPDATED,
+        dateModified: MASEOK_HUB_UPDATED,
+        speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.aeo-summary'] },
+      },
+      faqSchema(MASEOK_HUB_FAQS, MASEOK_HUB_PATH),
+      breadcrumbSchema([
+        { name: '홈', path: '/' },
+        { name: '지역 안내', path: '/area' },
+        { name: '마석 치과', path: MASEOK_HUB_PATH },
+      ], `${SITE_URL}${MASEOK_HUB_PATH}#breadcrumb`),
+    ],
+  }, MaseokHubPage()));
 });
 
 app.get('/area/:combo', (c) => {
@@ -978,7 +1034,7 @@ async function contentRows(env: any) {
   }
 }
 const rowDate = (r: any) => latestDate(r.updated_at, r.created_at);
-const glossaryDate = (t: { longDef?: string }) => (t.longDef ? GLOSSARY_LONG_REVIEWED : GLOSSARY_DEF_REVIEWED);
+const glossaryDate = glossaryTermDate; // 보강(rich) 2026-10-08 · 심층(longDef) 06-14 · 정의만 06-13
 const txNewest = () => latestDate(Object.values(TREATMENT_REVIEWED));
 const areaDate = (areaSlug: string, txSlug: string) =>
   latestDate(CONTENT_DATES.pages.areaTemplate, CONTENT_DATES.areas[areaSlug], TREATMENT_REVIEWED[txSlug]);
@@ -1022,6 +1078,8 @@ function areaUrls(): SUrl[] {
   for (const a of NEARBY_AREAS) for (const t of CORE_TREATMENTS) {
     urls.push({ loc: `/area/${a.slug}-${t.slug}`, pri: '0.7', freq: 'monthly', lastmod: areaDate(a.slug, t.slug) });
   }
+  // 대표 키워드 허브 "마석 치과" — 실제 수정일 고정
+  urls.unshift({ loc: MASEOK_HUB_PATH, pri: '0.9', freq: 'monthly', lastmod: MASEOK_HUB_UPDATED });
   // 지역 허브 = 지역 페이지 중 최신
   urls.unshift({ loc: '/area', pri: '0.8', freq: 'monthly', lastmod: newestLastmod(urls) });
   return urls;
@@ -1198,7 +1256,7 @@ Sitemap: ${SITE_URL}/sitemap.xml
 });
 
 app.get('/llms.txt', async (c) => {
-  const longTerms = GLOSSARY_SORTED.filter(t => t.longDef);
+  const longTerms = GLOSSARY_SORTED.filter(t => t.longDef || t.rich);
   const specialists = DOCTORS.filter(d => d.isSpecialist);
   // 최신 원장 칼럼 — AI가 "이 병원 원장들이 발행하는 콘텐츠"를 발견·인용하도록
   let recentPosts: any[] = [];
@@ -1222,7 +1280,7 @@ app.get('/llms.txt', async (c) => {
     P.home, P.mission, P.directions, P.pricing, P.reservation, P.doctorsList, FAQ_REVIEWED,
     Object.values(TREATMENT_REVIEWED), Object.values(CONTENT_DATES.doctors),
     NEARBY_AREAS.flatMap(a => CORE_TREATMENTS.map(t => areaDate(a.slug, t.slug))),
-    GLOSSARY_DEF_REVIEWED, GLOSSARY_LONG_REVIEWED, recentPosts.map(rowDate),
+    GLOSSARY_DEF_REVIEWED, GLOSSARY_LONG_REVIEWED, GLOSSARY_RICH_REVIEWED, recentPosts.map(rowDate),
   );
   return c.text(`# ${CLINIC.name} (${CLINIC.nameEn})
 
@@ -1291,9 +1349,9 @@ ${columnSection}
 ${llmsUpdated ? `_최종 갱신: ${llmsUpdated}_` : ''}`, 200, { 'Content-Type': 'text/plain; charset=UTF-8', 'Cache-Control': 'public, max-age=21600' });
 });
 
-// llms-full.txt — AI 크롤러 전체 컨텍스트 (용어 200개 심층 요약 포함)
+// llms-full.txt — AI 크롤러 전체 컨텍스트 (심층 설명이 있는 용어 전체 요약 포함)
 app.get('/llms-full.txt', async (c) => {
-  const longTerms = GLOSSARY_SORTED.filter(t => t.longDef);
+  const longTerms = GLOSSARY_SORTED.filter(t => t.longDef || t.rich);
   const trimLong = (s: string, n = 280) => {
     const clean = s.replace(/\s+/g, ' ').trim();
     return clean.length > n ? clean.slice(0, n).replace(/[，,。.]?\s*\S*$/, '') + '…' : clean;
@@ -1359,12 +1417,12 @@ ${NEARBY_AREAS.map(a => `### ${a.name} (${a.full})
 - 생활권/랜드마크: ${a.landmarks.join(', ')}
 - 지역 진료 페이지: ${CORE_TREATMENTS.map(t => `[${a.name} ${t.name}](${SITE_URL}/area/${a.slug}-${t.slug})`).join(' · ')}`).join('\n\n')}`);
 
-  // 용어사전 심층 요약 (200개)
+  // 용어사전 심층 요약 (longDef 또는 보강 본문이 있는 용어 전체)
   sections.push(`## 치과 용어사전 심층 요약 (${longTerms.length}개 핵심 용어)
 
-전체 ${GLOSSARY_SORTED.length}개 용어 중 아래 ${longTerms.length}개는 약 1,000자 심층 설명이 제공됩니다. 각 항목은 요약본이며 전체 내용은 개별 URL에서 확인할 수 있습니다.
+전체 ${GLOSSARY_SORTED.length}개 용어 중 아래 ${longTerms.length}개는 심층 설명(정의·원리·주의점·자주 묻는 질문)이 제공됩니다. 각 항목은 요약본이며 전체 내용은 개별 URL에서 확인할 수 있습니다.
 
-${longTerms.map(t => `- ${t.term} (${SITE_URL}/glossary/${encodeURIComponent(t.term)}): ${trimLong(t.longDef!, 280)}`).join('\n\n')}`);
+${longTerms.map(t => `- ${t.term} (${SITE_URL}/glossary/${encodeURIComponent(t.term)}): ${trimLong(t.longDef || `${t.rich!.lead} ${t.rich!.sections[0]?.p || ''}`, 280)}`).join('\n\n')}`);
 
   // FAQ 하이라이트
   const faqHighlights: string[] = [];

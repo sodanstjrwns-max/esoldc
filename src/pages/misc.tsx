@@ -576,6 +576,149 @@ export function CasesPage() {
   `;
 }
 
+// ============ 대표 키워드 허브: 마석 치과 (/area/maseok, 2026-10-08) ============
+// "마석 치과" 검색 의도(위치·진료시간·주차·의료진·예약)에 한 페이지로 답한다. 다른 지역 페이지와 문장을 공유하지 않는다.
+export const MASEOK_HUB_PATH = '/area/maseok';
+export const MASEOK_HUB_UPDATED = '2026-10-08';
+export const MASEOK_HUB_TITLE = `마석 치과 | ${CLINIC.name} (남양주 화도읍)`;
+export const MASEOK_HUB_DESC = `남양주 화도읍 마석로 25, 경춘선 마석역 인근 마석 치과 ${CLINIC.name}. 화·목 저녁 8시 야간진료, 토요일 오후 2시까지, 당일 진료 3시간 무료주차. 교정·소아·보철·통합치의학 전문의 상주.`;
+export const MASEOK_HUB_ANSWER = `${CLINIC.name}은 ${CLINIC.address}에 있는 마석 치과입니다. 경춘선 마석역과 마석우시장 생활권이라 남양주 화도읍 어디서든 오가기 편하고, 화·목요일은 저녁 8시까지 진료합니다. 교정·소아치과·보철·통합치의학은 각 분야 전문의가, 임플란트는 대표원장이 직접 진료합니다.`;
+export const MASEOK_HUB_FAQS = [
+  {
+    q: '마석역에서 이솔치과의원까지 어떻게 가나요?',
+    a: `이솔치과의원은 경춘선 마석역 인근 마석로 25 건물 4층에 있습니다. 지도 앱에서 '이솔치과의원'을 검색하면 바로 길찾기를 하실 수 있고, 찾기 어려우시면 ${CLINIC.tel}로 전화 주시면 안내해 드립니다.`,
+  },
+  {
+    q: '차를 가져가도 주차할 수 있나요?',
+    a: '당일 진료를 받으시면 3시간 무료주차가 가능합니다. 제휴 야외 주차장과 건물 내 주차장(장애인 주차구역 있음)을 이용하실 수 있으며, 주차장 운영 상황에 따라 달라질 수 있어 방문 전에 확인하시길 권해 드립니다.',
+  },
+  {
+    q: '퇴근하고 저녁에도 진료받을 수 있나요?',
+    a: '화요일과 목요일은 저녁 8시까지 야간진료를 합니다. 월·수·금요일은 오후 6시까지, 토요일은 점심시간 없이 오후 2시까지 진료하고, 일요일과 공휴일은 쉽니다.',
+  },
+  {
+    q: '아이와 부모님이 같은 치과에 다닐 수 있나요?',
+    a: '네. 아이 진료는 소아치과 전문의가 맡고, 틀니·임플란트처럼 어르신께 많은 진료는 보철과·통합치의학 전문의와 대표원장이 함께 봅니다. 치과를 많이 무서워하는 아이를 위한 진정치료 환경도 있으며, 적용 여부는 진찰 후 결정합니다.',
+  },
+  {
+    q: '예약은 어떻게 하나요?',
+    a: `네이버 예약, 카카오톡 채널, 홈페이지 예약 문의, 전화(${CLINIC.tel}) 가운데 편한 방법을 이용하시면 됩니다. 이가 갑자기 많이 아프다면 전화로 먼저 증상을 알려 주세요. 그날 진료 가능한 시간을 확인해 드립니다.`,
+  },
+  {
+    q: '화도읍 창현·묵현 쪽에서도 다니기 괜찮나요?',
+    a: '병원이 화도읍 중심 도로인 마석로에 있어 창현지구나 묵현리에서도 차로 짧게 이동하실 수 있고, 화도읍을 도는 시내버스로도 오실 수 있습니다. 동네별 길 안내는 화도 지역 진료 페이지에도 정리해 두었습니다.',
+  },
+];
+
+export function MaseokHubPage() {
+  const naverMap = `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`;
+  const kakaoMap = `https://map.kakao.com/?q=${encodeURIComponent(CLINIC.address)}`;
+  const sns = CLINIC.sns as any;
+  const hoursRows = CLINIC.hours.map(h => `<tr><th scope="row">${esc(h.day)}</th><td>${esc(h.time)}</td></tr>`).join('');
+  const docCards = DOCTORS.map(d => `<a class="mh-doc" href="/doctors/${d.slug}"><img src="${d.photo}" alt="${esc(d.name)} ${esc(d.role)}" loading="lazy" decoding="async" width="56" height="56"><span><strong>${esc(d.name)} ${esc(d.role)}</strong><small>${esc(d.specialty)}</small></span></a>`).join('');
+  const txCards = TREATMENTS.map(t => `<a class="mh-tx" href="/treatments/${t.slug}"><strong>${esc(t.name)}</strong><span>${esc(t.short)}</span></a>`).join('');
+  const maseok = NEARBY_AREAS.find(a => a.slug === 'maseok');
+  const localLinks = maseok ? CORE_TREATMENTS.map(t => `<a href="/area/maseok-${t.slug}">마석 ${esc(t.name)}</a>`).join('') : '';
+  const hwadoLink = NEARBY_AREAS.some(a => a.slug === 'hwado') ? `<a href="/area/hwado-implant">화도 지역 진료 안내</a>` : '';
+  return html`
+  ${raw(PAGE_HERO(`<a href="/area" style="color:rgba(250,248,244,.45)">지역 안내</a> / 마석 치과`, '마석 치과, 이솔치과의원', '남양주 화도읍 마석로 25 · 경춘선 마석역 인근. 오시는 길과 진료시간, 의료진을 한 페이지에 모았습니다.'))}
+  <style>
+    .mh{max-width:880px;margin:0 auto}
+    .mh h2{font-size:1.5rem;color:var(--navy);margin:48px 0 16px;font-family:var(--serif)}
+    .mh p{color:var(--ink-soft);line-height:1.9;font-size:1.05rem;margin-bottom:12px}
+    .mh-answer{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:var(--radius-lg);padding:28px 30px;box-shadow:var(--shadow-sm)}
+    .mh-answer p{color:var(--ink);font-size:1.08rem;margin:0 0 18px}
+    .mh-spec{display:grid;grid-template-columns:7.5em 1fr;gap:10px 16px;margin:0;font-size:.97rem}
+    .mh-spec dt{font-weight:700;color:var(--navy)}
+    .mh-spec dd{margin:0;color:var(--ink-soft)}
+    .mh-spec a{color:var(--gold-3,var(--gold));font-weight:700}
+    .mh-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .mh-btns a{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:var(--radius);border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:700;font-size:.93rem;transition:.25s}
+    .mh-btns a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .mh-hours{width:100%;border-collapse:collapse}
+    .mh-hours th,.mh-hours td{padding:13px 4px;border-bottom:1px solid var(--line);text-align:left;font-size:1rem}
+    .mh-hours th{color:var(--navy);width:44%}
+    .mh-hours td{color:var(--ink-soft)}
+    .mh-docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:14px}
+    .mh-doc{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px 10px 10px;transition:.25s}
+    .mh-doc:hover{border-color:var(--gold);box-shadow:var(--shadow-sm)}
+    .mh-doc img{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none}
+    .mh-doc strong{display:block;color:var(--navy);font-size:.96rem}
+    .mh-doc small{display:block;color:var(--ink-soft);font-size:.82rem;line-height:1.5}
+    .mh-txs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:14px}
+    .mh-tx{display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;transition:.25s}
+    .mh-tx:hover{background:#fff;box-shadow:var(--shadow-sm)}
+    .mh-tx strong{display:block;color:var(--navy);margin-bottom:2px}
+    .mh-tx span{font-size:.86rem;color:var(--ink-soft)}
+    .mh-local{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+    .mh-local a{font-size:.88rem;padding:8px 15px;border-radius:99px;background:#fff;border:1px solid var(--line);color:var(--navy);transition:.25s}
+    .mh-local a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .mh-faq details{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px;background:#fff;overflow:hidden}
+    .mh-faq summary{padding:18px 22px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--navy)}
+    .mh-faq summary::-webkit-details-marker{display:none}
+    .mh-faq summary i{color:var(--gold);transition:transform .3s}
+    .mh-faq details[open] summary i{transform:rotate(45deg)}
+    .mh-faq .mh-fa{padding:0 22px 20px;color:var(--ink-soft);line-height:1.85}
+    @media(max-width:560px){.mh-spec{grid-template-columns:1fr;gap:2px}.mh-spec dd{margin-bottom:10px}.mh-answer{padding:22px 20px}}
+  </style>
+  <section class="section">
+    <div class="wrap mh">
+
+      <div class="mh-answer aeo-summary">
+        <p>${MASEOK_HUB_ANSWER}</p>
+        <dl class="mh-spec">
+          <dt>주소</dt><dd>${CLINIC.address} (경춘선 마석역 인근)</dd>
+          <dt>대표전화</dt><dd><a href="tel:${CLINIC.tel}">${CLINIC.tel}</a></dd>
+          <dt>평일 진료</dt><dd>월·수·금 09:00~18:00 · 화·목 09:00~20:00 (점심 13:00~14:00)</dd>
+          <dt>토요일</dt><dd>09:00~14:00, 점심시간 없음 · 일요일·공휴일 휴진</dd>
+          <dt>주차</dt><dd>당일 진료 시 3시간 무료 (제휴 야외 주차장·건물 내 주차장)</dd>
+          <dt>예약</dt><dd>${sns.naverBookingUrl ? raw(`<a href="${sns.naverBookingUrl}" target="_blank" rel="noopener">네이버 예약</a> · `) : ''}<a href="/reservation">예약 문의</a> · 전화</dd>
+        </dl>
+      </div>
+
+      <h2>마석역·마석우시장에서 오시는 길</h2>
+      <p>병원은 화도읍을 가로지르는 마석로 25번지 건물 4층에 있습니다. 경춘선 마석역에서 내려 마석로 쪽으로 걸어오시면 되고, 마석우시장과 화도읍행정복지센터가 가까워 시장을 보거나 민원 업무를 마친 뒤 들르기에도 좋습니다. 주변에 마석 시내버스 정류장이 여러 곳 있어 창현지구·묵현리처럼 화도읍 안의 다른 동네에서도 버스로 오실 수 있습니다.</p>
+      <p>자가용으로 오시는 분은 당일 진료 기준 3시간까지 무료로 주차하실 수 있습니다. 제휴 야외 주차장과 장애인 주차구역이 있는 건물 내 주차장 가운데 편한 곳을 이용하시면 되고, 주차장 사정은 날마다 다를 수 있어 처음 오실 때는 전화로 한 번 확인하시면 헤매지 않으십니다.</p>
+      <div class="mh-btns">
+        <a href="${naverMap}" target="_blank" rel="noopener"><i class="fas fa-map-location-dot"></i> 네이버지도 길찾기</a>
+        <a href="${kakaoMap}" target="_blank" rel="noopener"><i class="fas fa-map-pin"></i> 카카오맵 길찾기</a>
+        <a href="/directions"><i class="fas fa-square-parking"></i> 주차장 사진·오시는 길</a>
+      </div>
+
+      <h2>진료시간 — 화·목은 저녁 8시까지</h2>
+      <table class="mh-hours"><tbody>${raw(hoursRows)}</tbody></table>
+      <p style="margin-top:14px">직장이나 학교를 마치고 오셔야 한다면 화·목 야간진료를, 평일에 시간을 내기 어렵다면 점심 휴게 없이 이어지는 토요일 오전 진료를 이용해 보세요. 일요일과 공휴일은 쉽니다.</p>
+
+      <h2>분야별 전문의가 함께 보는 의료진</h2>
+      <p>${CLINIC.name}에서는 다섯 명의 원장이 진료합니다. 치아교정·소아치과·보철·통합치의학은 해당 분야 전문의가 맡고, 임플란트는 고경우 대표원장이 직접 담당합니다. 아이의 첫 충치 치료부터 부모님의 틀니·임플란트 상담까지 한 치과에서 이어서 볼 수 있어 가족이 함께 다니기 편합니다.</p>
+      <div class="mh-docs">${raw(docCards)}</div>
+
+      <h2>이곳에서 받을 수 있는 진료</h2>
+      <p>충치·신경치료 같은 일상 진료부터 잇몸치료, 씌우는 치료(보철), 임플란트, 치아교정, 소아치과까지 진료합니다. 진단에는 파노라마·CT와 구강스캐너(Trios), 초기 충치를 형광으로 살피는 Q-ray, 얼굴과 미소를 함께 보는 3D 안면 스캔(RAYFace)을 사용합니다. 진료 방법과 비용은 검사 결과와 개인 상태에 따라 달라지며 상담 때 자세히 안내해 드립니다.</p>
+      <div class="mh-txs">${raw(txCards)}</div>
+      ${localLinks ? raw(`<div class="mh-local">${localLinks}${hwadoLink}<a href="/area">남양주 지역별 진료 안내 전체</a></div>`) : ''}
+
+      <h2>마석 주민분들이 자주 묻는 질문</h2>
+      <div class="mh-faq">
+        ${raw(MASEOK_HUB_FAQS.map((f, i) => `<details id="q-${i + 1}"><summary>${esc(f.q)}<i class="fas fa-plus" aria-hidden="true"></i></summary><div class="mh-fa">${esc(f.a)}</div></details>`).join(''))}
+      </div>
+
+      <div style="text-align:center;margin-top:52px;background:var(--navy);color:#fff;border-radius:var(--radius-lg);padding:44px 24px">
+        <h3 style="font-size:1.45rem;margin-bottom:10px;color:#fff;font-family:var(--serif)">마석에서 치과를 찾고 계신다면</h3>
+        <p style="color:rgba(255,255,255,.82);margin-bottom:24px">불편한 곳을 편하게 말씀해 주세요. 검사 후 필요한 진료부터 차근차근 설명해 드립니다.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="tel:${CLINIC.tel}" class="btn btn-gold"><i class="fas fa-phone"></i> ${CLINIC.tel}</a>
+          ${sns.naverBookingUrl ? raw(`<a href="${sns.naverBookingUrl}" target="_blank" rel="noopener" class="btn" style="background:#03C75A;color:#fff">네이버 예약</a>`) : ''}
+          <a href="/reservation" class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,.6)"><i class="fas fa-calendar-check"></i> 예약 문의</a>
+        </div>
+      </div>
+
+      <p style="margin-top:28px;font-size:.78rem;color:var(--ink-soft);line-height:1.7">※ 진료 방법과 결과는 개인의 구강 상태에 따라 다를 수 있으며, 정확한 진단은 내원 상담을 통해 받아보시기 바랍니다. · 최종 수정 <time datetime="${MASEOK_HUB_UPDATED}">${MASEOK_HUB_UPDATED}</time></p>
+    </div>
+  </section>
+  `;
+}
+
 // ============ 지역 SEO 페이지 ============
 // 지역 페이지용 FAQ 자동 생성 (의료광고법 준수 — 단정/보장 배제)
 export function areaFaqs(area: NearbyArea, t: Treatment) {
@@ -617,6 +760,7 @@ export function AreaHubPage(hubFaqs: { q: string; a: string }[] = []) {
     <div class="wrap hub-body">
       <div class="hub-intro reveal">
         <strong>${CLINIC.name}</strong>은(는) ${CLINIC.address}에 위치하여, 마석을 중심으로 화도읍과 남양주시 인근 지역 주민분들이 방문하실 수 있는 동네 치과입니다. 임플란트를 제외한 각 분야 전문의가 상주하며, 지역별 진료 안내를 아래에서 확인하실 수 있습니다.
+        <a href="/area/maseok" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-weight:700;color:var(--navy);border-bottom:2px solid var(--gold)">마석 치과 안내 — 오시는 길·진료시간·의료진 한눈에 <i class="fas fa-arrow-right" style="font-size:.85em"></i></a>
       </div>
       <div class="hub-grid">
         ${raw(NEARBY_AREAS.map(a => `
