@@ -9,7 +9,7 @@ import { pingContent } from '../lib/indexnow';
 import { POST_CATEGORIES } from '../pages/content';
 import { POPUP_MAX, kstToday } from '../lib/popup';
 
-const POPUP_HINT = `팝업은 최대 ${POPUP_MAX}개까지 동시에 표시됩니다 (PC는 나란히, 모바일은 넘겨보기)`;
+const POPUP_HINT = `팝업은 최대 ${POPUP_MAX}개까지 동시에 표시됩니다 (PC는 카드처럼 겹쳐 쌓이고 뒤 카드를 누르면 앞으로 옵니다, 모바일은 한 장씩 넘겨보기)`;
 
 type Bindings = { DB?: D1Database; R2?: R2Bucket; ADMIN_PASSWORD?: string };
 
@@ -524,7 +524,7 @@ function noticeForm(x: any): string {
       </div>
       <label>클릭 시 이동 링크 (선택)</label>
       <input type="text" id="f-link" value="${x && x.link_url ? esc(x.link_url) : ''}" placeholder="비워두면 공지 상세 페이지로 이동 (예: /reservation, https://...)">
-      <p class="drop-hint" style="margin-top:8px"><i class="fas fa-circle-info"></i> 날짜를 비워두면 즉시~무기한 노출됩니다. ${POPUP_HINT}. 5개를 넘으면 📌 고정 공지 → 최신 공지 순으로 5개만 보입니다. 방문자는 팝업마다 "오늘 하루 보지 않기"를 누를 수 있습니다.</p>
+      <p class="drop-hint" style="margin-top:8px"><i class="fas fa-circle-info"></i> 날짜를 비워두면 즉시~무기한 노출됩니다. ${POPUP_HINT}. ${POPUP_MAX}개를 넘으면 📌 고정 공지 → 최신 공지 순으로 ${POPUP_MAX}개만 보입니다. 방문자는 팝업마다 "오늘 하루 보지 않기"를 누를 수 있습니다.</p>
 
       <div class="preview-wrap" id="preview-wrap">
         <div class="preview-label"><i class="fas fa-eye"></i> 실시간 미리보기</div>
