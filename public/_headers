@@ -8,7 +8,7 @@
   X-Content-Type-Options: nosniff
 
 # 파비콘/아이콘
-/favicon.svg
+/favicon*
   Cache-Control: public, max-age=604800
 /apple-touch-icon.png
   Cache-Control: public, max-age=604800
