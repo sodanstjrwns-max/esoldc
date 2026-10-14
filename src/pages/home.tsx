@@ -1,4 +1,5 @@
 import { html, raw } from 'hono/html';
+import { maseokCardGrid } from './maseok-local';
 import { CLINIC, CORE_TREATMENTS, TREATMENTS, DOCTORS, NEARBY_AREAS } from '../data/clinic';
 
 // ── VMG: 챕터 사이 오너먼트 (책의 장 구분 장식 — 양쪽 곡선이 펜으로 그려지고 중앙 다이아몬드가 피어남) ──
@@ -471,6 +472,18 @@ export function HomePage(latestPosts: any[] = []) {
             <span class="cr-go"><i class="fas fa-arrow-right"></i></span>
           </a>`).join(''))}
       </div>
+    </div>
+  </section>
+
+  <!-- ============ 마석 치과 진료 안내 — 진료별 하위 페이지 사진 카드 6장 (2026-10-14) ============ -->
+  <section class="sec" id="ch-local" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head center" data-reveal>
+        <span class="mono-lbl">Maseok Dental Guide</span>
+        <h2 data-line><span>마석 치과 <em class="nb">진료별 안내</em></span></h2>
+        <p>마석역 인근 이솔치과의원에서 받을 수 있는 진료를 담당 의료진·진료 순서·다니기 편한 일정과 함께 정리했습니다.</p>
+      </div>
+      ${raw(maseokCardGrid({ idPrefix: 'home', reveal: true }))}
     </div>
   </section>
 

@@ -820,9 +820,9 @@ export function Layout(meta: SeoMeta, body: any) {
   <meta property="og:description" content="${meta.description}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:image" content="${ogImage}">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${CLINIC.name} — ${CLINIC.slogan}">
+  <meta property="og:image:width" content="${String(meta.ogImageWidth || 1200)}">
+  <meta property="og:image:height" content="${String(meta.ogImageHeight || 630)}">
+  <meta property="og:image:alt" content="${meta.ogImageAlt || `${CLINIC.name} — ${CLINIC.slogan}`}">
   <meta property="og:locale" content="ko_KR">
   ${raw(`<meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${t}">

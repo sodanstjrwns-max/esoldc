@@ -1,4 +1,6 @@
 import { html, raw } from 'hono/html';
+import { maseokCardGrid } from './maseok-local';
+import { areaTreatmentLinks } from '../data/maseok-local';
 import { CLINIC, TREATMENTS, CORE_TREATMENTS, DOCTORS, NEARBY_AREAS, getTreatment, PRICING, type Treatment, type NearbyArea, type PriceGroup } from '../data/clinic';
 
 const esc = (s: any): string => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -579,7 +581,7 @@ export function CasesPage() {
 // ============ 대표 키워드 허브: 마석 치과 (/area/maseok, 2026-10-08) ============
 // "마석 치과" 검색 의도(위치·진료시간·주차·의료진·예약)에 한 페이지로 답한다. 다른 지역 페이지와 문장을 공유하지 않는다.
 export const MASEOK_HUB_PATH = '/area/maseok';
-export const MASEOK_HUB_UPDATED = '2026-10-08';
+export const MASEOK_HUB_UPDATED = '2026-10-14'; // 10-14 진료별 사진 카드 6장 추가
 export const MASEOK_HUB_TITLE = `마석 치과 | ${CLINIC.name} (남양주 화도읍)`;
 export const MASEOK_HUB_DESC = `남양주 화도읍 마석로 25, 경춘선 마석역 인근 마석 치과 ${CLINIC.name}. 화·목 저녁 8시 야간진료, 토요일 오후 2시까지, 당일 진료 3시간 무료주차. 교정·소아·보철·통합치의학 전문의 상주.`;
 export const MASEOK_HUB_ANSWER = `${CLINIC.name}은 ${CLINIC.address}에 있는 마석 치과입니다. 경춘선 마석역과 마석우시장 생활권이라 남양주 화도읍 어디서든 오가기 편하고, 화·목요일은 저녁 8시까지 진료합니다. 교정·소아치과·보철·통합치의학은 각 분야 전문의가, 임플란트는 대표원장이 직접 진료합니다.`;
@@ -618,7 +620,7 @@ export function MaseokHubPage() {
   const docCards = DOCTORS.map(d => `<a class="mh-doc" href="/doctors/${d.slug}"><img src="${d.photo}" alt="${esc(d.name)} ${esc(d.role)}" loading="lazy" decoding="async" width="56" height="56"><span><strong>${esc(d.name)} ${esc(d.role)}</strong><small>${esc(d.specialty)}</small></span></a>`).join('');
   const txCards = TREATMENTS.map(t => `<a class="mh-tx" href="/treatments/${t.slug}"><strong>${esc(t.name)}</strong><span>${esc(t.short)}</span></a>`).join('');
   const maseok = NEARBY_AREAS.find(a => a.slug === 'maseok');
-  const localLinks = maseok ? CORE_TREATMENTS.map(t => `<a href="/area/maseok-${t.slug}">마석 ${esc(t.name)}</a>`).join('') : '';
+  const localLinks = maseok ? areaTreatmentLinks(maseok).map(l => `<a href="${l.path}">${esc(l.name)}</a>`).join('') : '';
   const hwadoLink = NEARBY_AREAS.some(a => a.slug === 'hwado') ? `<a href="/area/hwado-implant">화도 지역 진료 안내</a>` : '';
   return html`
   ${raw(PAGE_HERO(`<a href="/area" style="color:rgba(250,248,244,.45)">지역 안내</a> / 마석 치과`, '마석 치과, 이솔치과의원', '남양주 화도읍 마석로 25 · 경춘선 마석역 인근. 오시는 길과 진료시간, 의료진을 한 페이지에 모았습니다.'))}
@@ -675,6 +677,10 @@ export function MaseokHubPage() {
           <dt>예약</dt><dd>${sns.naverBookingUrl ? raw(`<a href="${sns.naverBookingUrl}" target="_blank" rel="noopener">네이버 예약</a> · `) : ''}<a href="/reservation">예약 문의</a> · 전화</dd>
         </dl>
       </div>
+
+      <h2>마석 치과 진료 안내 — 진료별로 먼저 살펴보기</h2>
+      <p>임플란트·치아교정·소아치과·잇몸치료·보철·충치치료를 진료별로 나누어 담당 의료진과 진료 순서, 마석에서 다니기 편한 일정을 정리했습니다.</p>
+      ${raw(maseokCardGrid({ idPrefix: 'hub' }))}
 
       <h2>마석역·마석우시장에서 오시는 길</h2>
       <p>병원은 화도읍을 가로지르는 마석로 25번지 건물 4층에 있습니다. 경춘선 마석역에서 내려 마석로 쪽으로 걸어오시면 되고, 마석우시장과 화도읍행정복지센터가 가까워 시장을 보거나 민원 업무를 마친 뒤 들르기에도 좋습니다. 주변에 마석 시내버스 정류장이 여러 곳 있어 창현지구·묵현리처럼 화도읍 안의 다른 동네에서도 버스로 오실 수 있습니다.</p>
@@ -769,7 +775,7 @@ export function AreaHubPage(hubFaqs: { q: string; a: string }[] = []) {
             <div class="hc-full">${a.full}</div>
             <p class="hc-intro">${a.intro}</p>
             <div class="hc-links">
-              ${CORE_TREATMENTS.map(t => `<a href="/area/${a.slug}-${t.slug}">${a.name} ${t.name}</a>`).join('')}
+              ${areaTreatmentLinks(a).map(l => `<a href="${l.path}">${l.name}</a>`).join('')}
             </div>
           </article>`).join(''))}
       </div>

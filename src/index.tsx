@@ -12,6 +12,9 @@ import {
 } from './lib/seo';
 import { answerSummary, faqsFromArticleHtml, mergeFaqs, enhanceArticleImages, caseAutoSummary, flatText, clipSentences } from './lib/column-seo';
 import { HomePage } from './pages/home';
+import { MaseokLocalPage } from './pages/maseok-local';
+import { MASEOK_LOCAL, MASEOK_LOCAL_UPDATED, getMaseokLocal, areaTreatmentLinks } from './data/maseok-local';
+import { TREAT_PHOTOS } from './pages/treatments';
 import { fetchActivePopups, renderPopups } from './lib/popup';
 import { TreatmentsListPage, TreatmentDetailPage } from './pages/treatments';
 import { DoctorsListPage, DoctorDetailPage } from './pages/doctors';
@@ -147,6 +150,8 @@ app.get('/', async (c) => {
         speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.hero-sub'] },
       },
       itemListSchema({ name: `${CLINIC.name} 핵심 진료`, items: CORE_TREATMENTS.map(t => ({ name: t.name, path: `/treatments/${t.slug}` })) }),
+      // 홈 '마석 치과 진료 안내' 사진 카드 6장과 1:1 (같은 순서·이름·이미지)
+      maseokItemList(`${SITE_URL}/#maseok-local`),
       // 대표원장 인터뷰 영상 (VideoObject — 검색 결과 비디오 리치 스니펫 타깃)
       {
         '@context': 'https://schema.org',
@@ -269,11 +274,15 @@ app.get('/treatments/:slug', async (c) => {
       relCases = results as any[];
     } catch {}
   }
+  const txPhoto = TREAT_PHOTOS[t.slug];
+  const txOg = txPhoto ? `${SITE_URL}/static/img/og/${txPhoto.src.replace(/^.*\//, '').replace(/\.webp$/, '')}-1200x630.jpg` : undefined;
   return c.html(Layout({
     title: t.metaTitle,
     description: t.metaDesc,
     path: `/treatments/${t.slug}`,
     type: 'article',
+    ogImage: txOg,
+    ogImageAlt: txPhoto?.alt,
     jsonLd: [
       medicalProcedureSchema(t),
       howToSchema(t),
@@ -814,6 +823,24 @@ app.get('/api/regions', (c) => {
   return c.json({ results: searchRegions(q, 8) });
 });
 
+// 마석 × 6진료 사진 카드 ItemList (홈·마석 허브 — 화면 카드와 1:1)
+function maseokItemList(id: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    '@id': id,
+    name: '마석 치과 진료 안내',
+    numberOfItems: MASEOK_LOCAL.length,
+    itemListElement: MASEOK_LOCAL.map((m, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE_URL}/area/maseok-${m.slug}`,
+      name: m.name,
+      image: `${SITE_URL}${m.photo.card}`,
+    })),
+  };
+}
+
 // ============================================================================
 // 지역 SEO: /area (허브) + /area/[지역]-[진료] (상세)
 // ============================================================================
@@ -855,9 +882,7 @@ app.get('/area', (c) => {
       },
       itemListSchema({
         name: `${CLINIC.name} 지역별 진료 안내`,
-        items: NEARBY_AREAS.flatMap(a =>
-          CORE_TREATMENTS.map(t => ({ name: `${a.name} ${t.name}`, path: `/area/${a.slug}-${t.slug}` }))
-        ),
+        items: NEARBY_AREAS.flatMap(a => areaTreatmentLinks(a).map(l => ({ name: l.name, path: l.path }))),
       }),
       faqSchema(hubFaqs, '/area'),
     ],
@@ -900,6 +925,7 @@ app.get(MASEOK_HUB_PATH, (c) => {
         speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.aeo-summary'] },
       },
       faqSchema(MASEOK_HUB_FAQS, MASEOK_HUB_PATH),
+      maseokItemList(`${SITE_URL}${MASEOK_HUB_PATH}#maseok-local`),
       breadcrumbSchema([
         { name: '홈', path: '/' },
         { name: '지역 안내', path: '/area' },
@@ -918,6 +944,39 @@ app.get('/area/:combo', (c) => {
   const area = NEARBY_AREAS.find(a => a.slug === areaSlug);
   const t = getTreatment(treatSlug);
   if (!area || !t) return c.notFound();
+  // 마석 × 6진료 — 페이지 고유 본문·대표 사진 (2026-10-14)
+  const local = area.slug === 'maseok' ? getMaseokLocal(t.slug) : undefined;
+  if (local) {
+    const path = `/area/${combo}`;
+    const url = `${SITE_URL}${path}`;
+    const img = { '@type': 'ImageObject', '@id': `${url}#primaryimage`, url: `${SITE_URL}${local.photo.og}`, contentUrl: `${SITE_URL}${local.photo.og}`, width: 1200, height: 630, caption: local.photo.alt };
+    const svc = areaServiceSchema(area, t);
+    const page: any = areaWebPageSchema(area, t);
+    delete page.lastReviewed; delete page.reviewedBy;
+    return c.html(Layout({
+      title: local.title,
+      description: local.desc,
+      path,
+      ogImage: `${SITE_URL}${local.photo.og}`,
+      ogImageAlt: local.photo.alt,
+      jsonLd: [
+        { ...svc, name: local.name, serviceType: local.label, description: local.desc, image: `${SITE_URL}${local.photo.og}` },
+        { ...page, name: local.title, description: local.desc, image: img, primaryImageOfPage: { '@id': `${url}#primaryimage` }, dateModified: MASEOK_LOCAL_UPDATED,
+          breadcrumb: { '@id': `${url}#breadcrumb` },
+          significantLink: [`${SITE_URL}/treatments/${t.slug}`, `${SITE_URL}/area/maseok`, `${SITE_URL}/directions`] },
+        medicalProcedureSchema(t),
+        faqSchema(local.faqs, path),
+        breadcrumbSchema([
+          { name: '홈', path: '/' },
+          { name: '지역 안내', path: '/area' },
+          { name: '마석 치과', path: MASEOK_HUB_PATH },
+          { name: local.name, path },
+        ], `${url}#breadcrumb`),
+      ],
+    }, MaseokLocalPage(local)));
+  }
+  // 핵심 3종 외 조합은 마석만 운영 — 다른 지역은 진료 상세로 (얇은 조합 페이지 방지)
+  if (!t.isCore) return c.redirect(`/treatments/${t.slug}`, 301);
   return c.html(Layout({
     title: `${area.name} ${t.name} | ${CLINIC.name} (${area.full})`,
     description: `${area.full}에서 ${t.name} 치과를 찾으신다면 ${CLINIC.name}. ${CLINIC.addressShort}, 각 분야 전문의 상주(임플란트 제외). ${area.access} ${t.name} 진료 방법·비용은 내원 상담을 통해 안내됩니다.`,
@@ -994,7 +1053,7 @@ const xmlEsc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').rep
 //  - 정적 페이지·의료진·지역: src/data/content-dates.ts (본문 줄의 마지막 수정 커밋 날짜, 빌드 시 고정)
 //  - 칼럼·케이스·공지·수가(D1): updated_at/created_at, 목록 페이지 = 최신 항목, 인덱스 = 하위 사이트맵 최신값
 // ※ 예전엔 NOW()(매일 오늘)를 찍었다 (2026-09-29 교정).
-type SUrl = { loc: string; pri: string; freq?: string; img?: { url: string; cap: string }[]; lastmod?: string };
+type SUrl = { loc: string; pri: string; freq?: string; img?: { url: string; cap: string; title?: string }[]; lastmod?: string };
 function buildUrlset(urls: SUrl[]): string {
   const hasImg = urls.some(u => u.img?.length);
   const ns = hasImg
@@ -1002,7 +1061,7 @@ function buildUrlset(urls: SUrl[]): string {
     : `xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"`;
   const body = urls.map(u => {
     const imgs = (u.img || []).map(im =>
-      `\n    <image:image><image:loc>${xmlEsc(SITE_URL + im.url)}</image:loc><image:caption>${xmlEsc(im.cap)}</image:caption></image:image>`
+      `\n    <image:image><image:loc>${xmlEsc(SITE_URL + im.url)}</image:loc>${im.title ? `<image:title>${xmlEsc(im.title)}</image:title>` : ''}<image:caption>${xmlEsc(im.cap)}</image:caption></image:image>`
     ).join('');
     return `  <url><loc>${xmlEsc(SITE_URL + u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ''}${u.freq ? `<changefreq>${u.freq}</changefreq>` : ''}<priority>${u.pri}</priority>${imgs}</url>`;
   }).join('\n');
@@ -1075,8 +1134,13 @@ function glossaryUrls(): SUrl[] {
 }
 function areaUrls(): SUrl[] {
   const urls: SUrl[] = [];
-  for (const a of NEARBY_AREAS) for (const t of CORE_TREATMENTS) {
-    urls.push({ loc: `/area/${a.slug}-${t.slug}`, pri: '0.7', freq: 'monthly', lastmod: areaDate(a.slug, t.slug) });
+  for (const a of NEARBY_AREAS) {
+    if (a.slug === 'maseok') {
+      // 마석 × 6진료 — 페이지 고유 본문·대표 사진(og 1200×630)
+      for (const m of MASEOK_LOCAL) urls.push({ loc: `/area/maseok-${m.slug}`, pri: '0.8', freq: 'monthly', lastmod: MASEOK_LOCAL_UPDATED, img: [{ url: m.photo.og, cap: m.photo.alt, title: m.name }] });
+      continue;
+    }
+    for (const t of CORE_TREATMENTS) urls.push({ loc: `/area/${a.slug}-${t.slug}`, pri: '0.7', freq: 'monthly', lastmod: areaDate(a.slug, t.slug) });
   }
   // 대표 키워드 허브 "마석 치과" — 실제 수정일 고정
   urls.unshift({ loc: MASEOK_HUB_PATH, pri: '0.9', freq: 'monthly', lastmod: MASEOK_HUB_UPDATED });
@@ -1192,6 +1256,7 @@ app.get('/robots.txt', (c) => {
 User-agent: *
 Allow: /
 Allow: /static/
+Allow: /api/img/
 Disallow: /admin
 Disallow: /login
 Disallow: /signup
@@ -1279,7 +1344,7 @@ app.get('/llms.txt', async (c) => {
   const llmsUpdated = latestDate(
     P.home, P.mission, P.directions, P.pricing, P.reservation, P.doctorsList, FAQ_REVIEWED,
     Object.values(TREATMENT_REVIEWED), Object.values(CONTENT_DATES.doctors),
-    NEARBY_AREAS.flatMap(a => CORE_TREATMENTS.map(t => areaDate(a.slug, t.slug))),
+    NEARBY_AREAS.flatMap(a => CORE_TREATMENTS.map(t => areaDate(a.slug, t.slug))), MASEOK_LOCAL_UPDATED,
     GLOSSARY_DEF_REVIEWED, GLOSSARY_LONG_REVIEWED, GLOSSARY_RICH_REVIEWED, recentPosts.map(rowDate),
   );
   return c.text(`# ${CLINIC.name} (${CLINIC.nameEn})
@@ -1321,7 +1386,7 @@ ${CLINIC.points.map(p => `- ${p}`).join('\n')}
 
 ## 지역 진료 안내 (Local SEO)
 이솔치과의원은 ${CLINIC.address} 기준 약 20km 반경의 인근 지역 주민분들이 방문하실 수 있습니다.
-${NEARBY_AREAS.map(a => `- ${a.name}(${a.full}) — ${a.access} 진료: ${CORE_TREATMENTS.map(t => `[${a.name} ${t.name}](${SITE_URL}/area/${a.slug}-${t.slug})`).join(' · ')}`).join('\n')}
+${NEARBY_AREAS.map(a => `- ${a.name}(${a.full}) — ${a.access} 진료: ${areaTreatmentLinks(a).map(l => `[${l.name}](${SITE_URL}${l.path})`).join(' · ')}`).join('\n')}
 - 지역 안내 허브: ${SITE_URL}/area
 
 ## 주요 페이지
@@ -1415,7 +1480,7 @@ ${NEARBY_AREAS.map(a => `### ${a.name} (${a.full})
 - 오시는 길: ${a.access}
 - 대중교통: ${a.transit}
 - 생활권/랜드마크: ${a.landmarks.join(', ')}
-- 지역 진료 페이지: ${CORE_TREATMENTS.map(t => `[${a.name} ${t.name}](${SITE_URL}/area/${a.slug}-${t.slug})`).join(' · ')}`).join('\n\n')}`);
+- 지역 진료 페이지: ${areaTreatmentLinks(a).map(l => `[${l.name}](${SITE_URL}${l.path})`).join(' · ')}`).join('\n\n')}`);
 
   // 용어사전 심층 요약 (longDef 또는 보강 본문이 있는 용어 전체)
   sections.push(`## 치과 용어사전 심층 요약 (${longTerms.length}개 핵심 용어)

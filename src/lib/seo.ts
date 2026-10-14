@@ -16,6 +16,9 @@ export interface SeoMeta {
   description: string;
   path: string;          // canonical path, e.g. '/treatments/implant'
   ogImage?: string;
+  ogImageWidth?: number;   // 기본 1200 (og.png)
+  ogImageHeight?: number;  // 기본 630
+  ogImageAlt?: string;
   type?: string;
   jsonLd?: object[];     // 추가 구조화 데이터
   noindex?: boolean;

@@ -136,7 +136,7 @@ export function TreatmentsListPage() {
 }
 
 // --- 진료별 실제 현장 사진 (진료 상세 상단 비주얼) ---
-const TREAT_PHOTOS: Record<string, { src: string; alt: string; cap: string }> = {
+export const TREAT_PHOTOS: Record<string, { src: string; alt: string; cap: string }> = {
   implant: { src: '/static/img/surgery-ko-1.webp', alt: '이솔치과의원 고경우 대표원장의 임플란트 수술 진료 모습', cap: '고경우 대표원장의 임플란트 진료 — 독립 진료실에서 소독포를 갖추고 진행합니다.' },
   orthodontics: { src: '/static/img/scanner-treatment.webp', alt: '구강스캐너로 치아 상태를 정밀 스캔하는 이솔치과의원 진료 모습', cap: '구강스캐너 정밀 스캔 — 본뜨기 부담을 줄이고 치아 상태를 화면으로 함께 확인합니다.' },
   pediatric: { src: '/static/img/pediatric-care.webp', alt: '소아치과 전문의가 인형을 안은 아이를 편안하게 진료하는 모습', cap: '아이의 눈높이에 맞춘 소아 진료 — 무섭지 않은 첫 치과 경험을 만들어 갑니다.' },
