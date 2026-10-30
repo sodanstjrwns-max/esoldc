@@ -24,6 +24,7 @@ export interface SeoMeta {
   noindex?: boolean;
   noindexFollow?: boolean; // 얇은 상세: noindex, follow (링크는 따라가게) — lib/thin-content.ts
   extraBody?: any;       // body 끝에 삽입할 추가 마크업 (예: 홈 히어로 팝업)
+  immersive?: boolean;   // 메인 스크롤 몰입 연출(static/immersive.*) — 홈만
   /** og:type=article 일 때 article:published_time / modified_time / section */
   article?: { published?: string; modified?: string; section?: string };
 }

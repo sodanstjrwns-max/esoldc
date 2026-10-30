@@ -168,6 +168,7 @@ app.get('/', async (c) => {
       },
     ],
     extraBody: popup,
+    immersive: true,
   }, HomePage(latestPosts)));
   if (cacheable && res.status === 200) { // 200만 캐시 (오류 응답 캐시 오염 방지)
     try {

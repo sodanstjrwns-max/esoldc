@@ -1,0 +1,13 @@
+/* 이솔치과 메인 스크롤 몰입 연출 — static/immersive.js 가 html.mx 를 붙였을 때만 작동 */
+html.mx { scroll-behavior: auto !important; }
+html.mx.lenis, html.mx.lenis body { height: auto; }
+html.mx .lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+/* 넘겨받은 블록(다리 문장·에필로그)은 기존 data-reveal 숨김이 풀린 상태에서 GSAP 가 맡는다 */
+html.mx .folio-num, html.mx .kicker-v { will-change: transform; }
+html.mx .space-item img { will-change: transform; }
+html.mx #ch-interview .itv-frame, html.mx #ch-end .epi { will-change: transform; }
+html.mx .intro-img, html.mx .team-photo { will-change: clip-path; }
+
+/* 옆에서 들어오는 줄·띠가 가로 스크롤을 만들지 않도록 */
+html.mx #ch-core, html.mx #ch-local, html.mx .journey, html.mx main > .sec { overflow-x: clip; }

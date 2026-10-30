@@ -2,6 +2,7 @@ import { html, raw } from 'hono/html';
 import { CLINIC, TREATMENTS, CORE_TREATMENTS } from '../data/clinic';
 import { SITE_URL, siteGraph, type SeoMeta } from './seo';
 import { gaHeadSnippet, conversionTrackingSnippet } from './analytics';
+import { IMMERSIVE_HEAD, IMMERSIVE_BODY } from './immersive-assets';
 
 // ============================================================================
 // 디자인 토큰 — "Soft Organic" (2026 웜 내추럴)
@@ -859,6 +860,7 @@ export function Layout(meta: SeoMeta, body: any) {
     </style>
   </noscript>`)}
   <style>${raw(CRITICAL_FONT_CSS)}${raw(DESIGN_TOKENS)}</style>
+  ${meta.immersive ? raw(IMMERSIVE_HEAD) : ''}
   ${raw(jsonLdBlocks)}
   ${raw(gaHeadSnippet())}
 </head>
@@ -885,6 +887,7 @@ export function Layout(meta: SeoMeta, body: any) {
   ${footer(meta.path)}
   ${meta.extraBody ? raw(meta.extraBody) : ''}
   <script>${raw(INTERACTION_JS)}</script>
+  ${meta.immersive ? raw(IMMERSIVE_BODY) : ''}
   <script>
     /* PWA: Service Worker 등록 (홈 화면 설치·재방문 캐싱). 로드 완료 후 비차단 등록 */
     if('serviceWorker' in navigator){
