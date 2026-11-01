@@ -506,15 +506,40 @@ const INTERACTION_JS = `
     document.querySelectorAll('[data-line]').forEach(function(el){ el.classList.add('line-in'); });
   }
 
+  // 그라데이션 글씨(background-clip:text) 안을 낱말로 쪼개면 글자가 투명해진다(대구 2026-11-01 사고)
+  // → 요소 자체가 그라데이션(또는 그 안)이면 쪼개지 않고, 안의 그라데이션 요소는 낱말 하나처럼 통째로 둔다
+  function isClipText(e){ var c = getComputedStyle(e); return c.webkitBackgroundClip === 'text' || c.backgroundClip === 'text'; }
+  function inClipText(el){ for(var e = el; e; e = e.parentElement){ if(isClipText(e)) return true; } return false; }
+  // 쪼갤 조각: 글자는 낱말 문자열, 그라데이션 요소는 요소 그대로(그라데이션이 없으면 원래처럼 textContent 기준)
+  function wordPieces(el){
+    var hosts = Array.prototype.filter.call(el.querySelectorAll('*'), isClipText);
+    if(!hosts.length) return el.textContent.split(/(\\s+)/);
+    var out = [];
+    (function walk(n){
+      Array.prototype.forEach.call(n.childNodes, function(c){
+        if(c.nodeType === 3) out.push.apply(out, c.textContent.split(/(\\s+)/));
+        else if(c.nodeType === 1){ if(hosts.indexOf(c) >= 0) out.push(c); else walk(c); }
+      });
+    })(el);
+    return out;
+  }
+
   // 단어 단위 캐스케이드 (data-words: 공백 기준 분할 후 순차 슬라이드업)
   var wordEls = document.querySelectorAll('[data-words]');
   wordEls.forEach(function(el){
     if(el.getAttribute('data-split') === '1') return;
     el.setAttribute('data-split','1');
-    var parts = el.textContent.split(/(\\s+)/);
+    if(inClipText(el)) return;
+    var parts = wordPieces(el);
     el.textContent = '';
     var i = 0;
     parts.forEach(function(p){
+      if(typeof p !== 'string'){
+        var hw = document.createElement('span'); hw.className='w';
+        var hi = document.createElement('span'); hi.appendChild(p);
+        hi.style.transitionDelay = (0.06 + i*0.07) + 's';
+        hw.appendChild(hi); el.appendChild(hw); i++; return;
+      }
       if(/^\\s+$/.test(p)){ el.appendChild(document.createTextNode(' ')); return; }
       if(!p) return;
       var w = document.createElement('span'); w.className='w';
@@ -537,9 +562,11 @@ const INTERACTION_JS = `
   scrubEls.forEach(function(el){
     if(el.getAttribute('data-scrub-split') === '1') return;
     el.setAttribute('data-scrub-split','1');
-    var parts = el.textContent.split(/(\\s+)/);
+    if(inClipText(el)) return;
+    var parts = wordPieces(el);
     el.textContent = '';
     parts.forEach(function(p){
+      if(typeof p !== 'string'){ p.classList.add('sw'); el.appendChild(p); return; }
       if(/^\\s+$/.test(p)){ el.appendChild(document.createTextNode(' ')); return; }
       if(!p) return;
       var s = document.createElement('span'); s.className='sw'; s.textContent = p;
