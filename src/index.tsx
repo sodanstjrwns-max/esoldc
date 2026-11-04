@@ -6,7 +6,7 @@ import { Layout } from './lib/layout';
 import {
   SITE_URL, personSchema, medicalProcedureSchema, medicalWebPageSchema,
   faqSchema, breadcrumbSchema, areaServiceSchema, areaWebPageSchema,
-  itemListSchema, definedTermSetSchema, howToSchema, localBusinessSchema,
+  itemListSchema, definedTermSetSchema, howToSchema,
   articleSchema,
   REVIEWER, toIsoUtc, kstYmd, graphLd,
 } from './lib/seo';
@@ -308,7 +308,7 @@ app.get('/directions', (c) => {
     description: `${CLINIC.name} 오시는 길. ${CLINIC.address}. 대표전화 ${CLINIC.tel}. 경춘선 마석역 인근. 주차 및 대중교통 안내.`,
     path: '/directions',
     jsonLd: [
-      localBusinessSchema(),
+      // #clinic 진료기관 노드는 layout 의 siteGraph() 에 이미 포함 — 같은 @id 중복 주입 금지
       medicalWebPageSchema({
         name: `${CLINIC.name} 오시는 길`,
         description: `${CLINIC.name}은 ${CLINIC.address}에 위치합니다. 경춘선 마석역 인근으로, 대중교통과 자가용 모두 방문하실 수 있습니다. 대표전화 ${CLINIC.tel}.`,

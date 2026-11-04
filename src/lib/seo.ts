@@ -65,14 +65,15 @@ export const REVIEWER = DOCTORS.find(d => d.role === '대표원장') || DOCTORS[
 
 // 병원 SNS/채널 → sameAs (지식 패널 연결)
 function clinicSameAs(): string[] {
-  const s = CLINIC.sns;
-  return [s.homepage, s.instagram, s.blog, (s as any).medium, s.youtube].filter(Boolean) as string[];
+  const s = CLINIC.sns as any;
+  // 네이버 플레이스·카카오톡 채널은 clinic.ts 에 URL이 채워진 경우에만 포함(창작 금지)
+  return Array.from(new Set([s.homepage, s.naverPlaceUrl, s.kakaoChannelUrl, s.instagram, s.blog, s.medium, s.youtube].filter(Boolean))) as string[];
 }
 
 function postalAddress() {
   return {
     '@type': 'PostalAddress',
-    streetAddress: CLINIC.addressShort,
+    streetAddress: `${CLINIC.district} ${CLINIC.address.split(CLINIC.district).pop()!.trim()}`, // '화도읍 마석로 25, 4층'
     addressLocality: '남양주시',
     addressRegion: '경기도',
     postalCode: '12173',
@@ -107,6 +108,8 @@ export function siteGraph() {
         image: { '@id': `${SITE_URL}/#logo` },
         telephone: CLINIC.tel,
         email: CLINIC.email,
+        address: postalAddress(),
+        location: { '@id': CLINIC_ID },
         sameAs: clinicSameAs(),
       },
       // 2) WebSite (+ sitelinks searchbox 잠재력)
@@ -118,9 +121,9 @@ export function siteGraph() {
         inLanguage: 'ko-KR',
         publisher: { '@id': ORG_ID },
       },
-      // 3) Dentist / MedicalBusiness (실제 진료기관 엔티티)
+      // 3) Dentist / MedicalClinic / LocalBusiness (실제 진료기관 엔티티)
       {
-        '@type': ['Dentist', 'MedicalBusiness', 'LocalBusiness'],
+        '@type': ['Dentist', 'MedicalClinic', 'MedicalBusiness', 'LocalBusiness'],
         '@id': CLINIC_ID,
         name: CLINIC.name,
         alternateName: CLINIC.nameEn,
@@ -182,7 +185,6 @@ export function siteGraph() {
           value: true,
         })),
         availableLanguage: { '@type': 'Language', name: 'Korean', alternateName: 'ko' },
-        ...(openingHoursSpec() ? { openingHoursSpecification: openingHoursSpec() } : {}),
         sameAs: clinicSameAs(),
         foundingDate: CLINIC.business.openDate,
         taxID: CLINIC.business.bizNo,
@@ -214,7 +216,7 @@ export function dentistSchema() {
 export function localBusinessSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': ['Dentist', 'MedicalBusiness', 'LocalBusiness'],
+    '@type': ['Dentist', 'MedicalClinic', 'MedicalBusiness', 'LocalBusiness'],
     '@id': CLINIC_ID,
     name: CLINIC.name,
     alternateName: CLINIC.nameEn,
@@ -225,7 +227,7 @@ export function localBusinessSchema() {
     address: postalAddress(),
     geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
     hasMap: [
-      `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`,
+      (CLINIC.sns as any).naverPlaceUrl || `https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.address)}`,
       `https://map.kakao.com/?q=${encodeURIComponent(CLINIC.address)}`,
     ],
     openingHoursSpecification: openingHoursSpec(),
