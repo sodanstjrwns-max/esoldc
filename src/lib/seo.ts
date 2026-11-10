@@ -11,6 +11,9 @@ function openingHoursSpec(): object[] {
 
 export const SITE_URL = 'https://isoldc.kr'; // 실 도메인 (가비아 구매, Cloudflare 연결)
 
+/** 병원 기본 사실(진료시간) 최종 확인일 — 위 openingHoursSpec·clinic.ts hours 의 교차검증 확정일. llms.txt '최종 확인일' */
+export const CLINIC_FACTS_CHECKED = '2026-08-18';
+
 export interface SeoMeta {
   title: string;
   description: string;
@@ -81,11 +84,27 @@ function postalAddress() {
   };
 }
 
+/** JSON-LD 노드 목록에서 '정의된'(= @id 말고 다른 속성도 가진) 노드의 @id 집합 — 같은 페이지 @id 중복 정의 방지용 */
+export function definedLdIds(nodes: any[]): Set<string> {
+  const ids = new Set<string>();
+  const walk = (n: any) => {
+    if (Array.isArray(n)) { n.forEach(walk); return; }
+    if (!n || typeof n !== 'object') return;
+    const keys = Object.keys(n).filter(k => k !== '@context');
+    if (typeof n['@id'] === 'string' && keys.length > 1) ids.add(n['@id']);
+    keys.forEach(k => walk(n[k]));
+  };
+  walk(nodes);
+  return ids;
+}
+
 /**
  * 전 페이지 head에 1회만 주입하는 글로벌 지식 그래프.
  * 페이지별 추가 스키마(Treatment/Doctor/FAQ 등)는 별도 jsonLd로 덧붙인다.
+ * @param pageIds 이 페이지의 개별 스키마가 이미 정의하는 @id — 해당 의료진은 employee 에서 @id 참조만 남긴다
+ *                (의료진·칼럼 페이지에서 같은 #person 노드를 두 번 정의하지 않게)
  */
-export function siteGraph() {
+export function siteGraph(pageIds?: Set<string>) {
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -170,7 +189,7 @@ export function siteGraph() {
           })),
         },
         // 의료진(전문의 상주) → employee로 연결. AI가 "어떤 전문의가 있나"를 직접 인용 가능.
-        employee: DOCTORS.map(d => ({
+        employee: DOCTORS.map(d => pageIds?.has(doctorId(d.slug)) ? { '@id': doctorId(d.slug) } : ({
           '@type': ['Person', 'Physician'],
           '@id': doctorId(d.slug),
           name: d.name,
@@ -307,7 +326,29 @@ export function areaWebPageSchema(area: NearbyArea, t: Treatment) {
   };
 }
 
+/**
+ * 약력(화면 '약력 및 소속' 목록, 신청서 원문) → 학력·학회. 새 사실을 만들지 않고 문구에서 기관명만 뽑는다.
+ *  - alumniOf: '…대학교 … 졸업/석사/박사' 로 끝나는 줄만 (전공·수료·수련은 학력으로 단정하지 않음)
+ *  - memberOf: '…학회/연구회 … 회원/인정의' 줄만 (수상·연수 과정 제외)
+ */
+export function credentialOrgs(credentials: readonly string[]) {
+  const alumni: string[] = [];
+  const member: string[] = [];
+  for (const raw of credentials) {
+    const c = raw.trim();
+    if (/(졸업|석사|박사)$/.test(c)) {
+      const m = /^(\S+대학교(?: (?:\S*대학원|치과대학))?)/.exec(c);
+      if (m && !alumni.includes(m[1])) alumni.push(m[1]);
+      continue;
+    }
+    const s = /^(.+?(?:학회|연구회)(?:\([A-Za-z]+\))?)\s.*(?:회원|인정의)/.exec(c);
+    if (s && !member.includes(s[1])) member.push(s[1]);
+  }
+  return { alumni, member };
+}
+
 export function personSchema(d: typeof DOCTORS[number]) {
+  const { alumni, member } = credentialOrgs(d.credentials);
   return {
     '@context': 'https://schema.org',
     '@type': ['Person', 'Physician'],
@@ -332,6 +373,9 @@ export function personSchema(d: typeof DOCTORS[number]) {
       '@type': 'EducationalOccupationalCredential',
       name: c,
     })),
+    // 학력·학회 — 화면 약력 문구에서만 추출 (없으면 속성 생략)
+    ...(alumni.length ? { alumniOf: alumni.map(name => ({ '@type': 'CollegeOrUniversity', name })) } : {}),
+    ...(member.length ? { memberOf: member.map(name => ({ '@type': 'Organization', name })) } : {}),
     medicalSpecialty: 'Dentistry',
   };
 }

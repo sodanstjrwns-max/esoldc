@@ -39,7 +39,8 @@ import { admin } from './routes/admin';
 import { adminContent } from './routes/admin-content';
 import { adminStats, localStats } from './routes/admin-stats';
 import { adminFees } from './routes/admin-fees';
-import { loadPublicPricing } from './lib/fees';
+import { loadPublicPricing, loadPublishedPricingStrict } from './lib/fees';
+import { llmsFactsBlock } from './lib/llms-facts';
 import { INDEXNOW_KEY } from './lib/indexnow';
 import { SERVICE_WORKER_JS } from './lib/sw';
 import { fetchMediumPosts } from './lib/medium';
@@ -345,7 +346,7 @@ app.get('/faq', (c) => {
 app.get('/pricing', async (c) => {
   const groups = await loadPublicPricing((c.env as any).DB);
   return c.html(Layout({
-    title: `비급여 진료비용 안내 | ${CLINIC.name}`,
+    title: `마석 치과 비급여 진료비용 안내 | ${CLINIC.name}`,
     description: `${CLINIC.name} 비급여 진료비용 게시 안내. 임플란트·교정·보철·틀니·소아·미용 등 주요 진료비 기준표를 투명하게 안내합니다. 실제 비용은 구강 상태와 진료 범위에 따라 달라지며 내원 상담 시 확정됩니다. (${CLINIC.region} ${CLINIC.district} 마석)`,
     path: '/pricing',
     jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비용안내', path: '/pricing' }])],
@@ -908,16 +909,14 @@ app.get(MASEOK_HUB_PATH, (c) => {
         url: `${SITE_URL}${MASEOK_HUB_PATH}`,
         inLanguage: 'ko-KR',
         isPartOf: { '@id': `${SITE_URL}/#website` },
-        about: {
-          '@type': 'Dentist',
-          '@id': `${SITE_URL}/#clinic`,
-          name: CLINIC.name,
-          areaServed: [
-            ...(maseok ? [{ '@type': 'Place', name: maseok.full }] : []),
-            ...(hwado ? [{ '@type': 'AdministrativeArea', name: hwado.full }] : []),
-            { '@type': 'GeoCircle', geoMidpoint: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng }, geoRadius: 5000 },
-          ],
-        },
+        // #clinic 진료기관 노드는 layout 의 siteGraph() 에 이미 정의 — 여기서는 참조만(같은 @id 중복 정의 금지).
+        // 이 페이지가 다루는 지역(마석·화도읍·반경 5km)은 페이지 쪽 spatialCoverage 로 둔다.
+        about: { '@id': `${SITE_URL}/#clinic` },
+        spatialCoverage: [
+          ...(maseok ? [{ '@type': 'Place', name: maseok.full }] : []),
+          ...(hwado ? [{ '@type': 'AdministrativeArea', name: hwado.full }] : []),
+          { '@type': 'Place', geo: { '@type': 'GeoCircle', geoMidpoint: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng }, geoRadius: 5000 } },
+        ],
         mainEntity: { '@id': `${SITE_URL}${MASEOK_HUB_PATH}#faq` },
         breadcrumb: { '@id': `${SITE_URL}${MASEOK_HUB_PATH}#breadcrumb` },
         significantLink: [`${SITE_URL}/directions`, `${SITE_URL}/doctors`, `${SITE_URL}/treatments`, `${SITE_URL}/reservation`],
@@ -1347,9 +1346,13 @@ app.get('/llms.txt', async (c) => {
     NEARBY_AREAS.flatMap(a => CORE_TREATMENTS.map(t => areaDate(a.slug, t.slug))), MASEOK_LOCAL_UPDATED,
     GLOSSARY_DEF_REVIEWED, GLOSSARY_LONG_REVIEWED, GLOSSARY_RICH_REVIEWED, recentPosts.map(rowDate),
   );
+  // 맨 위 표준 사실 블록 — 비급여 진료비는 /pricing 에 지금 공개된 항목만
+  const facts = llmsFactsBlock(await loadPublishedPricingStrict(c.env.DB));
   return c.text(`# ${CLINIC.name} (${CLINIC.nameEn})
 
 > 경기 남양주시 화도읍 마석에 위치한 지역 치과의원(${CLINIC.establishedLabel}). 임플란트(대표원장 담당)를 제외한 교정·소아·보철·통합 각 분야 전문의가 상주하며, 소아부터 노년층까지 가족 단위로 다닐 수 있는 치과를 지향합니다. 진료 철학은 "${CLINIC.slogan}"입니다.
+
+${facts}
 
 ## 기본 정보
 - 병원명: ${CLINIC.name} (${CLINIC.nameEn})
@@ -1423,11 +1426,15 @@ app.get('/llms-full.txt', async (c) => {
   };
 
   const sections: string[] = [];
+  // 맨 위 표준 사실 블록 (llms.txt 와 같은 내용)
+  const facts = llmsFactsBlock(await loadPublishedPricingStrict(c.env.DB));
 
   sections.push(`# ${CLINIC.name} (${CLINIC.nameEn}) — Full Context for AI
 
 > 경기 남양주시 화도읍 마석에 위치한 지역 치과의원(${CLINIC.establishedLabel}). 임플란트(대표원장 담당)를 제외한 교정·소아·보철·통합 각 분야 전문의가 상주합니다. 진료 철학: "${CLINIC.slogan}".
 > 이 문서는 AI 검색/답변 엔진이 ${CLINIC.name}을(를) 정확히 이해하고 인용하도록 만든 전체 컨텍스트 파일입니다.
+
+${facts}
 
 ## 병원 개요
 - 병원명: ${CLINIC.name} (${CLINIC.nameEn})

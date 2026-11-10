@@ -92,3 +92,20 @@ export async function loadAdminPricing(db: D1Database): Promise<AdminPriceGroup[
   }
   return rowsToGroups(rows);
 }
+
+// llms.txt 용: 지금 공개(is_published=1)된 항목만, 읽기 전용(시드·폴백 없음).
+// DB 미연결·오류·전부 비공개 → [] (숨긴 값·정적 기준표를 대신 내보내지 않는다)
+export async function loadPublishedPricingStrict(db?: D1Database): Promise<PriceGroup[]> {
+  if (!db) return [];
+  try {
+    const { results } = await db.prepare(
+      `SELECT * FROM price_items WHERE is_published = 1 ORDER BY cat_order, sort_order, id`
+    ).all();
+    return rowsToGroups((results as any[]) || []).map(g => ({
+      cat: g.cat, icon: g.icon, taxable: g.taxable, note: g.note || undefined,
+      items: g.items.map(it => ({ name: it.name, price: it.price })),
+    }));
+  } catch {
+    return [];
+  }
+}

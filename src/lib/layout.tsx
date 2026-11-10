@@ -1,6 +1,6 @@
 import { html, raw } from 'hono/html';
 import { CLINIC, TREATMENTS, CORE_TREATMENTS } from '../data/clinic';
-import { SITE_URL, siteGraph, type SeoMeta } from './seo';
+import { SITE_URL, siteGraph, definedLdIds, type SeoMeta } from './seo';
 import { gaHeadSnippet, conversionTrackingSnippet } from './analytics';
 import { IMMERSIVE_HEAD, IMMERSIVE_BODY } from './immersive-assets';
 
@@ -817,7 +817,8 @@ export function Layout(meta: SeoMeta, body: any) {
   const t = escAttr(meta.title);
   const d = escAttr(meta.description);
   // 전 페이지 공통 지식 그래프 + 페이지별 스키마 (noindex 페이지는 그래프 생략)
-  const allLd = meta.noindex ? (meta.jsonLd || []) : [siteGraph(), ...(meta.jsonLd || [])];
+  // 페이지 스키마가 이미 정의한 @id(의료진 #person 등)는 공통 그래프에서 참조만 — 같은 @id 중복 정의 방지
+  const allLd = meta.noindex ? (meta.jsonLd || []) : [siteGraph(definedLdIds(meta.jsonLd || [])), ...(meta.jsonLd || [])];
   const jsonLdBlocks = allLd.map(j => `<script type="application/ld+json">${JSON.stringify(j).replace(/</g, '\\u003c')}</script>`).join('');
 
   return html`<!DOCTYPE html>
