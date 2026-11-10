@@ -1047,6 +1047,8 @@ app.post('/api/reservation', async (c) => {
 // SEO: sitemap.xml / robots.txt / llms.txt
 // ============================================================================
 // XML 이스케이프 (loc/caption 안전)
+// 사이트맵 <loc>는 프로토콜상 퍼센트 인코딩이어야 한다. 이미 인코딩된 부분은 건드리지 않고 한글 등 비ASCII만 인코딩한다.
+const smEncLoc = (s: string) => String(s).replace(/[^\x00-\x7F]+/g, (m) => encodeURIComponent(m))
 const xmlEsc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 // 사이트맵 lastmod = 콘텐츠 실제 수정일 (날짜를 모르면 태그 생략 — 오늘 날짜로 채우지 않음)
 //  - 진료·FAQ·용어: src/data/reviewed.ts (화면 '최종 검토'와 동일)
@@ -1063,7 +1065,7 @@ function buildUrlset(urls: SUrl[]): string {
     const imgs = (u.img || []).map(im =>
       `\n    <image:image><image:loc>${xmlEsc(SITE_URL + im.url)}</image:loc>${im.title ? `<image:title>${xmlEsc(im.title)}</image:title>` : ''}<image:caption>${xmlEsc(im.cap)}</image:caption></image:image>`
     ).join('');
-    return `  <url><loc>${xmlEsc(SITE_URL + u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ''}${u.freq ? `<changefreq>${u.freq}</changefreq>` : ''}<priority>${u.pri}</priority>${imgs}</url>`;
+    return `  <url><loc>${xmlEsc(SITE_URL + smEncLoc(u.loc))}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ''}${u.freq ? `<changefreq>${u.freq}</changefreq>` : ''}<priority>${u.pri}</priority>${imgs}</url>`;
   }).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset ${ns}>\n${body}\n</urlset>`;
 }
