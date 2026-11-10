@@ -47,6 +47,7 @@ import { fetchMediumPosts } from './lib/medium';
 import { getSession } from './lib/auth';
 import { searchRegions } from './data/regions';
 import { setGaId } from './lib/analytics';
+import { isGoogleCrawler, isGoogleHiddenPath, GOOGLE_HIDE_HEADER } from './lib/google-hide';
 
 type Bindings = {
   R2?: R2Bucket;
@@ -58,6 +59,26 @@ type Bindings = {
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
+
+// 구글 전용 검색 제외 (2026-11-10) — 맨 바깥 미들웨어. 구글 크롤러 + 대상 경로(백과·지역 조합)의 200 HTML 응답에만
+// X-Robots-Tag: googlebot: noindex 를 붙인다(기존 값이 있으면 교체). 그 밖의 요청은 응답을 건드리지 않는다.
+// 대상 경로·되돌리는 방법: src/lib/google-hide.ts (isGoogleHiddenPath 가 false 만 돌려주면 끝)
+app.use('*', async (c, next) => {
+  await next();
+  if (c.req.method !== 'GET' && c.req.method !== 'HEAD') return;
+  if (!isGoogleCrawler(c.req.header('User-Agent'))) return;
+  if (c.res.status !== 200) return;
+  if (!/text\/html/i.test(c.res.headers.get('Content-Type') || '')) return;
+  if (!isGoogleHiddenPath(new URL(c.req.url).pathname)) return;
+  try {
+    c.res.headers.set('X-Robots-Tag', GOOGLE_HIDE_HEADER);
+  } catch {
+    // 헤더가 불변인 응답이면 가변 복사본으로 바꿔서 붙인다
+    const copy = new Response(c.res.body, c.res);
+    copy.headers.set('X-Robots-Tag', GOOGLE_HIDE_HEADER);
+    c.res = copy;
+  }
+});
 
 // www·pages.dev → isoldc.kr 301 통일 (A4 canonical 정합성: 같은 페이지가 두 주소로 존재하면 평가·색인 점수 분산)
 // pages.dev 는 프로덕션 별칭(isoldent.pages.dev)만 — 해시 미리보기 배포 URL(<hash>.isoldent.pages.dev)은 테스트용으로 그대로 둔다.
