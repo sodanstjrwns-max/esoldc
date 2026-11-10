@@ -12,8 +12,8 @@ export const CLINIC = {
   nameEn: 'ISOL Dental Clinic',
   slogan: '기분 좋게 진료를 마칠 때까지', // Q22 철학 기반
   subSlogan: '남양주 마석, 3대가 함께 다니는 우리 가족 치과 주치의',
-  tel: '031-592-7258',          // 2026.6 이전 후 대표번호
-  telDigits: '0315927258',
+  tel: '031-592-7522',          // 대표번호 — 네이버 플레이스(id 1307740644) 기준, 2026-11-10 확인·정정(이전 표기 7258은 오기)
+  telDigits: '0315927522',
   email: 'isoldent1@gmail.com',
   address: '경기 남양주시 화도읍 마석로 25, 4층',
   addressShort: '남양주시 화도읍 마석로 25, 4층',
