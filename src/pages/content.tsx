@@ -4,6 +4,7 @@
 import { html, raw } from 'hono/html';
 import { CLINIC, DOCTORS, TREATMENTS } from '../data/clinic';
 import { blogHubNote } from '../lib/hub-link';
+import { ARTICLE_CTA_CSS, articleEndCta } from '../lib/article-cta';
 
 const PAGE_HERO = (crumb: string, title: string, sub: string) => `
 <section style="background:var(--navy);color:var(--inv);padding:104px 0 80px;position:relative;overflow:hidden">
@@ -401,6 +402,7 @@ export function BlogDetailPage(
     .post-treat{margin-top:36px;background:#fff;border:1.5px solid var(--gold);border-radius:var(--radius-lg);padding:22px 26px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
     .post-treat .pt-txt strong{display:block;color:var(--navy);margin-bottom:4px}
     .post-treat .pt-txt span{font-size:.86rem;color:var(--ink-soft)}
+    ${raw(ARTICLE_CTA_CSS)}
   </style>
   <section class="section"><div class="wrap post-wrap">
     <div class="post-meta reveal">
@@ -445,6 +447,7 @@ export function BlogDetailPage(
       </div>
     </div>`) : ''}
     <p style="margin-top:14px;font-size:.8rem;color:var(--ink-soft)">※ 이 글은 일반적인 구강 건강 정보이며 진단을 대신하지 않습니다. 치료 방법과 결과는 개인의 구강 상태에 따라 차이가 있을 수 있으니 정확한 진단은 내원 상담을 통해 받으시기 바랍니다.</p>
+    ${raw(articleEndCta({ intro: false }))}
     ${relCases.length ? raw(`<div class="rel-posts reveal"><strong style="display:block;margin-bottom:10px">${esc(relTreatment?.name || '')} 치료 사례</strong>${relCases.map((r: any) => `<a href="/cases/${r.id}"><i class="fas fa-angle-right"></i> ${esc(r.title)}</a>`).join('')}<a href="/cases?category=${esc(relTreatment?.slug || '')}" style="font-size:.82rem;color:var(--gold-3)">사례 전체 보기 →</a></div>`) : ''}
     ${related.length ? raw(`<div class="rel-posts reveal"><strong style="display:block;margin-bottom:10px">함께 읽으면 좋은 글</strong>${relList}</div>`) : ''}
     <div style="margin-top:26px;font-size:.88rem;color:var(--ink-soft);display:flex;align-items:center;gap:8px">
@@ -453,7 +456,7 @@ export function BlogDetailPage(
     </div>
     <div style="margin-top:24px;display:flex;gap:12px">
       <a href="/blog" class="btn btn-ghost"><i class="fas fa-list"></i> 목록으로</a>
-      <a href="/reservation" class="btn btn-accent"><i class="fas fa-calendar-check"></i> 상담 예약</a>
+      <a href="/reservation" class="btn btn-accent" data-cta="article-end"><i class="fas fa-calendar-check"></i> 상담 예약</a>
     </div>
   </div></section>`;
 }

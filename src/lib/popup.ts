@@ -6,7 +6,8 @@
 //      맨 앞 = 고정·최신 카드(오른쪽 아래), 뒤 카드는 왼쪽 위로 제목 띠만 살짝 보임.
 //      뒤 카드(띠·가장자리) 클릭 → 맨 앞으로. 개수가 많으면 간격 자동 축소(한 화면 안).
 //      팝업이 1개면 겹침 없이 단독 카드.
-//  - 모바일(≤767px): 우상단 작은 "병원 소식 N" 칩 → 탭하면 한 장씩 넘겨보기
+//  - 모바일(≤767px): 머리말 바로 아래(히어로 위 여백) 오른쪽의 작은 "병원 소식 N" 칩 → 탭하면 한 장씩 넘겨보기
+//      칩은 히어로 소개 줄을 가리지 않는 높이(32px)로 두고, 스크롤을 시작하면 숨김 · 맨 위로 돌아오면 다시 표시
 //      (맨 앞 카드 + 오른쪽 가장자리에 뒤 카드 겹침 표시, 스와이프·화살표·점)
 // 공통: 카드별 ×/닫기/"오늘 하루 보지 않기", 상단 "모두 닫기", Esc = 맨 앞 카드 닫기,
 //      Tab 포커스는 팝업 안에서만 순환(맨 앞 카드 → 뒤 카드 띠 순서).
@@ -84,9 +85,13 @@ const POPUP_CSS = `
 .hp-close-btn:hover{background:#fff;border-color:var(--gold,#A6772F)}
 @media(max-width:480px){.hp-card,.hp-card.sm,.hp-card.lg{width:100%}.hp-body{padding:22px 20px 18px}.hp-title{font-size:1.2rem}}
 .hp-expand{display:none}
-.hp-overlay.hp-compact{inset:100px 16px auto auto;padding:0;background:none;backdrop-filter:none;-webkit-backdrop-filter:none;overflow:visible}
+.hp-overlay.hp-compact{inset:72px 16px auto auto;padding:0;background:none;backdrop-filter:none;-webkit-backdrop-filter:none;overflow:visible;transition:opacity .25s ease,transform .25s ease,visibility 0s}
+.hp-overlay.hp-compact.hp-away{opacity:0;transform:translateY(-8px);pointer-events:none;visibility:hidden;transition:opacity .25s ease,transform .25s ease,visibility 0s .25s}
 .hp-compact .hp-stack,.hp-compact .hp-nav,.hp-compact .hp-bar{display:none}
-.hp-compact .hp-expand{display:block;min-height:44px;padding:10px 17px;background:#faf6ee;color:var(--navy,#3E2C1F);border:1px solid #e0d4bf;border-radius:16px;font-size:14px;font-weight:600;box-shadow:0 5px 18px #3e2c1f22;cursor:pointer}
+.hp-compact .hp-expand{display:flex;align-items:center;position:relative;height:32px;padding:0 8px 0 13px;background:#faf6ee;color:var(--navy,#3E2C1F);border:1px solid #e0d4bf;border-radius:99px;font-size:13px;font-weight:600;line-height:1;box-shadow:0 3px 12px #3e2c1f1f;cursor:pointer;white-space:nowrap}
+.hp-compact .hp-expand::after{content:'';position:absolute;inset:-6px -4px}
+.hp-compact .hp-expand .hp-count{min-width:20px;height:20px;vertical-align:0}
+.hp-compact .hp-expand.hp-one{padding:0 13px}
 .hp-count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;margin-left:6px;padding:0 6px;border-radius:99px;background:var(--gold,#A6772F);color:#fff;font-size:12px;font-weight:800;vertical-align:1px}
 .hp-x{width:44px;height:44px}.hp-close-btn,.hp-hide{min-height:44px}
 /* 상단 바: 소식 개수 + 모두 닫기 */
@@ -132,7 +137,7 @@ const POPUP_CSS = `
 .hp-ind{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @keyframes hpIn{from{opacity:0;transform:translateX(var(--hp-dx,0))}to{opacity:1;transform:none}}
 @media(max-width:480px){.hp-card{max-height:78svh}.hp-img img{max-height:38svh;object-fit:contain}.hp-single .hp-card{max-height:calc(100svh - 170px)}.hp-single .hp-stack{width:calc(100% - 12px);margin-left:0}}
-@media(prefers-reduced-motion:reduce){.hp-overlay,.hp-card,.hp-peek{transition:none!important}.hp-single .hp-card.hp-active{animation:none}}
+@media(prefers-reduced-motion:reduce){.hp-overlay,.hp-overlay.hp-compact,.hp-overlay.hp-compact.hp-away,.hp-card,.hp-peek{transition:none!important}.hp-single .hp-card.hp-active{animation:none}}
 `;
 
 function renderCard(p: PopupRow, i: number): string {
@@ -192,6 +197,7 @@ const POPUP_JS = `
   function updateChip(){
     var n=order.length;
     chip.innerHTML=n>1?'병원 소식<span class="hp-count">'+n+'</span>':'병원 소식 보기';
+    chip.classList.toggle('hp-one',n<2);
     chip.setAttribute('aria-label','병원 소식 '+n+'건 보기');
   }
   function updateBar(){
@@ -264,9 +270,22 @@ const POPUP_JS = `
     else if(single()&&!nav.hidden){ list.push(ov.querySelector('.hp-prev')); list.push(ov.querySelector('.hp-next')); }
     return list;
   }
+  // 접힌 칩(모바일): 머리말 바로 아래 여백에 두고, 스크롤을 시작하면 숨김(맨 위로 오면 다시 표시)
+  var away=false;
+  function place(){
+    if(!compact) return;
+    var h=document.querySelector('.site-header'); if(!h) return;
+    var b=h.getBoundingClientRect().bottom;
+    if(b>0) ov.style.top=(Math.round(b)+6)+'px';
+  }
+  function onScroll(){
+    if(!compact) return;
+    var a=(window.pageYOffset||document.documentElement.scrollTop||0)>24;
+    if(a!==away){ away=a; ov.classList.toggle('hp-away',a); }
+  }
   function applyMode(){
-    if(compact){ ov.classList.add('hp-compact'); ov.classList.remove('hp-deck'); deckOn=false; setDialog(false); updateChip(); updateBar(); return; }
-    ov.classList.remove('hp-compact'); setDialog(true);
+    if(compact){ ov.classList.add('hp-compact'); ov.classList.remove('hp-deck'); deckOn=false; setDialog(false); updateChip(); updateBar(); place(); onScroll(); return; }
+    ov.classList.remove('hp-compact'); ov.classList.remove('hp-away'); ov.style.top=''; away=false; setDialog(true);
     ov.classList.toggle('hp-single',mq.matches);
     if(mq.matches){ order.forEach(function(c){ c.classList.remove('hp-active'); }); }
     layout();
@@ -349,6 +368,8 @@ const POPUP_JS = `
   function relayout(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0; if(deckOn&&!ov.hidden) layout(); }); }
   Array.prototype.forEach.call(stack.querySelectorAll('img'),function(im){ if(!im.complete) im.addEventListener('load',relayout); });
   window.addEventListener('resize',relayout);
+  window.addEventListener('resize',place);
+  window.addEventListener('scroll',onScroll,{passive:true});
   var onMq=function(){ if(!compact && !ov.hidden) applyMode(); };
   if(mq.addEventListener) mq.addEventListener('change',onMq); else if(mq.addListener) mq.addListener(onMq);
   setTimeout(open, 900);

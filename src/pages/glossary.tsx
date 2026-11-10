@@ -4,6 +4,7 @@
 import { html, raw } from 'hono/html';
 import { CLINIC, TREATMENTS } from '../data/clinic';
 import { GLOSSARY_SORTED, GLOSSARY_CATS, chosung, type GTerm } from '../data/glossary';
+import { ARTICLE_CTA_CSS, articleEndCta } from '../lib/article-cta';
 
 const PAGE_HERO = (crumb: string, title: string, sub: string) => `
 <section style="background:var(--navy);color:var(--inv);padding:104px 0 80px;position:relative;overflow:hidden">
@@ -167,6 +168,7 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
     .gd-rel a{padding:9px 18px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:.88rem;transition:.25s}
     .gd-rel a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
     .gd-rel a.gd-see{border-color:var(--gold);color:var(--gold-3,var(--ink))}
+    ${raw(ARTICLE_CTA_CSS)}
   </style>
   <section class="section">
     <div class="wrap" style="max-width:880px">
@@ -190,6 +192,8 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
         ${r.faqs.map((f, i) => `<details id="q-${i + 1}"><summary>${esc(f.q)}<i class="fas fa-plus" aria-hidden="true"></i></summary><div class="gd-fa">${esc(f.a)}</div></details>`).join('')}
       </div>`) : ''}
 
+      ${raw(articleEndCta())}
+
       ${relTreatments.length ? raw(`
       <h2 class="gd-sub"><i class="fas fa-stethoscope"></i>관련 진료 보기</h2>
       <div class="gd-treat">
@@ -205,7 +209,7 @@ export function GlossaryDetailPage(term: GTerm, related: GTerm[], relTreatments:
 
       <div style="margin-top:48px;display:flex;gap:12px;flex-wrap:wrap">
         <a href="/glossary" class="btn-ghost" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border:1px solid var(--line);border-radius:99px;font-size:.9rem"><i class="fas fa-arrow-left"></i> 백과사전 전체 보기</a>
-        <a href="/reservation" class="btn-gold" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:99px;font-size:.9rem;background:linear-gradient(110deg,var(--gold),#C99A50);color:#fff"><i class="fas fa-calendar-check"></i> 진료 예약 문의</a>
+        <a href="/reservation" class="btn-gold" data-cta="article-end" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:99px;font-size:.9rem;background:linear-gradient(110deg,var(--gold),#C99A50);color:#fff"><i class="fas fa-calendar-check"></i> 진료 예약 문의</a>
       </div>
 
       <p style="margin-top:36px;font-size:.78rem;color:var(--ink-soft);line-height:1.7">※ 본 설명은 일반적인 치과 의학 정보이며, 개인의 구강 상태에 따라 진단과 치료 방법은 달라질 수 있습니다. 정확한 진단은 ${esc(CLINIC.name)} 내원 상담을 통해 받아보시기 바랍니다.${modified ? raw(` · 최종 수정 <time datetime="${modified}">${modified}</time>`) : ''}</p>
